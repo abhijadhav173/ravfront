@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
   Users,
-  FolderOpen,
   FileText,
   LogOut,
   Menu,
@@ -16,6 +15,8 @@ import {
   ChevronDown,
   UserCircle,
   Settings,
+  FolderOpen,
+  Upload,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -38,20 +39,29 @@ export function DashboardShell({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const user = getStoredUser();
+  const [user, setUser] = useState<ReturnType<typeof getStoredUser>>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [investorsOpen, setInvestorsOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [postsOpen, setPostsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [docsOpen, setDocsOpen] = useState(false);
 
   const basePath = variant === "admin" ? "/admin" : "/investor";
 
+  // Read user after mount to avoid hydration mismatches
+  useEffect(() => {
+    setUser(getStoredUser());
+  }, [pathname]);
+
   useEffect(() => {
     if (pathname.startsWith("/admin/investors")) setInvestorsOpen(true);
-    else if (pathname.startsWith("/admin/categories")) setCategoriesOpen(true);
-    else if (pathname.startsWith("/admin/posts")) setPostsOpen(true);
+    else if (pathname.startsWith("/admin/categories")) {
+      setPostsOpen(true);
+      setCategoriesOpen(true);
+    } else if (pathname.startsWith("/admin/posts")) setPostsOpen(true);
     else if (pathname.startsWith("/admin/settings")) setSettingsOpen(true);
+    else if (pathname.startsWith("/admin/documents")) setDocsOpen(true);
   }, [pathname]);
 
   // Close sidebar on route change (mobile)
@@ -155,35 +165,7 @@ export function DashboardShell({
                   )}
                 </div>
 
-                {/* Categories dropdown */}
-                <div className="mt-1">
-                  <button
-                    type="button"
-                    onClick={() => setCategoriesOpen((o) => !o)}
-                    aria-expanded={categoriesOpen}
-                    aria-controls="sidebar-categories"
-                    className={cn(
-                      "flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2.5 font-sans text-sm transition-colors",
-                      pathname.startsWith("/admin/categories")
-                        ? "bg-ravok-gold/10 text-ravok-gold border border-ravok-gold/20"
-                        : "text-white/80 hover:bg-white/10 hover:text-white"
-                    )}
-                  >
-                    <span className="flex items-center gap-3">
-                      <FolderOpen className="h-4 w-4 shrink-0" />
-                      Categories
-                    </span>
-                    {categoriesOpen ? <ChevronDown className="h-4 w-4 shrink-0" /> : <ChevronRight className="h-4 w-4 shrink-0" />}
-                  </button>
-                  {categoriesOpen && (
-                    <div id="sidebar-categories" className="ml-4 mt-1 flex flex-col gap-0.5 border-l border-white/10 pl-3">
-                      <Link href="/admin/categories" className={cn("rounded px-2 py-1.5 text-sm font-sans", (pathname === "/admin/categories" || pathname.startsWith("/admin/categories/edit")) ? "text-ravok-gold" : "text-white/70 hover:text-white")}>All</Link>
-                      <Link href="/admin/categories/add" className={cn("rounded px-2 py-1.5 text-sm font-sans", pathname === "/admin/categories/add" ? "text-ravok-gold" : "text-white/70 hover:text-white")}>Add category</Link>
-                    </div>
-                  )}
-                </div>
-
-                {/* Posts dropdown */}
+                {/* Posts dropdown (includes Categories) */}
                 <div className="mt-1">
                   <button
                     type="button"
@@ -192,7 +174,7 @@ export function DashboardShell({
                     aria-controls="sidebar-posts"
                     className={cn(
                       "flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2.5 font-sans text-sm transition-colors",
-                      pathname.startsWith("/admin/posts")
+                      pathname.startsWith("/admin/posts") || pathname.startsWith("/admin/categories")
                         ? "bg-ravok-gold/10 text-ravok-gold border border-ravok-gold/20"
                         : "text-white/80 hover:bg-white/10 hover:text-white"
                     )}
@@ -207,6 +189,9 @@ export function DashboardShell({
                     <div id="sidebar-posts" className="ml-4 mt-1 flex flex-col gap-0.5 border-l border-white/10 pl-3">
                       <Link href="/admin/posts" className={cn("rounded px-2 py-1.5 text-sm font-sans", (pathname === "/admin/posts" || pathname.startsWith("/admin/posts/edit")) ? "text-ravok-gold" : "text-white/70 hover:text-white")}>All</Link>
                       <Link href="/admin/posts/add" className={cn("rounded px-2 py-1.5 text-sm font-sans", pathname === "/admin/posts/add" ? "text-ravok-gold" : "text-white/70 hover:text-white")}>Add post</Link>
+                      <div className="my-1 border-t border-white/10" />
+                      <Link href="/admin/categories" className={cn("rounded px-2 py-1.5 text-sm font-sans", (pathname === "/admin/categories" || pathname.startsWith("/admin/categories/edit")) ? "text-ravok-gold" : "text-white/70 hover:text-white")}>Categories</Link>
+                      <Link href="/admin/categories/add" className={cn("rounded px-2 py-1.5 text-sm font-sans", pathname === "/admin/categories/add" ? "text-ravok-gold" : "text-white/70 hover:text-white")}>Add category</Link>
                     </div>
                   )}
                 </div>
@@ -234,6 +219,34 @@ export function DashboardShell({
                   {settingsOpen && (
                     <div id="sidebar-settings" className="ml-4 mt-1 flex flex-col gap-0.5 border-l border-white/10 pl-3">
                       <Link href="/admin/settings/email" className={cn("rounded px-2 py-1.5 text-sm font-sans", pathname === "/admin/settings/email" ? "text-ravok-gold" : "text-white/70 hover:text-white")}>Email forwarding</Link>
+                    </div>
+                  )}
+                </div>
+
+                {/* Investor Documents */}
+                <div className="mt-1">
+                  <button
+                    type="button"
+                    onClick={() => setDocsOpen((o) => !o)}
+                    aria-expanded={docsOpen}
+                    aria-controls="sidebar-docs"
+                    className={cn(
+                      "flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2.5 font-sans text-sm transition-colors",
+                      pathname.startsWith("/admin/documents")
+                        ? "bg-ravok-gold/10 text-ravok-gold border border-ravok-gold/20"
+                        : "text-white/80 hover:bg-white/10 hover:text-white"
+                    )}
+                  >
+                    <span className="flex items-center gap-3">
+                      <FolderOpen className="h-4 w-4 shrink-0" />
+                      Investor Documents
+                    </span>
+                    {docsOpen ? <ChevronDown className="h-4 w-4 shrink-0" /> : <ChevronRight className="h-4 w-4 shrink-0" />}
+                  </button>
+                  {docsOpen && (
+                    <div id="sidebar-docs" className="ml-4 mt-1 flex flex-col gap-0.5 border-l border-white/10 pl-3">
+                      <Link href="/admin/documents/categories" className={cn("rounded px-2 py-1.5 text-sm font-sans", pathname === "/admin/documents/categories" ? "text-ravok-gold" : "text-white/70 hover:text-white")}>Document Categories</Link>
+                      <Link href="/admin/documents/uploads" className={cn("rounded px-2 py-1.5 text-sm font-sans", pathname === "/admin/documents/uploads" ? "text-ravok-gold" : "text-white/70 hover:text-white")}>Upload Documents</Link>
                     </div>
                   )}
                 </div>
@@ -270,16 +283,16 @@ export function DashboardShell({
                   Dashboard
                 </Link>
                 <Link
-                  href="/investor"
+                  href="/investor/documents"
                   className={cn(
                     "flex items-center gap-3 rounded-lg px-3 py-2.5 font-sans text-sm transition-colors",
-                    pathname.startsWith("/investor/post")
+                    pathname.startsWith("/investor/documents")
                       ? "bg-ravok-gold/20 text-ravok-gold border border-ravok-gold/30"
                       : "text-white/80 hover:bg-white/10 hover:text-white"
                   )}
                 >
-                  <FileText className="h-4 w-4 shrink-0" />
-                  Posts
+                  <FolderOpen className="h-4 w-4 shrink-0" />
+                  Investor Documents
                 </Link>
                 <div className="mt-4 pt-4 border-t border-white/10">
                   <Link

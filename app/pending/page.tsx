@@ -4,10 +4,10 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { getStoredUser, logout } from "@/lib/api";
 import { Clock } from "lucide-react";
+import { useEffect } from "react";
+import { getStoredUser, logout, me, setAuth, getToken } from "@/lib/api";
+import { useRouter } from "next/navigation";
 
 export default function PendingPage() {
   const router = useRouter();
@@ -20,7 +20,22 @@ export default function PendingPage() {
     }
     if (user.role === "admin" || user.status === "approved") {
       router.replace(user.role === "admin" ? "/admin" : "/investor");
+      return;
     }
+    // Refresh from server in case admin approved after this user logged in
+    const token = getToken();
+    if (!token) return;
+    me()
+      .then((fresh) => {
+        // Update local cache
+        setAuth(token, fresh);
+        if (fresh.role === "admin" || fresh.status === "approved") {
+          router.replace(fresh.role === "admin" ? "/admin" : "/investor");
+        }
+      })
+      .catch(() => {
+        // ignore - stay on pending
+      });
   }, [router]);
 
   async function handleLogout() {

@@ -55,14 +55,25 @@ export default function Navbar() {
         setIsOpen(false);
     }, [pathname]);
 
-    const navItems = [
-        { href: "/", label: "HOME" },
-        { href: "/about-us", label: "ABOUT US" },
-        { href: "/login", label: "INVESTORS" },
-        { href: "/our-model", label: "OUR MODEL" },
-        { href: "/insights", label: "INSIGHTS" },
-        { href: "/contact-us", label: "CONTACT US" },
-    ];
+    // Build nav items dynamically so "INVESTORS" behaves by role:
+    // - Logged out: shows INVESTORS -> /login
+    // - Investor: shows INVESTOR -> /investor
+    // - Admin: hides the Investor entry entirely
+    const navItems = (() => {
+        const items = [
+            { href: "/", label: "HOME" },
+            { href: "/about-us", label: "ABOUT US" },
+            { href: "/our-model", label: "OUR MODEL" },
+            { href: "/insights", label: "INSIGHTS" },
+            { href: "/contact-us", label: "CONTACT US" },
+        ] as { href: string; label: string }[];
+        if (!user) {
+            items.splice(2, 0, { href: "/login", label: "INVESTORS" });
+        } else if (user.role !== "admin") {
+            items.splice(2, 0, { href: "/investor", label: "INVESTOR" });
+        }
+        return items;
+    })();
 
     return (
         <motion.nav
