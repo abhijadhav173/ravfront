@@ -79,11 +79,12 @@ export function getAuthHeaders(): HeadersInit {
 const NETWORK_ERROR_MSG =
   "Cannot connect to server. Please check your connection. If you're on the live site, the API may be unavailable—try again later or contact support.";
 
-async function handleResponse<T>(res: Response): Promise<T> {
+async function handleResponse<T>(res: Response, url: string): Promise<T> {
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     const message = (data as { message?: string })?.message || res.statusText;
-    throw new Error(Array.isArray(message) ? message[0] : message);
+    const m = Array.isArray(message) ? message[0] : message;
+    throw new Error(`[${res.status}] ${url} – ${m}`);
   }
   return data as T;
 }
@@ -91,10 +92,10 @@ async function handleResponse<T>(res: Response): Promise<T> {
 async function fetchApi<T>(url: string, init: RequestInit): Promise<T> {
   try {
     const res = await fetch(url, init);
-    return await handleResponse<T>(res);
+    return await handleResponse<T>(res, url);
   } catch (err) {
     if (err instanceof TypeError && (err.message === "Failed to fetch" || err.message === "Load failed")) {
-      throw new Error(NETWORK_ERROR_MSG);
+      throw new Error(`${NETWORK_ERROR_MSG} (${url})`);
     }
     throw err;
   }
@@ -104,8 +105,8 @@ type LoginResponse = { user: User; token: string; token_type: string };
 type RegisterResponse = LoginResponse;
 
 export async function login(email: string, password: string): Promise<LoginResponse> {
-  // Use form-encoded to avoid preflight while CORS is being configured server-side
-  const res = await fetch(`${getApiBase()}/api/login`, {
+  const url = `${getApiBase()}/api/login`;
+  const res = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -113,12 +114,12 @@ export async function login(email: string, password: string): Promise<LoginRespo
     },
     body: new URLSearchParams({ email, password }).toString(),
   });
-  return handleResponse<LoginResponse>(res);
+  return handleResponse<LoginResponse>(res, url);
 }
 
 export async function register(name: string, email: string, password: string, password_confirmation: string): Promise<RegisterResponse> {
-  // Use form-encoded to reduce CORS complexity on production
-  const res = await fetch(`${getApiBase()}/api/register`, {
+  const url = `${getApiBase()}/api/register`;
+  const res = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -126,7 +127,7 @@ export async function register(name: string, email: string, password: string, pa
     },
     body: new URLSearchParams({ name, email, password, password_confirmation }).toString(),
   });
-  return handleResponse<RegisterResponse>(res);
+  return handleResponse<RegisterResponse>(res, url);
 }
 
 export async function logout(): Promise<void> {
