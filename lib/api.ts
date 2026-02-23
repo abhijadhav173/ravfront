@@ -13,7 +13,8 @@ function getApiBase(): string {
       const url = new URL(origin);
       const host = url.hostname;
       if (host.endsWith("ravokstudios.com")) {
-        return "https://backend.ravokstudios.com";
+        // Use same-origin /api and let next.config.ts rewrites proxy to backend.
+        return "";
       }
     } catch {
       // ignore parse errors and fall through
