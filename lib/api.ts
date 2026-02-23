@@ -1,15 +1,27 @@
+// API base URL. Set NEXT_PUBLIC_API_URL when building for production (e.g. https://api.yoursite.com).
+// If unset on a live site (not localhost), we use the same origin so /api/register hits this host.
 function getApiBase(): string {
   const env = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+  if (env) return env;
   if (typeof window !== "undefined") {
-    return "";
+    const origin = window.location.origin;
+    // If we're on ravokstudios.com, default API to backend.ravokstudios.com
+    try {
+      const url = new URL(origin);
+      const host = url.hostname;
+      if (host.endsWith("ravokstudios.com")) {
+        return "https://backend.ravokstudios.com";
+      }
+    } catch {
+      // ignore parse errors and fall through
+    }
+    if (origin !== "http://localhost:3000" && origin !== "http://127.0.0.1:3000") {
+      return origin; // live site: same origin fallback
+    }
   }
-  return env || "https://backend.ravokstudios.com";
+  return "http://localhost:8000";
 }
 
-function getAssetBase(): string {
-  const env = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
-  return env || "https://backend.ravokstudios.com";
-}
 export type User = {
   id: number;
   name: string;
@@ -180,7 +192,7 @@ export async function rejectUser(id: number): Promise<User> {
 /** Returns full URL for a profile avatar path from the API (e.g. avatars/xyz.jpg). */
 export function getAvatarUrl(avatarPath: string | null | undefined): string | null {
   if (!avatarPath) return null;
-  const base = getAssetBase().replace(/\/$/, "");
+  const base = getApiBase().replace(/\/$/, "");
   return `${base}/storage/${avatarPath}`;
 }
 
@@ -305,7 +317,7 @@ export type InvestorDocumentsResponse = {
 };
 
 export function storageUrl(path: string): string {
-  const base = getAssetBase().replace(/\/$/, "");
+  const base = getApiBase().replace(/\/$/, "");
   return `${base}/storage/${path}`;
 }
 
@@ -530,7 +542,7 @@ export async function deletePost(id: number): Promise<void> {
 export function getPostImageUrl(path: string | null | undefined): string | null {
   if (!path) return null;
   if (path.startsWith("http")) return path;
-  const base = getAssetBase().replace(/\/$/, "");
+  const base = getApiBase().replace(/\/$/, "");
   return `${base}/storage/${path}`;
 }
 
