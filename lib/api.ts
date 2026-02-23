@@ -103,19 +103,29 @@ type LoginResponse = { user: User; token: string; token_type: string };
 type RegisterResponse = LoginResponse;
 
 export async function login(email: string, password: string): Promise<LoginResponse> {
-  return fetchApi<LoginResponse>(`${getApiBase()}/api/login`, {
+  // Use form-encoded to avoid preflight while CORS is being configured server-side
+  const res = await fetch(`${getApiBase()}/api/login`, {
     method: "POST",
-    headers: getAuthHeaders(),
-    body: JSON.stringify({ email, password }),
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Accept: "application/json",
+    },
+    body: new URLSearchParams({ email, password }).toString(),
   });
+  return handleResponse<LoginResponse>(res);
 }
 
 export async function register(name: string, email: string, password: string, password_confirmation: string): Promise<RegisterResponse> {
-  return fetchApi<RegisterResponse>(`${getApiBase()}/api/register`, {
+  // Use form-encoded to reduce CORS complexity on production
+  const res = await fetch(`${getApiBase()}/api/register`, {
     method: "POST",
-    headers: getAuthHeaders(),
-    body: JSON.stringify({ name, email, password, password_confirmation }),
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Accept: "application/json",
+    },
+    body: new URLSearchParams({ name, email, password, password_confirmation }).toString(),
   });
+  return handleResponse<RegisterResponse>(res);
 }
 
 export async function logout(): Promise<void> {
