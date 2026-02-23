@@ -6,6 +6,10 @@ function getApiBase(): string {
   return env || "https://backend.ravokstudios.com";
 }
 
+function getAssetBase(): string {
+  const env = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+  return env || "https://backend.ravokstudios.com";
+}
 export type User = {
   id: number;
   name: string;
@@ -176,7 +180,7 @@ export async function rejectUser(id: number): Promise<User> {
 /** Returns full URL for a profile avatar path from the API (e.g. avatars/xyz.jpg). */
 export function getAvatarUrl(avatarPath: string | null | undefined): string | null {
   if (!avatarPath) return null;
-  const base = getApiBase().replace(/\/$/, "");
+  const base = getAssetBase().replace(/\/$/, "");
   return `${base}/storage/${avatarPath}`;
 }
 
@@ -301,7 +305,7 @@ export type InvestorDocumentsResponse = {
 };
 
 export function storageUrl(path: string): string {
-  const base = getApiBase().replace(/\/$/, "");
+  const base = getAssetBase().replace(/\/$/, "");
   return `${base}/storage/${path}`;
 }
 
@@ -526,7 +530,7 @@ export async function deletePost(id: number): Promise<void> {
 export function getPostImageUrl(path: string | null | undefined): string | null {
   if (!path) return null;
   if (path.startsWith("http")) return path;
-  const base = getApiBase().replace(/\/$/, "");
+  const base = getAssetBase().replace(/\/$/, "");
   return `${base}/storage/${path}`;
 }
 
