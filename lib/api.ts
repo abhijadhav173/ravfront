@@ -1,8 +1,11 @@
 // API base URL. Set NEXT_PUBLIC_API_URL when building for production (e.g. https://api.yoursite.com).
 // If unset on a live site (not localhost), we use the same origin so /api/register hits this host.
 function getApiBase(): string {
-  const env = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
-  if (env) return env;
+  const envRaw = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (envRaw) {
+    const cleaned = envRaw.replace(/\/+$/, "").replace(/\.$/, "");
+    return cleaned;
+  }
   if (typeof window !== "undefined") {
     const origin = window.location.origin;
     // If we're on ravokstudios.com, default API to backend.ravokstudios.com
