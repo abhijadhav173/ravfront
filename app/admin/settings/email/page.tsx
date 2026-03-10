@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getStoredUser, getMailSettings, updateMailSettings, type MailSettings } from "@/lib/api";
+import { getStoredUser, getMailSettings, updateMailSettings, testMailSettings, type MailSettings } from "@/lib/api";
 import { toast } from "@/lib/toast";
 
 const ENCRYPTION_OPTIONS = [
@@ -29,6 +29,8 @@ export default function AdminSettingsEmailPage() {
     mail_encryption: "tls",
     mail_from_address: "",
     mail_from_name: "",
+    // @ts-expect-error augment dynamic key
+    mail_admin_to: "",
   });
 
   useEffect(() => {
@@ -53,7 +55,7 @@ export default function AdminSettingsEmailPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      const payload: Partial<MailSettings> = {
+      const payload: any = {
         mail_driver: form.mail_driver,
         mail_host: form.mail_host || undefined,
         mail_port: form.mail_port || undefined,
@@ -61,6 +63,7 @@ export default function AdminSettingsEmailPage() {
         mail_encryption: form.mail_encryption || undefined,
         mail_from_address: form.mail_from_address || undefined,
         mail_from_name: form.mail_from_name || undefined,
+        mail_admin_to: (form as any).mail_admin_to || undefined,
       };
       if (form.mail_password.trim()) {
         payload.mail_password = form.mail_password;
@@ -180,6 +183,17 @@ export default function AdminSettingsEmailPage() {
                   placeholder="RAVOK"
                 />
               </div>
+          <div>
+            <Label htmlFor="mail_admin_to" className="text-white/90 font-sans">Admin notification email</Label>
+            <Input
+              id="mail_admin_to"
+              type="email"
+              value={(form as any).mail_admin_to || ""}
+              onChange={(e) => setForm((f: any) => ({ ...f, mail_admin_to: e.target.value }))}
+              className="mt-1 border-white/20 bg-black/30 text-white"
+              placeholder="alerts@example.com"
+            />
+          </div>
               <div className="pt-2">
                 <Button
                   type="submit"
@@ -187,6 +201,21 @@ export default function AdminSettingsEmailPage() {
                   disabled={saving}
                 >
                   {saving ? "Saving…" : "Save email settings"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="ml-3 border-white/20 text-white hover:bg-white/10 hover:text-ravok-gold"
+                  onClick={async () => {
+                    try {
+                      const res = await testMailSettings();
+                      toast.success(res.message || "Test email sent");
+                    } catch (e: any) {
+                      toast.error(e?.message || "Test email failed");
+                    }
+                  }}
+                >
+                  Send test email
                 </Button>
               </div>
             </form>

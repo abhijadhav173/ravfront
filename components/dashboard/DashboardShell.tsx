@@ -46,6 +46,7 @@ export function DashboardShell({
   const [postsOpen, setPostsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [docsOpen, setDocsOpen] = useState(false);
+  const [formsOpen, setFormsOpen] = useState(false);
 
   const basePath = variant === "admin" ? "/admin" : "/investor";
 
@@ -62,6 +63,7 @@ export function DashboardShell({
     } else if (pathname.startsWith("/admin/posts")) setPostsOpen(true);
     else if (pathname.startsWith("/admin/settings")) setSettingsOpen(true);
     else if (pathname.startsWith("/admin/documents")) setDocsOpen(true);
+    else if (pathname.startsWith("/admin/forms")) setFormsOpen(true);
   }, [pathname]);
 
   // Close sidebar on route change (mobile)
@@ -249,6 +251,22 @@ export function DashboardShell({
                       <Link href="/admin/documents/uploads" className={cn("rounded px-2 py-1.5 text-sm font-sans", pathname === "/admin/documents/uploads" ? "text-ravok-gold" : "text-white/70 hover:text-white")}>Upload Documents</Link>
                     </div>
                   )}
+                </div>
+
+                {/* Forms */}
+                <div className="mt-1">
+                  <Link
+                    href="/admin/forms"
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg px-3 py-2.5 font-sans text-sm transition-colors",
+                      pathname.startsWith("/admin/forms")
+                        ? "bg-ravok-gold/10 text-ravok-gold border border-ravok-gold/20"
+                        : "text-white/80 hover:bg-white/10 hover:text-white"
+                    )}
+                  >
+                    <FileText className="h-4 w-4 shrink-0" />
+                    Forms
+                  </Link>
                 </div>
 
                 {/* Profile */}

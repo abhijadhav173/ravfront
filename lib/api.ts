@@ -79,12 +79,11 @@ export function getAuthHeaders(): HeadersInit {
 const NETWORK_ERROR_MSG =
   "Cannot connect to server. Please check your connection. If you're on the live site, the API may be unavailable—try again later or contact support.";
 
-async function handleResponse<T>(res: Response, url: string): Promise<T> {
+async function handleResponse<T>(res: Response): Promise<T> {
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     const message = (data as { message?: string })?.message || res.statusText;
-    const m = Array.isArray(message) ? message[0] : message;
-    throw new Error(`[${res.status}] ${url} – ${m}`);
+    throw new Error(Array.isArray(message) ? message[0] : message);
   }
   return data as T;
 }
@@ -92,10 +91,10 @@ async function handleResponse<T>(res: Response, url: string): Promise<T> {
 async function fetchApi<T>(url: string, init: RequestInit): Promise<T> {
   try {
     const res = await fetch(url, init);
-    return await handleResponse<T>(res, url);
+    return await handleResponse<T>(res);
   } catch (err) {
     if (err instanceof TypeError && (err.message === "Failed to fetch" || err.message === "Load failed")) {
-      throw new Error(`${NETWORK_ERROR_MSG} (${url})`);
+      throw new Error(NETWORK_ERROR_MSG);
     }
     throw err;
   }
@@ -105,8 +104,8 @@ type LoginResponse = { user: User; token: string; token_type: string };
 type RegisterResponse = LoginResponse;
 
 export async function login(email: string, password: string): Promise<LoginResponse> {
-  const url = `${getApiBase()}/api/login`;
-  const res = await fetch(url, {
+  // Use form-encoded to avoid preflight while CORS is being configured server-side
+  const res = await fetch(`${getApiBase()}/api/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -114,12 +113,12 @@ export async function login(email: string, password: string): Promise<LoginRespo
     },
     body: new URLSearchParams({ email, password }).toString(),
   });
-  return handleResponse<LoginResponse>(res, url);
+  return handleResponse<LoginResponse>(res);
 }
 
 export async function register(name: string, email: string, password: string, password_confirmation: string): Promise<RegisterResponse> {
-  const url = `${getApiBase()}/api/register`;
-  const res = await fetch(url, {
+  // Use form-encoded to reduce CORS complexity on production
+  const res = await fetch(`${getApiBase()}/api/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -127,7 +126,7 @@ export async function register(name: string, email: string, password: string, pa
     },
     body: new URLSearchParams({ name, email, password, password_confirmation }).toString(),
   });
-  return handleResponse<RegisterResponse>(res, url);
+  return handleResponse<RegisterResponse>(res);
 }
 
 export async function logout(): Promise<void> {
@@ -624,4 +623,58 @@ export async function createPublicPostComment(
       body: JSON.stringify(data),
     }
   );
+}
+
+export type FormType = "writer" | "director" | "producer";
+export type FormSubmission = {
+  id: number;
+  type: FormType;
+  name: string;
+  email: string;
+  data: Record<string, any> | null;
+  created_at: string;
+};
+export type FormSubmissionList = {
+  data: FormSubmission[];
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+};
+
+export async function submitPublicForm(type: FormType, input: { name: string; email: string; data: Record<string, any> }): Promise<{ status: string; id: number }> {
+  return fetchApi<{ status: string; id: number }>(`${getApiBase()}/api/public/forms/${encodeURIComponent(type)}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({ name: input.name, email: input.email, ...input.data }),
+  });
+}
+
+export async function listFormSubmissions(page = 1, type?: FormType): Promise<FormSubmissionList> {
+  const sp = new URLSearchParams();
+  sp.set("page", String(page));
+  if (type) sp.set("type", type);
+  return fetchApi<FormSubmissionList>(`${getApiBase()}/api/forms?${sp.toString()}`, {
+    headers: getAuthHeaders(),
+  });
+}
+
+export function exportFormSubmissionsCsvUrl(type?: FormType): string {
+  const sp = new URLSearchParams();
+  if (type) sp.set("type", type);
+  const base = getApiBase().replace(/\/$/, "");
+  return `${base}/api/forms/export/csv${sp.toString() ? `?${sp.toString()}` : ""}`;
+}
+
+export async function getFormSubmission(id: number): Promise<FormSubmission> {
+  return fetchApi<FormSubmission>(`${getApiBase()}/api/forms/${id}`, {
+    headers: getAuthHeaders(),
+  });
+}
+
+export async function testMailSettings(): Promise<{ message: string }> {
+  return fetchApi<{ message: string }>(`${getApiBase()}/api/settings/email/test`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+  });
 }

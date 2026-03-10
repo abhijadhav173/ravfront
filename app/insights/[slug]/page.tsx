@@ -2,7 +2,7 @@ import InsightArticleClient from "./InsightArticleClient";
 
 const API_BASE =
   (typeof process !== "undefined" && process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "")) ||
-  "http://localhost:8000";
+  "https://backend.ravokstudios.com";
 
 export const dynamicParams = false;
 
