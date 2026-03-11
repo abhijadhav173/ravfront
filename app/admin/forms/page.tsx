@@ -1,5 +1,5 @@
 "use client";
-import { listFormSubmissions, exportFormSubmissionsCsvUrl, FormType, getStoredUser } from "@/lib/api";
+import { listFormSubmissions, exportFormSubmissionsCsvUrl, FormType, getStoredUser, deleteFormSubmission } from "@/lib/api";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useEffect, useMemo, useState } from "react";
@@ -75,6 +75,25 @@ export default function AdminFormsPage() {
                     >
                       View
                     </Link>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="ml-2"
+                      onClick={async () => {
+                        if (!confirm(`Delete submission #${row.id}?`)) return;
+                        try {
+                          await deleteFormSubmission(row.id);
+                          setItems((prev: any) => ({
+                            ...prev,
+                            data: prev.data.filter((x: any) => x.id !== row.id),
+                          }));
+                        } catch (e) {
+                          // noop; could surface toast if desired
+                        }
+                      }}
+                    >
+                      Delete
+                    </Button>
                   </td>
                 </tr>
               ))}

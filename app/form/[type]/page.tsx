@@ -7,7 +7,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useMemo, useState } from "react";
 
@@ -145,7 +144,6 @@ export default function FormPage() {
   }
   return (
     <main className="min-h-screen bg-black text-white selection:bg-ravok-gold selection:text-black">
-      <Navbar />
       <section className="pt-32 pb-16 px-6">
         <div className="container mx-auto max-w-3xl">
           <div className="mb-6">

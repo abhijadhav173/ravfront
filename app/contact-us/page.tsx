@@ -1,8 +1,11 @@
 "use client";
 
+/* Contact Us */
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { motion } from "framer-motion";
+import Link from "next/link";
+
 
 const email = "contact@ravokstudios.com";
 const inquiryTypes = [
@@ -32,6 +35,24 @@ export default function ContactUs() {
             <br />
             hear from you.
           </motion.h1>
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="mb-12"
+          >
+            <div className="flex flex-wrap gap-3">
+              <Link href="/form/writer" className="px-4 py-2 rounded border border-white/20 bg-black/30 text-white hover:text-ravok-gold hover:bg-white/10 transition-colors font-sans tracking-widest text-xs uppercase">
+                Writer Form
+              </Link>
+              <Link href="/form/director" className="px-4 py-2 rounded border border-white/20 bg-black/30 text-white hover:text-ravok-gold hover:bg-white/10 transition-colors font-sans tracking-widest text-xs uppercase">
+                Director Form
+              </Link>
+              <Link href="/form/producer" className="px-4 py-2 rounded border border-white/20 bg-black/30 text-white hover:text-ravok-gold hover:bg-white/10 transition-colors font-sans tracking-widest text-xs uppercase">
+                Producer Form
+              </Link>
+            </div>
+          </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}

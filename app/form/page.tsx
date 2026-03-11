@@ -1,4 +1,3 @@
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 
@@ -10,7 +9,6 @@ export default function FormIndexPage() {
   ];
   return (
     <main className="min-h-screen bg-black text-white selection:bg-ravok-gold selection:text-black">
-      <Navbar />
       <section className="pt-32 pb-16 px-6">
         <div className="container mx-auto max-w-5xl">
           <div className="mb-10">

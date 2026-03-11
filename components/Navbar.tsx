@@ -65,7 +65,6 @@ export default function Navbar() {
             { href: "/about-us", label: "ABOUT US" },
             { href: "/our-model", label: "OUR MODEL" },
             { href: "/insights", label: "INSIGHTS" },
-            { href: "/form", label: "FORM" },
             { href: "/contact-us", label: "CONTACT US" },
         ] as { href: string; label: string }[];
         if (!user) {
@@ -120,68 +119,30 @@ export default function Navbar() {
 
                 {/* Desktop Navigation */}
                 <div className="hidden lg:flex items-center gap-12 font-sans text-sm tracking-widest text-white">
-                    {navItems.map((item, i) => {
-                        const isForm = item.href === "/form";
-                        if (!isForm) {
-                            return (
-                                <motion.div
-                                    key={item.href}
-                                    initial={{ opacity: 0, y: -20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{
-                                        duration: 0.5,
-                                        delay: i * 0.1,
-                                        ease: [0.22, 1, 0.36, 1]
-                                    }}
-                                >
-                                    <Link
-                                        href={item.href}
-                                        className="relative group"
-                                    >
-                                        <span className="relative z-10 text-white group-hover:text-ravok-gold transition-colors duration-300">
-                                            {item.label}
-                                        </span>
-                                        <motion.span
-                                            className="absolute -bottom-1 left-0 w-0 h-px bg-ravok-gold group-hover:w-full transition-all duration-300"
-                                        />
-                                    </Link>
-                                </motion.div>
-                            );
-                        }
-                        return (
-                            <motion.div
-                                key={item.href}
-                                className="relative group before:absolute before:left-0 before:top-full before:h-2 before:w-full"
-                                initial={{ opacity: 0, y: -20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{
-                                    duration: 0.5,
-                                    delay: i * 0.1,
-                                    ease: [0.22, 1, 0.36, 1]
-                                }}
+                    {navItems.map((item, i) => (
+                        <motion.div
+                            key={item.href}
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{
+                                duration: 0.5,
+                                delay: i * 0.1,
+                                ease: [0.22, 1, 0.36, 1]
+                            }}
+                        >
+                            <Link
+                                href={item.href}
+                                className="relative group"
                             >
-                                <Link href="/form" className="relative group">
-                                    <span className="relative z-10 text-white group-hover:text-ravok-gold transition-colors duration-300">
-                                        FORM
-                                    </span>
-                                    <motion.span className="absolute -bottom-1 left-0 w-0 h-px bg-ravok-gold group-hover:w-full transition-all duration-300" />
-                                </Link>
-                                <div className="absolute left-0 top-full hidden group-hover:block">
-                                    <div className="min-w-[12rem] rounded border border-white/10 bg-black/90 shadow-xl py-2">
-                                        <Link href="/form/writer" className="block px-4 py-2 text-white hover:text-ravok-gold hover:bg-white/5">
-                                            WRITER
-                                        </Link>
-                                        <Link href="/form/director" className="block px-4 py-2 text-white hover:text-ravok-gold hover:bg-white/5">
-                                            DIRECTOR
-                                        </Link>
-                                        <Link href="/form/producer" className="block px-4 py-2 text-white hover:text-ravok-gold hover:bg-white/5">
-                                            PRODUCER
-                                        </Link>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        );
-                    })}
+                                <span className="relative z-10 text-white group-hover:text-ravok-gold transition-colors duration-300">
+                                    {item.label}
+                                </span>
+                                <motion.span
+                                    className="absolute -bottom-1 left-0 w-0 h-px bg-ravok-gold group-hover:w-full transition-all duration-300"
+                                />
+                            </Link>
+                        </motion.div>
+                    ))}
                 </div>
 
                 {/* Login & Register (when not logged in) or Dashboard (when logged in) */}
@@ -245,70 +206,24 @@ export default function Navbar() {
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
                     >
-                        {navItems.map((item, i) => {
-                            const isForm = item.href === "/form";
-                            if (!isForm) {
-                                return (
-                                    <motion.div
-                                        key={item.href}
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: 20 }}
-                                        transition={{ delay: i * 0.1 }}
-                                        className="py-2"
-                                    >
-                                        <Link
-                                            href={item.href}
-                                            onClick={() => setIsOpen(false)}
-                                            className="hover:text-ravok-gold transition-colors block py-2 px-4 -mx-4"
-                                        >
-                                            {item.label}
-                                        </Link>
-                                    </motion.div>
-                                );
-                            }
-                            return (
-                                <motion.div
-                                    key={item.href}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: 20 }}
-                                    transition={{ delay: i * 0.1 }}
-                                    className="py-2 w-full"
+                        {navItems.map((item, i) => (
+                            <motion.div
+                                key={item.href}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 20 }}
+                                transition={{ delay: i * 0.1 }}
+                                className="py-2"
+                            >
+                                <Link
+                                    href={item.href}
+                                    onClick={() => setIsOpen(false)}
+                                    className="hover:text-ravok-gold transition-colors block py-2 px-4 -mx-4"
                                 >
-                                    <Link
-                                        href="/form"
-                                        onClick={() => setIsOpen(false)}
-                                        className="hover:text-ravok-gold transition-colors block py-2 px-4 -mx-4"
-                                    >
-                                        FORM
-                                    </Link>
-                                    <div className="mt-1 space-y-1">
-                                        <Link
-                                            href="/form/writer"
-                                            onClick={() => setIsOpen(false)}
-                                            className="block py-1 px-8 text-white/90 hover:text-ravok-gold"
-                                        >
-                                            WRITER
-                                        </Link>
-                                        <Link
-                                            href="/form/director"
-                                            onClick={() => setIsOpen(false)}
-                                            className="block py-1 px-8 text-white/90 hover:text-ravok-gold"
-                                        >
-                                            DIRECTOR
-                                        </Link>
-                                        <Link
-                                            href="/form/producer"
-                                            onClick={() => setIsOpen(false)}
-                                            className="block py-1 px-8 text-white/90 hover:text-ravok-gold"
-                                        >
-                                            PRODUCER
-                                        </Link>
-                                    </div>
-                                </motion.div>
-                            );
-                        })}
+                                    {item.label}
+                                </Link>
+                            </motion.div>
+                        ))}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
