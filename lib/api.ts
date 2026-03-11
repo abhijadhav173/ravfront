@@ -678,3 +678,10 @@ export async function testMailSettings(): Promise<{ message: string }> {
     headers: getAuthHeaders(),
   });
 }
+
+export async function deleteFormSubmission(id: number): Promise<{ status: string }> {
+  return fetchApi<{ status: string }>(`${getApiBase()}/api/forms/${id}`, {
+    method: "DELETE",
+    headers: getAuthHeaders(),
+  });
+}
