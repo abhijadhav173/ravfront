@@ -122,6 +122,107 @@ export default function FormPage() {
       return next;
     });
   }
+  function renderField(q: string, i: number) {
+    if (t === "director" && q === "The Superpower") {
+      return (
+        <select
+          id={`q_${i}`}
+          value={answers[i] || ""}
+          onChange={(e) => updateAnswer(i, e.target.value)}
+          className="mt-1 w-full rounded-md border border-white/20 bg-black/30 px-3 py-2 font-sans text-sm text-white"
+        >
+          <option value="">Select an option</option>
+          <option value="Visual World-Building">Visual World-Building</option>
+          <option value="Actor Performance">Actor Performance</option>
+          <option value="Technical Innovation/VFX">Technical Innovation/VFX</option>
+        </select>
+      );
+    }
+    if (t === "director" && q === "Link to Materials") {
+      const val = answers[i] || "";
+      const parts = val.split("::");
+      const sel = parts[0] || "";
+      const url = parts[1] || "";
+      return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <select
+              id={`q_${i}_type`}
+              value={sel}
+              onChange={(e) => updateAnswer(i, `${e.target.value}::${url}`)}
+              className="mt-1 w-full rounded-md border border-white/20 bg-black/30 px-3 py-2 font-sans text-sm text-white"
+            >
+              <option value="">Select type</option>
+              <option value="Pitch Deck">Pitch Deck</option>
+              <option value="Director Lookbook">Director Lookbook</option>
+              <option value="Visual Treatment">Visual Treatment</option>
+            </select>
+          </div>
+          <div>
+            <Input
+              id={`q_${i}_url`}
+              placeholder="Add link"
+              value={url}
+              onChange={(e) => updateAnswer(i, `${sel}::${e.target.value}`)}
+            />
+          </div>
+        </div>
+      );
+    }
+    if (t === "director" && q === "Agreement") {
+      const checked = (answers[i] || "") === "Agreed";
+      return (
+        <div className="flex items-center gap-2">
+          <input
+            id={`q_${i}`}
+            type="checkbox"
+            checked={checked}
+            onChange={(e) => updateAnswer(i, e.target.checked ? "Agreed" : "")}
+            className="h-4 w-4 accent-ravok-gold"
+          />
+          <span className="font-sans text-sm text-white/80">I agree</span>
+        </div>
+      );
+    }
+    if (t === "producer" && q === "Primary strength in production") {
+      return (
+        <select
+          id={`q_${i}`}
+          value={answers[i] || ""}
+          onChange={(e) => updateAnswer(i, e.target.value)}
+          className="mt-1 w-full rounded-md border border-white/20 bg-black/30 px-3 py-2 font-sans text-sm text-white"
+        >
+          <option value="">Select an option</option>
+          <option value="Financial Engineering">Financial Engineering</option>
+          <option value="Creative Packaging">Creative Packaging</option>
+          <option value="On-Set Execution">On-Set Execution</option>
+        </select>
+      );
+    }
+    if (t === "producer" && q === "Do you specialize in Raising Capital, Managing Capital, or Scaling Operations") {
+      return (
+        <select
+          id={`q_${i}`}
+          value={answers[i] || ""}
+          onChange={(e) => updateAnswer(i, e.target.value)}
+          className="mt-1 w-full rounded-md border border-white/20 bg-black/30 px-3 py-2 font-sans text-sm text-white"
+        >
+          <option value="">Select an option</option>
+          <option value="Raising Capital">Raising Capital</option>
+          <option value="Managing Capital">Managing Capital</option>
+          <option value="Scaling Operations">Scaling Operations</option>
+        </select>
+      );
+    }
+    return (
+      <Textarea
+        id={`q_${i}`}
+        rows={3}
+        value={answers[i] || ""}
+        onChange={(e) => updateAnswer(i, e.target.value)}
+      />
+    );
+  }
   async function submit() {
     const nm = name.trim();
     const em = email.trim();
@@ -188,12 +289,7 @@ export default function FormPage() {
               {questions.map((q, i) => (
                 <div key={i} className="space-y-2">
                   <Label htmlFor={`q_${i}`}>{q}</Label>
-                  <Textarea
-                    id={`q_${i}`}
-                    rows={3}
-                    value={answers[i] || ""}
-                    onChange={(e) => updateAnswer(i, e.target.value)}
-                  />
+                  {renderField(q, i)}
                 </div>
               ))}
             </div>
