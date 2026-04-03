@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Kanit, Instrument_Sans } from "next/font/google";
 import "./globals.css";
 import { CustomCursor } from "@/components/CustomCursor";
 import { Toaster } from "sonner";
+import { Analytics } from "@vercel/analytics/next";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -44,6 +45,7 @@ export default function RootLayout({
             className: "!bg-white/10 !border-white/20 !text-white backdrop-blur-xl",
           }}
         />
+        <Analytics />
       </body>
     </html>
   );
