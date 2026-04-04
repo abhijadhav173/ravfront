@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
-import Footer from "@/components/Footer";
+import Footer from "@/components/layout/Footer";
 import { useMemo, useState } from "react";
 
 const TERMS_TEXT = `SCRIPT SUBMISSION TERMS AND CONDITIONS

@@ -1,12 +1,12 @@
-import Navbar from "@/components/Navbar";
-import Hero from "@/components/Hero";
-import IntroSection from "@/components/IntroSection";
-import Philosophy from "@/components/Philosophy";
-import QuoteSection from "@/components/QuoteSection";
-import VentureModel from "@/components/VentureModel";
-import Offerings from "@/components/Offerings";
-import Partners from "@/components/Partners";
-import Footer from "@/components/Footer";
+import Navbar from "@/components/layout/Navbar";
+import Hero from "@/components/sections/Hero";
+import IntroSection from "@/components/sections/IntroSection";
+import Philosophy from "@/components/sections/Philosophy";
+import QuoteSection from "@/components/sections/QuoteSection";
+import VentureModel from "@/components/sections/VentureModel";
+import Offerings from "@/components/sections/Offerings";
+import Partners from "@/components/sections/Partners";
+import Footer from "@/components/layout/Footer";
 
 export default function Home() {
   return (

@@ -2,20 +2,50 @@
 
 Monorepo for [ravokstudios.com](https://ravokstudios.com) — the official website and investor portal for Ravok Studios.
 
-## What's in here
+## Repository Structure
 
 ```
 ravok-website/
-├── app/                  # Next.js app router pages
-├── components/           # Shared React components
-├── lib/                  # Frontend utilities and API client
-├── public/               # Static assets
-├── backend/              # Laravel 12 REST API
-│   ├── app/              # Controllers, Models, Mail
-│   ├── database/         # Migrations and seeders
-│   ├── routes/           # API route definitions
-│   └── resources/        # Blade email templates
-└── .github/              # PR templates and contribution guidelines
+│
+├── app/                          # Next.js App Router — pages & routing
+│   ├── (public)/                 # Public feature pages (confessions, insights)
+│   ├── admin/                    # Admin dashboard (protected)
+│   ├── investor/                 # Investor portal (protected)
+│   ├── form/[type]/              # Writer/Director/Producer submission forms
+│   ├── about-us/
+│   ├── our-model/
+│   ├── contact-us/
+│   └── ...                       # Homepage, legal pages, etc.
+│
+├── components/                   # React components (organized by purpose)
+│   ├── layout/                   # Page chrome — Navbar, Footer
+│   ├── sections/                 # Homepage & page sections — Hero, Philosophy, etc.
+│   ├── shared/                   # Reusable across features — FadeIn, RichTextEditor
+│   ├── confessions/              # Hollywood Confessions feature
+│   ├── dashboard/                # Admin/investor dashboard shell
+│   └── ui/                       # shadcn/ui primitives — Button, Card, Input, etc.
+│
+├── lib/                          # Frontend logic (no UI)
+│   ├── api/                      # HTTP client + typed API endpoints (v1/)
+│   ├── context/                  # React context providers (Auth, UI, Portal)
+│   ├── hooks/                    # Custom hooks (useApi, useAuth, useForm, useScroll)
+│   ├── types/                    # TypeScript types (entities, API, forms, UI, common)
+│   ├── utils/                    # Pure utility functions (string, date, array, etc.)
+│   ├── config/                   # Constants, endpoints, routes
+│   ├── validation/               # Zod form schemas
+│   └── error/                    # AppError class
+│
+├── public/                       # Static assets (images, fonts)
+│
+├── backend/                      # Laravel 12 REST API
+│   ├── app/                      # Controllers, Models, Mail
+│   ├── database/                 # Migrations and seeders
+│   ├── routes/                   # API route definitions
+│   └── resources/                # Blade email templates
+│
+├── ravok-master-plan/            # Business specs & build context (00-10)
+│
+└── .github/                      # PR templates and contribution guidelines
 ```
 
 ## Architecture
