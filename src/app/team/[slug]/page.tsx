@@ -37,22 +37,22 @@ const TEAM_MEMBERS: Record<string, {
   },
   lois: {
     name: "Lois Ungar",
-    role: "Strategic Advisor",
+    role: "Board Member",
     image: "/images/team/lois.png",
     bio: [
-      "Lois Ungar brings decades of executive experience from Disney and DreamWorks to RAVOK's advisory board. Her deep understanding of studio operations and content strategy provides invaluable guidance as RAVOK builds its portfolio.",
-      "As a strategic advisor, she helps shape RAVOK's approach to development, distribution partnerships, and talent relationships.",
+      "Lois Ungar brings decades of executive experience from Disney and DreamWorks to RAVOK's board. Her deep understanding of studio operations and content strategy provides invaluable guidance as RAVOK builds its portfolio.",
+      "As a board member, she helps shape RAVOK's approach to development, distribution partnerships, and talent relationships.",
     ],
     background: "Former Disney and DreamWorks executive with extensive experience in content development and studio operations.",
   },
   pye: {
     name: "Pye Eshraghian",
-    role: "Board Advisor",
+    role: "Advisor",
     image: "/images/team/pye.jpg",
     bio: [
-      "Pye brings a unique perspective to RAVOK's board, combining business acumen with strategic insight to help guide the company's growth trajectory.",
+      "Pye brings a unique perspective to RAVOK as an advisor, combining business acumen with strategic insight to help guide the company's growth trajectory.",
     ],
-    background: "Experienced business advisor and board member.",
+    background: "Experienced business advisor.",
   },
 };
 

@@ -77,7 +77,7 @@ ravok-website/
 
 ```bash
 npm install
-cp .env.example .env.local    # Set NEXT_PUBLIC_API_URL
+cp .env.example .env.local    # Set NEXT_PUBLIC_API_URL and NEXT_PUBLIC_GA_MEASUREMENT_ID (optional)
 npm run dev                    # http://localhost:3000
 ```
 
@@ -104,5 +104,5 @@ npm run dev                    # http://localhost:3000
 - **Amanda Aoki Rak** — CEO & Founder, Designer
 - **Ali** — Primary Developer
 - **Thibault Dominici** — CFO
-- **Lois Ungar** — Strategic Advisor
-- **Pye Eshraghian** — Board Advisor
+- **Lois Ungar** — Board Member
+- **Pye Eshraghian** — Advisor
