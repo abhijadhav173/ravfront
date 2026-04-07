@@ -44,32 +44,28 @@ Monorepo for ravokstudios.com. Frontend (Next.js 16) in `src/`, Laravel 12 backe
 ```
 /                               → Next.js frontend root
 ├── src/                        → ALL FRONTEND CODE
-│   ├── app/                    → Pages (Next.js App Router)
+│   ├── app/                    → PAGES — mirrors the website
 │   │   ├── page.tsx            #   Home
 │   │   ├── about-us/           #   About Us
 │   │   ├── our-model/          #   Our Model
 │   │   ├── contact-us/         #   Contact
-│   │   ├── form/[type]/        #   Creator forms (writer/director/producer)
-│   │   ├── (public)/           #   Route group (insights, confessions)
+│   │   ├── form/[type]/        #   Creator forms
+│   │   ├── (public)/insights/  #   Insights (blog + confessions)
+│   │   │   ├── _components/    #     ConfessionWall, ConfessionCard
+│   │   │   ├── _api/           #     Articles + confessions API
+│   │   │   └── _types/         #     Page-specific types
 │   │   ├── investor/           #   Investor Portal (protected)
+│   │   │   └── _components/    #     DashboardShell
 │   │   ├── admin/              #   Admin CMS (protected)
+│   │   │   └── _components/    #     RichTextEditor, DashboardShell
 │   │   ├── login/ register/    #   Auth pages
 │   │   └── terms/privacy       #   Legal pages
 │   │
-│   ├── components/             → UI PIECES
+│   ├── components/             → SHARED UI (used across multiple pages)
 │   │   ├── layout/             #   Navbar, Footer
 │   │   ├── sections/           #   Homepage sections (Hero, Philosophy, etc.)
 │   │   ├── ui/                 #   shadcn primitives (Button, Card, Input)
 │   │   └── shared/             #   FadeIn, CustomCursor
-│   │
-│   ├── features/               → PAGE FEATURES (own components + API + types)
-│   │   ├── blog/               #   Articles: components, API, hooks, types
-│   │   ├── confessions/        #   Confession wall: components, API, hooks, types
-│   │   ├── investor/           #   Dashboard shell, portal components
-│   │   ├── forms/              #   Pitch Us form logic
-│   │   ├── portfolio/          #   Venture cards (future)
-│   │   ├── team/               #   Team member pages (future)
-│   │   └── newsletter/         #   Signup form (future)
 │   │
 │   ├── lib/                    → SHARED LOGIC
 │   │   ├── api/                #   HTTP client + v1/ endpoint modules
@@ -78,8 +74,7 @@ Monorepo for ravokstudios.com. Frontend (Next.js 16) in `src/`, Laravel 12 backe
 │   │   ├── types/              #   Shared TypeScript types
 │   │   ├── utils/              #   Utility functions
 │   │   ├── config/             #   Route constants
-│   │   ├── context/            #   Auth context
-│   │   └── validation/         #   Future Zod schemas
+│   │   └── context/            #   Auth context
 │   │
 │   ├── design-system/          → VISUAL IDENTITY
 │   │   ├── tokens.ts           #   Colors, breakpoints, spacing
@@ -89,15 +84,14 @@ Monorepo for ravokstudios.com. Frontend (Next.js 16) in `src/`, Laravel 12 backe
 │   │   ├── rendering.ts        #   4-layer rendering stack
 │   │   └── pages/              #   Per-page design specs
 │   │
-│   └── styles/
-│       └── globals.css         #   Tailwind + design tokens
+│   └── styles/globals.css      #   Tailwind + design tokens
 │
 ├── backend/                    → Laravel 12 API (Railway)
 ├── public/                     → Static assets (images, fonts)
-├── CLAUDE.md                   → This file
-├── README.md                   → Repo front page
 └── [config files]              → package.json, tsconfig, next.config, etc.
 ```
+
+**Rule: each page owns its stuff.** Components, API, and types specific to one page live in `_components/`, `_api/`, `_types/` inside that page folder. Only stuff shared across multiple pages goes in `components/` or `lib/`.
 
 **Import convention:** `@/*` resolves to `src/*`. New code imports from `@/lib/api/v1/*` or `@/lib/api/base`. The `lib/api.ts` re-export shim exists for backward compatibility.
 

@@ -3,7 +3,7 @@
  * Displays Hollywood Confessions wall + Blog/Articles feed
  */
 
-import { ConfessionWall } from '@/features/confessions/components/ConfessionWall';
+import { ConfessionWall } from './_components/ConfessionWall';
 import Link from 'next/link';
 
 export const metadata = {

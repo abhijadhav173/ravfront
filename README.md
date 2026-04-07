@@ -22,64 +22,48 @@ Production site: [ravokstudios.com](https://ravokstudios.com)
 ravok-website/
 │
 ├── src/                              # FRONTEND
-│   ├── app/                          # Pages (Next.js App Router)
+│   ├── app/                          # PAGES — mirrors the website
 │   │   ├── page.tsx                  #   Home
 │   │   ├── about-us/                 #   About Us
 │   │   ├── our-model/                #   Our Model
 │   │   ├── contact-us/               #   Contact
-│   │   ├── form/[type]/              #   Creator forms (writer/director/producer)
-│   │   ├── (public)/                 #   Route group
-│   │   │   ├── insights/             #     Blog + Confessions
-│   │   │   └── confessions/          #     Confession submission
+│   │   ├── form/                     #   Creator forms (writer/director/producer)
+│   │   ├── (public)/insights/        #   Insights (blog + confessions)
+│   │   │   ├── _components/          #     Page-specific components
+│   │   │   ├── _api/                 #     Articles + confessions API
+│   │   │   └── _types/              #     Types for this page
 │   │   ├── investor/                 #   Investor Portal (protected)
+│   │   │   └── _components/          #     Dashboard shell
 │   │   ├── admin/                    #   Admin CMS (protected)
-│   │   ├── login/
-│   │   ├── register/
-│   │   ├── terms-and-conditions/
-│   │   └── privacy-policy/
+│   │   │   └── _components/          #     Editor, dashboard shell
+│   │   ├── login/ register/          #   Auth
+│   │   └── terms / privacy           #   Legal
 │   │
-│   ├── components/                   # UI PIECES
+│   ├── components/                   # SHARED UI (used across pages)
 │   │   ├── layout/                   #   Navbar, Footer
 │   │   ├── sections/                 #   Homepage sections (Hero, Philosophy, etc.)
 │   │   ├── ui/                       #   shadcn primitives (Button, Card, Input)
 │   │   └── shared/                   #   FadeIn, CustomCursor
 │   │
-│   ├── features/                     # PAGE FEATURES (own components + API + types)
-│   │   ├── blog/                     #   Article cards, grid, API, types
-│   │   ├── confessions/              #   Confession wall, cards, API, types
-│   │   ├── investor/                 #   Dashboard shell, portal components
-│   │   ├── forms/                    #   Pitch Us form logic
-│   │   ├── portfolio/                #   Venture cards (future)
-│   │   ├── team/                     #   Team member pages (future)
-│   │   └── newsletter/               #   Signup form (future)
-│   │
 │   ├── lib/                          # SHARED LOGIC
 │   │   ├── api/                      #   HTTP client + endpoint modules
-│   │   ├── hooks/
-│   │   ├── types/
-│   │   ├── utils/
-│   │   ├── config/                   #   Routes, analytics config
-│   │   └── context/                  #   Auth context
+│   │   ├── hooks/ types/ utils/      #   Reusable across pages
+│   │   └── config/ context/          #   Routes, auth
 │   │
 │   ├── design-system/                # VISUAL IDENTITY
 │   │   ├── tokens.ts                 #   Colors, breakpoints, spacing
 │   │   ├── typography.ts             #   Fonts, type scale
 │   │   ├── animations.ts             #   Framer Motion presets
-│   │   ├── wireframe.ts              #   Wireframe illustration constants
-│   │   ├── rendering.ts              #   4-layer rendering stack
-│   │   └── pages/                    #   Per-page design specs
+│   │   └── wireframe.ts / rendering.ts
 │   │
-│   └── styles/
-│       └── globals.css
+│   └── styles/globals.css
 │
 ├── backend/                          # LARAVEL API (Railway)
-│
 ├── public/                           # STATIC ASSETS (images, fonts)
-│
-├── CLAUDE.md                         # AI assistant instructions
-├── README.md                         # This file
 └── [config files]                    # package.json, tsconfig, next.config, etc.
 ```
+
+**Rule: each page owns its stuff.** Components, API calls, and types specific to a page live in `_components/`, `_api/`, `_types/` inside that page's folder. Shared stuff goes in `components/` or `lib/`.
 
 ## Branches
 
@@ -104,11 +88,10 @@ npm run dev                    # http://localhost:3000
 | Homepage | `src/app/page.tsx` + `src/components/sections/` |
 | About Us page | `src/app/about-us/` |
 | Our Model page | `src/app/our-model/` |
-| Blog articles | `src/app/(public)/insights/` + `src/features/blog/` |
-| Confessions | `src/features/confessions/` |
-| Creator forms | `src/app/form/` + `src/features/forms/` |
+| Insights (blog + confessions) | `src/app/(public)/insights/` (everything is there) |
+| Creator forms | `src/app/form/` |
 | Contact page | `src/app/contact-us/` |
-| Investor portal | `src/app/investor/` + `src/features/investor/` |
+| Investor portal | `src/app/investor/` |
 | Admin CMS | `src/app/admin/` |
 | Navbar / Footer | `src/components/layout/` |
 | A button or card | `src/components/ui/` |
