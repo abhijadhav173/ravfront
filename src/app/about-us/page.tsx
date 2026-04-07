@@ -299,11 +299,12 @@ export default function AboutUsPage() {
           >
             Meet our team
           </motion.h2>
-          <div className="grid sm:grid-cols-3 gap-12 lg:gap-16 mb-16">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
             {[
               { name: "Amanda Aoki Rak", role: "CEO & Founder", image: "/images/team/amanda.jpg", slug: "amanda" },
               { name: "Thibault Dominici", role: "CFO", image: "/images/team/thibault.jpg", slug: "thibault" },
-              { name: "Lois Ungar", role: "Strategic Advisor", image: "/images/team/lois.png", slug: "lois" },
+              { name: "Lois Ungar", role: "Strategic Advisor", image: "/images/team/lois.jpg", slug: "lois" },
+              { name: "Pye Eshraghian", role: "Board Advisor", image: "/images/team/pye.jpg", slug: "pye" },
             ].map((member, i) => (
               <Link key={i} href={`/team/${member.slug}`}>
               <motion.div
