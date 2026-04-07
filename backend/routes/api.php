@@ -9,6 +9,9 @@ use App\Http\Controllers\Api\PublicInsightsController;
 use App\Http\Controllers\Api\SettingsController;
 use App\Http\Controllers\Api\UploadController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\DocumentCategoryController;
+use App\Http\Controllers\Api\InvestorDocumentController;
+use App\Http\Controllers\Api\FormSubmissionController;
 use Illuminate\Support\Facades\Route;
 
 // Public
@@ -22,6 +25,9 @@ Route::get('/public/posts', [PublicInsightsController::class, 'posts']);
 Route::get('/public/posts/slug/{slug}', [PublicInsightsController::class, 'showBySlug']);
 Route::get('/public/posts/slug/{slug}/comments', [PublicInsightsController::class, 'comments']);
 Route::post('/public/posts/slug/{slug}/comments', [PublicInsightsController::class, 'storeComment']);
+
+// Public forms
+Route::post('/public/forms/{type}', [FormSubmissionController::class, 'store']);
 
 // Authenticated (admin or investor)
 Route::middleware('auth:sanctum')->group(function () {
@@ -40,6 +46,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('investor.approved')->group(function () {
         Route::get('/posts', [PostController::class, 'index']);
         Route::get('/posts/{post}', [PostController::class, 'show']);
+        // Investor documents listing (view only)
+        Route::get('/documents', [InvestorDocumentController::class, 'index']);
+        // Document categories (view only)
+        Route::get('/document-categories', [DocumentCategoryController::class, 'index']);
     });
 
     // Admin only
@@ -59,5 +69,19 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/posts/{post}', [PostController::class, 'update']);
         Route::patch('/posts/{post}', [PostController::class, 'update']);
         Route::delete('/posts/{post}', [PostController::class, 'destroy']);
+
+        // Investor documents (admin manage)
+        // Exclude 'index' to avoid shadowing investor view-only route above
+        Route::apiResource('document-categories', DocumentCategoryController::class)->except(['show', 'index']);
+        Route::post('/documents', [InvestorDocumentController::class, 'store']); // multiple upload
+        Route::put('/documents/{document}', [InvestorDocumentController::class, 'update']);
+        Route::delete('/documents/{document}', [InvestorDocumentController::class, 'destroy']);
+
+        // Form submissions
+        Route::get('/forms', [FormSubmissionController::class, 'index']);
+        Route::get('/forms/{submission}', [FormSubmissionController::class, 'show']);
+        Route::get('/forms/export/csv', [FormSubmissionController::class, 'downloadCsv']);
+        Route::delete('/forms/{submission}', [FormSubmissionController::class, 'destroy']);
+        Route::post('/settings/email/test', [SettingsController::class, 'testMail']);
     });
 });

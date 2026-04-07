@@ -111,9 +111,9 @@ export default function PrivacyPage() {
               <h1 className="text-4xl lg:text-5xl font-heading font-bold text-white uppercase tracking-wide mb-2">
                 Privacy Policy
               </h1>
-              <p className="text-ravok-slate font-sans text-sm mb-6">Last Updated: June 24, 2025</p>
+              <p className="text-ravok-slate font-sans text-sm mb-6">Last Updated: June 24, 2026</p>
               <p className="font-sans text-white/90 leading-relaxed max-w-3xl">
-                This Privacy Notice describes how RAVOK STUDIOS, LLC (&ldquo;Ravok Studios,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) collects, uses, and protects personal information from users (&ldquo;you&rdquo;) who access our website at ravokstudios.com (the &ldquo;Site&rdquo;) and request password-protected access to our confidential materials.
+                This Privacy Notice describes how RAVOK STUDIOS, INC. (&ldquo;Ravok Studios,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) collects, uses, and protects personal information from users (&ldquo;you&rdquo;) who access our website at ravokstudios.com (the &ldquo;Site&rdquo;) and request password-protected access to our confidential materials.
               </p>
               <p className="font-sans text-white/90 leading-relaxed max-w-3xl mt-3">
                 By accessing or using the Site, you agree to the terms of this Privacy Notice.
@@ -246,7 +246,7 @@ export default function PrivacyPage() {
                 <h2 className="text-xl font-heading text-ravok-gold">Contact Information</h2>
               </div>
               <p className="font-sans text-white/85 leading-relaxed mb-6">If you have questions or requests, contact us at:</p>
-              <p className="text-white font-heading text-lg mb-2">RAVOK STUDIOS, LLC</p>
+              <p className="text-white font-heading text-lg mb-2">RAVOK STUDIOS, INC.</p>
               <p className="font-sans text-white/85 mb-2">1401 21st ST STE R</p>
               <p className="font-sans text-white/85 mb-4">Sacramento, CA 95811</p>
               <p>
