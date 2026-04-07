@@ -14,7 +14,8 @@ import {
   type CategoryWithCount,
   type Post,
 } from "@/lib/api/v1/posts";
-import { ConfessionWall } from "./_components/ConfessionWall";
+// Confessions disabled — backend doesn't have confession routes yet
+// import { ConfessionWall } from "./_components/ConfessionWall";
 
 const CATEGORY_ORDER = ["ravok-insights", "latest-analysis", "creator-stories", "data-research"];
 const EXCERPT_LENGTH = 140;
@@ -90,15 +91,12 @@ function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
   );
 }
 
-type ActiveTab = "all" | "blog" | "confessions";
-
 export default function InsightsPage() {
   const [categories, setCategories] = useState<CategoryWithCount[]>([]);
   const [featured, setFeatured] = useState<Post[]>([]);
   const [postsByCategory, setPostsByCategory] = useState<Record<number, Post[]>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState<ActiveTab>("all");
 
   useEffect(() => {
     async function load() {
@@ -119,19 +117,13 @@ export default function InsightsPage() {
         }
         setPostsByCategory(byCat);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Failed to load insights");
+        setError(e instanceof Error ? e.message : "Failed to load blog");
       } finally {
         setLoading(false);
       }
     }
     load();
   }, []);
-
-  const tabs: { key: ActiveTab; label: string }[] = [
-    { key: "all", label: "All" },
-    { key: "blog", label: "Blog" },
-    { key: "confessions", label: "Confessions" },
-  ];
 
   return (
     <main className="min-h-screen bg-black text-white selection:bg-ravok-gold selection:text-black overflow-x-hidden">
@@ -154,7 +146,7 @@ export default function InsightsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            Insights
+            Blog
           </motion.h1>
           <motion.p
             className="mt-3 font-sans text-base text-ravok-slate/90"
@@ -162,7 +154,7 @@ export default function InsightsPage() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            Analysis, stories, research, and unfiltered confessions from the RAVOK team and Hollywood creators.
+            Analysis, stories, and research from the RAVOK team.
           </motion.p>
           <motion.div
             className="mt-4 h-0.5 w-16 bg-ravok-gold"
@@ -174,72 +166,19 @@ export default function InsightsPage() {
         </div>
       </header>
 
-      {/* Filter tabs */}
-      <div className="border-b border-white/10 sticky top-0 bg-black/90 backdrop-blur-xl z-10">
-        <div className="container mx-auto max-w-6xl px-6 py-4">
-          <div className="flex gap-6">
-            {tabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`font-sans text-sm pb-2 border-b-2 transition-colors ${
-                  activeTab === tab.key
-                    ? "text-ravok-gold border-ravok-gold font-medium"
-                    : "text-ravok-slate border-transparent hover:text-white hover:border-white/30"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {loading ? (
         <section className="px-6 py-24">
           <div className="container mx-auto max-w-6xl">
             <div className="flex items-center gap-3">
               <div className="h-2 w-2 animate-pulse rounded-full bg-ravok-gold" />
-              <p className="font-sans text-ravok-slate">Loading insights…</p>
+              <p className="font-sans text-ravok-slate">Loading…</p>
             </div>
           </div>
         </section>
       ) : (
         <>
-          {/* Confessions Section */}
-          {(activeTab === "all" || activeTab === "confessions") && (
-            <section className="px-6 py-16 lg:py-20 border-b border-white/10">
-              <div className="container mx-auto max-w-6xl">
-                <motion.div
-                  className="mb-10 flex flex-wrap items-end justify-between gap-4"
-                  initial={{ opacity: 0, y: 12 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                >
-                  <div>
-                    <p className="mb-1 font-sans text-xs font-medium uppercase tracking-widest text-ravok-slate">
-                      Anonymous
-                    </p>
-                    <h2 className="font-heading text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                      Hollywood Confessions
-                    </h2>
-                  </div>
-                  <Link
-                    href="/confessions/submit"
-                    className="inline-flex items-center gap-1.5 font-sans text-sm font-medium text-ravok-gold transition-colors hover:text-ravok-beige"
-                  >
-                    Submit Your Confession
-                    <ChevronRight className="h-4 w-4" />
-                  </Link>
-                </motion.div>
-
-                <ConfessionWall initialLimit={12} />
-              </div>
-            </section>
-          )}
-
           {/* Featured Posts */}
-          {(activeTab === "all" || activeTab === "blog") && featured.length > 0 && (
+          {featured.length > 0 && (
             <section id="featured" className="px-6 py-16 lg:py-20">
               <div className="container mx-auto max-w-6xl">
                 <motion.div
@@ -265,8 +204,7 @@ export default function InsightsPage() {
           )}
 
           {/* Category sections */}
-          {(activeTab === "all" || activeTab === "blog") &&
-            categories.map((category) => {
+          {categories.map((category) => {
               const posts = postsByCategory[category.id] ?? [];
               return (
                 <section

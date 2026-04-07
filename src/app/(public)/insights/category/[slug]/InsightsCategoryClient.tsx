@@ -79,7 +79,7 @@ export default function InsightsCategoryClient({ slug }: { slug: string }) {
             className="inline-flex items-center gap-2 text-ravok-slate font-sans text-sm uppercase tracking-widest hover:text-ravok-gold transition-colors mb-12"
           >
             <ChevronLeft className="w-4 h-4" />
-            Back to Insights
+            Back to Blog
           </Link>
 
           {error && (

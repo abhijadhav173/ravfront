@@ -103,7 +103,7 @@ export default function InsightArticleClient({ slug }: { slug: string }) {
                   className="inline-flex items-center gap-2 font-sans text-sm font-medium text-ravok-slate transition-colors hover:text-ravok-gold"
                 >
                   <ChevronLeft className="h-4 w-4" />
-                  Back to Insights
+                  Back to Blog
                 </Link>
               </div>
             </div>
@@ -151,7 +151,7 @@ export default function InsightArticleClient({ slug }: { slug: string }) {
               className="inline-flex items-center gap-2 font-sans text-sm font-medium text-ravok-slate transition-colors hover:text-ravok-gold"
             >
               <ChevronLeft className="h-4 w-4" />
-              Back to Insights
+              Back to Blog
             </Link>
           </motion.div>
 

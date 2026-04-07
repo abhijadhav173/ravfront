@@ -94,7 +94,7 @@ export default function SubmitConfessionPage() {
             href="/insights"
             className="font-sans text-sm text-ravok-slate hover:text-ravok-gold transition-colors mb-6 inline-block"
           >
-            ← Back to Insights
+            ← Back to Blog
           </Link>
           <h1 className="font-heading text-4xl font-bold tracking-tight text-white sm:text-5xl mb-3">
             Share Your Confession

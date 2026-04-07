@@ -59,7 +59,7 @@ export default function Navbar() {
         { href: "/", label: "HOME" },
         { href: "/about-us", label: "ABOUT US" },
         { href: "/portfolio", label: "PORTFOLIO" },
-        { href: "/insights", label: "INSIGHTS" },
+        { href: "/insights", label: "BLOG" },
         { href: "/pitch-us", label: "PITCH US" },
         { href: "/contact-us", label: "CONTACT" },
     ];
