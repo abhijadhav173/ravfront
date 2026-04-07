@@ -16,9 +16,9 @@ import {
   type PostComment,
 } from "@/lib/api";
 import { toast } from "@/lib/toast";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/lib/ui/button";
+import { Input } from "@/lib/ui/input";
+import { Label } from "@/lib/ui/label";
 
 export default function InsightArticleClient({ slug }: { slug: string }) {
   const [post, setPost] = useState<Post | null>(null);

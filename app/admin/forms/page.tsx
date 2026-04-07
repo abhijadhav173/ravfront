@@ -1,7 +1,7 @@
 "use client";
 import { listFormSubmissions, exportFormSubmissionsCsvUrl, FormType, getStoredUser, deleteFormSubmission } from "@/lib/api";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/lib/ui/button";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 

@@ -17,7 +17,7 @@ import {
   Minus,
   Heading2,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/lib/ui/button";
 
 function Toolbar({
   editor,

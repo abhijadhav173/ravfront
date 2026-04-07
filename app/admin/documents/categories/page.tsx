@@ -8,9 +8,9 @@ import {
   deleteDocumentCategory,
   type DocumentCategory,
 } from "@/lib/api";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/lib/ui/button";
+import { Input } from "@/lib/ui/input";
+import { Textarea } from "@/lib/ui/textarea";
 import { toast } from "@/lib/toast";
 
 export default function AdminDocumentCategoriesPage() {

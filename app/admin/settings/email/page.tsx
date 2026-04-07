@@ -1,9 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/lib/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/lib/ui/card";
+import { Input } from "@/lib/ui/input";
+import { Label } from "@/lib/ui/label";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getStoredUser, getMailSettings, updateMailSettings, testMailSettings, type MailSettings } from "@/lib/api";

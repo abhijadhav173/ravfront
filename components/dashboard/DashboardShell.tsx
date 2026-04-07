@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { getStoredUser, logout } from "@/lib/api";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/lib/ui/button";
 import {
   LayoutDashboard,
   Users,

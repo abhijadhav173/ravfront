@@ -1,10 +1,10 @@
 "use client";
 
 import { submitPublicForm, FormType } from "@/lib/api";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/lib/ui/input";
+import { Label } from "@/lib/ui/label";
+import { Textarea } from "@/lib/ui/textarea";
+import { Button } from "@/lib/ui/button";
 import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
 import Footer from "@/components/Footer";
