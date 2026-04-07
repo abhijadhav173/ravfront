@@ -27,7 +27,7 @@ export default function Offerings() {
     ];
 
     return (
-        <section className="py-32 bg-[#1C1B14] text-white px-6 relative z-10 rounded-t-3xl shadow-2xl overflow-hidden">
+        <section className="py-32 bg-black text-white px-6 relative z-10 rounded-t-3xl shadow-2xl overflow-hidden">
             {/* Background Image Layer */}
             <div className="absolute inset-0 z-0">
                 <img
@@ -44,7 +44,7 @@ export default function Offerings() {
                 <div className="text-center mb-24">
                     <FadeIn>
                         <p className="text-ravok-gold uppercase tracking-[0.2em] text-xs font-bold mb-4">
-                            Our 2026 slate proves the model works.
+                            Our 2025 slate proves the model works.
                         </p>
                         <h2 className="text-5xl lg:text-7xl font-heading mb-4">
                             Here's what we offer

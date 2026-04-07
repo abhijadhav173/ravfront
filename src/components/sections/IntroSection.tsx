@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 
 export default function IntroSection() {
     return (
-        <section className="py-24 lg:py-32 px-6 bg-[#1C1B14] text-white relative overflow-hidden rounded-t-3xl shadow-2xl">
+        <section className="py-24 lg:py-32 px-6 bg-black text-white relative overflow-hidden rounded-t-3xl shadow-2xl">
             {/* Background Image Layer - Fixed Size */}
             <div className="absolute inset-0 z-0 overflow-hidden">
                 <img
@@ -25,7 +25,7 @@ export default function IntroSection() {
                         {/* Badge */}
                         <div className="mb-6">
                             <span className="inline-block rounded-md bg-ravok-gold/20 px-3 py-1.5 font-sans text-xs font-medium uppercase tracking-wider text-white sm:px-4 sm:py-2 sm:text-sm">
-                                2026 Slate: Fully Committed
+                                2025 Slate: Fully Committed
                             </span>
                         </div>
 
