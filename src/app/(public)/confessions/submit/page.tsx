@@ -1,13 +1,13 @@
 'use client';
 
-/**
- * Confession Submission Page
- * Anonymous form for submitting confessions
- */
-
 import { useState } from 'react';
 import { confessionsApi } from '@/lib/api/v1/confessions';
 import { ConfessionCategory } from '@/lib/types/confessions';
+import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
+import { motion } from 'framer-motion';
+import { Lock, Eye, Sparkles } from 'lucide-react';
+import Link from 'next/link';
 
 const CATEGORIES: ConfessionCategory[] = [
   'Development Hell',
@@ -28,7 +28,6 @@ export default function SubmitConfessionPage() {
     category: '' as ConfessionCategory | '',
     notify_email: '',
   });
-
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -37,10 +36,7 @@ export default function SubmitConfessionPage() {
     e: React.ChangeEvent<HTMLTextAreaElement | HTMLSelectElement | HTMLInputElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,26 +45,22 @@ export default function SubmitConfessionPage() {
     setLoading(true);
 
     try {
-      // Validate
       if (!formData.body.trim()) {
         setError('Please enter a confession');
         setLoading(false);
         return;
       }
-
       if (formData.body.length < 20) {
         setError('Confession must be at least 20 characters');
         setLoading(false);
         return;
       }
-
       if (formData.body.length > 500) {
         setError('Confession must be 500 characters or less');
         setLoading(false);
         return;
       }
 
-      // Submit
       const payload = {
         body: formData.body,
         ...(formData.category && { category: formData.category }),
@@ -76,14 +68,9 @@ export default function SubmitConfessionPage() {
       };
 
       await confessionsApi.submit(payload);
-
       setSubmitted(true);
       setFormData({ body: '', category: '', notify_email: '' });
-
-      // Auto-dismiss success after 5 seconds
-      setTimeout(() => {
-        setSubmitted(false);
-      }, 5000);
+      setTimeout(() => setSubmitted(false), 5000);
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Failed to submit confession');
     } finally {
@@ -92,40 +79,60 @@ export default function SubmitConfessionPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-black text-white selection:bg-ravok-gold selection:text-black">
+      <Navbar />
+
+      <div className="max-w-2xl mx-auto px-6 pt-32 pb-24">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Share Your Confession</h1>
-          <p className="text-gray-600">
+        <motion.div
+          className="mb-12"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Link
+            href="/insights"
+            className="font-sans text-sm text-ravok-slate hover:text-ravok-gold transition-colors mb-6 inline-block"
+          >
+            ← Back to Insights
+          </Link>
+          <h1 className="font-heading text-4xl font-bold tracking-tight text-white sm:text-5xl mb-3">
+            Share Your Confession
+          </h1>
+          <p className="font-sans text-base text-ravok-slate/90">
             Completely anonymous. No names, no email required. Just the truth.
           </p>
-        </div>
+          <div className="mt-4 h-0.5 w-16 bg-ravok-gold" />
+        </motion.div>
 
         {/* Form Card */}
-        <div className="bg-white rounded-lg shadow-sm p-8">
+        <motion.div
+          className="bg-gradient-to-b from-white/[0.06] to-transparent rounded-2xl border border-white/10 p-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
           {submitted && (
-            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-center">
-              <p className="text-green-800 font-medium">
-                ✓ Your confession has been submitted for moderation
+            <div className="mb-6 p-4 bg-ravok-gold/10 border border-ravok-gold/30 rounded-xl text-center">
+              <p className="text-ravok-gold font-sans font-medium">
+                Your confession has been submitted for moderation
               </p>
-              <p className="text-sm text-green-700 mt-1">
+              <p className="text-sm text-ravok-slate mt-1 font-sans">
                 Thank you for your honesty. Our team will review it shortly.
               </p>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Error message */}
             {error && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-red-800 text-sm">{error}</p>
+              <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
+                <p className="text-red-400 text-sm font-sans">{error}</p>
               </div>
             )}
 
-            {/* Confession text (required) */}
+            {/* Confession text */}
             <div>
-              <label htmlFor="body" className="block text-sm font-medium text-gray-900 mb-2">
+              <label htmlFor="body" className="block font-sans text-sm font-medium text-white mb-2">
                 Your Confession *
               </label>
               <textarea
@@ -134,25 +141,25 @@ export default function SubmitConfessionPage() {
                 value={formData.body}
                 onChange={handleChange}
                 placeholder="Share what's really on your mind... (20-500 characters)"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-ravok-slate/60 font-sans focus:outline-none focus:ring-2 focus:ring-ravok-gold/50 focus:border-ravok-gold/50 resize-none transition-colors"
                 rows={6}
                 disabled={loading}
               />
               <div className="mt-2 flex items-center justify-between">
-                <p className="text-xs text-gray-500">
+                <p className="font-sans text-xs text-ravok-slate">
                   {formData.body.length}/500 characters
                 </p>
                 {formData.body.length < 20 && formData.body.length > 0 && (
-                  <p className="text-xs text-amber-600">
+                  <p className="font-sans text-xs text-ravok-gold">
                     At least 20 characters required
                   </p>
                 )}
               </div>
             </div>
 
-            {/* Category (optional) */}
+            {/* Category */}
             <div>
-              <label htmlFor="category" className="block text-sm font-medium text-gray-900 mb-2">
+              <label htmlFor="category" className="block font-sans text-sm font-medium text-white mb-2">
                 Category (Optional)
               </label>
               <select
@@ -160,24 +167,19 @@ export default function SubmitConfessionPage() {
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white font-sans focus:outline-none focus:ring-2 focus:ring-ravok-gold/50 focus:border-ravok-gold/50 transition-colors"
                 disabled={loading}
               >
-                <option value="">Select a category...</option>
+                <option value="" className="bg-black">Select a category...</option>
                 {CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
+                  <option key={cat} value={cat} className="bg-black">{cat}</option>
                 ))}
               </select>
             </div>
 
-            {/* Email notification (optional) */}
+            {/* Email */}
             <div>
-              <label
-                htmlFor="notify_email"
-                className="block text-sm font-medium text-gray-900 mb-2"
-              >
+              <label htmlFor="notify_email" className="block font-sans text-sm font-medium text-white mb-2">
                 Email (Optional)
               </label>
               <input
@@ -187,60 +189,56 @@ export default function SubmitConfessionPage() {
                 value={formData.notify_email}
                 onChange={handleChange}
                 placeholder="your@email.com (only for featured confession notifications)"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-ravok-slate/60 font-sans focus:outline-none focus:ring-2 focus:ring-ravok-gold/50 focus:border-ravok-gold/50 transition-colors"
                 disabled={loading}
               />
-              <p className="mt-1 text-xs text-gray-500">
-                We'll notify you if your confession is featured. Your identity remains secret.
+              <p className="mt-1 font-sans text-xs text-ravok-slate">
+                We&apos;ll notify you if your confession is featured. Your identity remains secret.
               </p>
             </div>
 
-            {/* Submit button */}
+            {/* Submit */}
             <button
               type="submit"
               disabled={loading || !formData.body.trim()}
-              className="w-full px-6 py-3 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-ravok-gold text-black px-8 py-3 rounded-full font-sans font-bold text-sm tracking-widest uppercase hover:bg-ravok-beige transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Submitting...' : 'Share Your Wisdom'}
             </button>
 
             {/* Disclaimer */}
-            <div className="pt-4 border-t border-gray-200">
-              <p className="text-xs text-gray-500">
+            <div className="pt-4 border-t border-white/10">
+              <p className="font-sans text-xs text-ravok-slate/60">
                 By submitting a confession, you agree that it may be published anonymously on our
                 platform. RAVOK takes no responsibility for unverified claims made in confessions.
               </p>
             </div>
           </form>
-        </div>
+        </motion.div>
 
-        {/* Info box */}
-        <div className="mt-8 grid md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <p className="text-2xl mb-2">🔒</p>
-            <h3 className="font-medium text-gray-900 mb-2">Completely Anonymous</h3>
-            <p className="text-sm text-gray-600">
-              No names, emails, or identifying information required.
-            </p>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <p className="text-2xl mb-2">👁️</p>
-            <h3 className="font-medium text-gray-900 mb-2">Moderated for Safety</h3>
-            <p className="text-sm text-gray-600">
-              We review all confessions before publishing to keep the community safe.
-            </p>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <p className="text-2xl mb-2">✨</p>
-            <h3 className="font-medium text-gray-900 mb-2">Featured Confessions</h3>
-            <p className="text-sm text-gray-600">
-              Amanda may respond publicly to confessions that spark important conversations.
-            </p>
-          </div>
+        {/* Info cards */}
+        <div className="mt-12 grid md:grid-cols-3 gap-6">
+          {[
+            { icon: Lock, title: 'Completely Anonymous', desc: 'No names, emails, or identifying information required.' },
+            { icon: Eye, title: 'Moderated for Safety', desc: 'We review all confessions before publishing to keep the community safe.' },
+            { icon: Sparkles, title: 'Featured Confessions', desc: 'Amanda may respond publicly to confessions that spark important conversations.' },
+          ].map((item, i) => (
+            <motion.div
+              key={item.title}
+              className="bg-gradient-to-b from-white/[0.04] to-transparent rounded-2xl border border-white/10 p-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 + i * 0.1 }}
+            >
+              <item.icon className="h-6 w-6 text-ravok-gold mb-3" />
+              <h3 className="font-heading text-lg text-white mb-2">{item.title}</h3>
+              <p className="font-sans text-sm text-ravok-slate leading-relaxed">{item.desc}</p>
+            </motion.div>
+          ))}
         </div>
       </div>
+
+      <Footer />
     </main>
   );
 }

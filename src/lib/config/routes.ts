@@ -20,7 +20,18 @@ export const routes = {
   // Confessions
   confessionsSubmit: '/confessions/submit',
 
-  // Forms (creator submissions)
+  // Portfolio
+  portfolio: '/portfolio',
+
+  // Team
+  team: '/team',
+  teamMember: (slug: string) => `/team/${slug}` as const,
+
+  // Pitch Us (creator submissions)
+  pitchUs: '/pitch-us',
+  pitchUsByType: (type: string) => `/pitch-us/${type}` as const,
+
+  // Forms (legacy — redirects to pitch-us)
   form: '/form',
   formByType: (type: string) => `/form/${type}` as const,
 

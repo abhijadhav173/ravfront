@@ -1,102 +1,45 @@
 /**
  * RAVOK Studios — Typography System
- * Source of truth: ravok-master-plan/ravok-brand-guidelines.md Section 4
+ * Reflects the ACTUAL fonts and scale used on production (main branch).
  *
- * Primary fonts: ITC Baskerville (headings) + Coco Gothic (body)
- * Free fallbacks: Libre Baskerville + Montserrat
- * Current code fonts: Cormorant Garamond + Kanit + Instrument Sans (to be migrated)
+ * Fonts loaded in layout.tsx via next/font/google:
+ *   Cormorant Garamond (--font-cormorant) → font-heading
+ *   Kanit (--font-kanit) → body default
+ *   Instrument Sans (--font-instrument) → font-sans
  */
 
 export const fontFamilies = {
-  heading: {
-    primary: 'ITC Baskerville',
-    fallback: 'Libre Baskerville, Baskervville, Georgia, serif',
-    current: 'var(--font-cormorant)', // Current code — to migrate
-  },
-  body: {
-    primary: 'Coco Gothic',
-    fallback: 'Montserrat, Raleway, sans-serif',
-    current: 'var(--font-kanit)', // Current code — to migrate
-  },
-  ui: {
-    primary: 'Coco Gothic',
-    fallback: 'Montserrat, sans-serif',
-    current: 'var(--font-instrument)', // Current code — to migrate
-  },
-  mono: {
-    primary: 'JetBrains Mono',
-    fallback: 'Fira Code, monospace',
-  },
+  heading: 'var(--font-cormorant)',  // Cormorant Garamond — all headings, quotes
+  body: 'var(--font-kanit)',         // Kanit — base body text
+  sans: 'var(--font-instrument)',    // Instrument Sans — UI, eyebrows, body copy
 } as const;
 
+/**
+ * Typography scale — Tailwind classes used consistently across main.
+ * Use these as reference when building new pages.
+ */
 export const typeScale = {
-  display: {
-    size: { mobile: '48px', tablet: '72px', desktop: '96px' },
-    lineHeight: 1.0,
-    letterSpacing: '-0.02em',
-    font: 'heading',
-  },
-  h1: {
-    size: { mobile: '36px', tablet: '48px', desktop: '64px' },
-    lineHeight: 1.1,
-    letterSpacing: '-0.01em',
-    font: 'heading',
-  },
-  h2: {
-    size: { mobile: '28px', tablet: '36px', desktop: '48px' },
-    lineHeight: 1.15,
-    letterSpacing: '0',
-    font: 'heading',
-  },
-  h3: {
-    size: { mobile: '20px', tablet: '24px', desktop: '32px' },
-    lineHeight: 1.2,
-    letterSpacing: '0',
-    font: 'heading',
-  },
-  h4: {
-    size: { mobile: '16px', tablet: '18px', desktop: '24px' },
-    lineHeight: 1.3,
-    letterSpacing: '0.01em',
-    font: 'heading',
-  },
-  body: {
-    size: { mobile: '16px', tablet: '16px', desktop: '18px' },
-    lineHeight: 1.6,
-    letterSpacing: '0',
-    font: 'body',
-  },
-  small: {
-    size: { mobile: '13px', tablet: '13px', desktop: '14px' },
-    lineHeight: 1.5,
-    letterSpacing: '0.01em',
-    font: 'body',
-  },
-  caption: {
-    size: { mobile: '10px', tablet: '11px', desktop: '12px' },
-    lineHeight: 1.4,
-    letterSpacing: '0.05em',
-    font: 'body',
-    textTransform: 'uppercase' as const,
-  },
-  label: {
-    size: { mobile: '9px', tablet: '9px', desktop: '10px' },
-    lineHeight: 1.3,
-    letterSpacing: '0.15em',
-    font: 'body',
-    textTransform: 'uppercase' as const,
-  },
-  uiNav: {
-    size: { mobile: '12px', tablet: '13px', desktop: '14px' },
-    lineHeight: 1.3,
-    letterSpacing: '0.12em',
-    font: 'ui',
-    textTransform: 'uppercase' as const,
-  },
+  /** Hero / section main headings */
+  display: 'text-5xl lg:text-7xl font-heading',
+  /** Sub-section headings */
+  h2: 'text-4xl lg:text-6xl font-heading',
+  /** Card titles, smaller headings */
+  h3: 'text-xl font-heading',
+  /** Eyebrow / label text */
+  eyebrow: 'text-xs font-sans tracking-widest uppercase',
+  /** Standard body copy */
+  body: 'text-sm font-sans',
+  /** Larger body copy */
+  bodyLarge: 'text-base lg:text-lg font-sans',
+  /** Small labels (footer, card metadata) */
+  label: 'text-[10px] uppercase tracking-wider',
+  /** Quote / emphasis text */
+  quote: 'text-xl lg:text-2xl font-heading italic text-ravok-gold',
 } as const;
 
 export const fontWeights = {
-  regular: 400,
+  thin: 300,      // Cormorant display headings
+  regular: 400,   // Default
   medium: 500,
   semibold: 600,
   bold: 700,

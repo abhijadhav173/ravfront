@@ -301,12 +301,12 @@ export default function AboutUsPage() {
           </motion.h2>
           <div className="grid sm:grid-cols-3 gap-12 lg:gap-16 mb-16">
             {[
-              { name: "Amanda Aoki Rak", role: "CEO & Founder", image: "/images/team/amanda.jpg" },
-              { name: "Thibault Dominici", role: "CFO", image: "/images/team/lois.png" },
-              { name: "Lois Ungar", role: "Strategic Advisor", image: "/images/team/thibault.jpg" },
+              { name: "Amanda Aoki Rak", role: "CEO & Founder", image: "/images/team/amanda.jpg", slug: "amanda" },
+              { name: "Thibault Dominici", role: "CFO", image: "/images/team/thibault.jpg", slug: "thibault" },
+              { name: "Lois Ungar", role: "Strategic Advisor", image: "/images/team/lois.png", slug: "lois" },
             ].map((member, i) => (
+              <Link key={i} href={`/team/${member.slug}`}>
               <motion.div
-                key={i}
                 className="text-center group"
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -332,6 +332,7 @@ export default function AboutUsPage() {
                 <h3 className="text-white font-heading text-xl uppercase tracking-wide">{member.name}</h3>
                 <p className="text-ravok-slate font-sans text-base uppercase tracking-widest mt-2">{member.role}</p>
               </motion.div>
+              </Link>
             ))}
           </div>
           <motion.p
