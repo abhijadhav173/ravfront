@@ -18,6 +18,8 @@ class HandleCorsForApi
                 'Access-Control-Allow-Origin' => $origin,
                 'Access-Control-Allow-Methods' => 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers' => 'Content-Type, Accept, Authorization, X-Requested-With',
+                'Access-Control-Allow-Credentials' => 'true',
+                'Vary' => 'Origin',
                 'Access-Control-Max-Age' => '86400',
             ];
         } else {
@@ -25,6 +27,7 @@ class HandleCorsForApi
                 'Access-Control-Allow-Origin' => '*',
                 'Access-Control-Allow-Methods' => 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers' => 'Content-Type, Accept, Authorization, X-Requested-With',
+                'Vary' => 'Origin',
                 'Access-Control-Max-Age' => '86400',
             ];
         }
@@ -50,6 +53,9 @@ class HandleCorsForApi
             'http://127.0.0.1:3000',
             'http://localhost:5173',
             'http://127.0.0.1:5173',
+            'https://testing.ravokstudios.com',
+            'https://www.ravokstudios.com',
+            'https://ravokstudios.com',
         ];
         return array_merge($fromEnv, $defaults);
     }

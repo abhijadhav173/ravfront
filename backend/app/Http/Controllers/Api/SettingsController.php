@@ -7,7 +7,11 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use App\Mail\FormAdminNotifyMail;
+use App\Models\FormSubmission;
 
 class SettingsController extends Controller
 {
@@ -20,6 +24,7 @@ class SettingsController extends Controller
         'mail_encryption',
         'mail_from_address',
         'mail_from_name',
+        'mail_admin_to',
     ];
 
     private static function get(string $key): ?string
@@ -60,6 +65,7 @@ class SettingsController extends Controller
             'mail_encryption' => self::get('mail_encryption') ?? 'tls',
             'mail_from_address' => self::get('mail_from_address') ?? '',
             'mail_from_name' => self::get('mail_from_name') ?? '',
+            'mail_admin_to' => self::get('mail_admin_to') ?? '',
         ];
     }
 
@@ -79,6 +85,7 @@ class SettingsController extends Controller
             'mail_encryption' => ['nullable', 'string', Rule::in(['tls', 'ssl', ''])],
             'mail_from_address' => ['nullable', 'string', 'email', 'max:255'],
             'mail_from_name' => ['nullable', 'string', 'max:255'],
+            'mail_admin_to' => ['nullable', 'string', 'email', 'max:255'],
         ]);
 
         foreach (self::MAIL_KEYS as $key) {
@@ -97,5 +104,32 @@ class SettingsController extends Controller
         }
 
         return response()->json(self::mailArray());
+    }
+
+    public function testMail(Request $request): JsonResponse
+    {
+        $to = DB::table('settings')->where('key', 'mail_admin_to')->value('value')
+            ?: DB::table('settings')->where('key', 'mail_from_address')->value('value');
+        $fromAddress = DB::table('settings')->where('key', 'mail_from_address')->value('value') ?? config('mail.from.address');
+        $fromName = DB::table('settings')->where('key', 'mail_from_name')->value('value') ?? config('mail.from.name');
+        if (! $to || ! $fromAddress) {
+            return response()->json(['message' => 'Missing admin or from email.'], 422);
+        }
+        try {
+            // Reuse admin notify template with a minimal unsaved Eloquent model
+            $submission = new FormSubmission([
+                'id' => 0,
+                'type' => 'test',
+                'name' => 'SMTP Test',
+                'email' => $to,
+                'data' => ['Message' => 'If you see this, SMTP is working.'],
+                'created_at' => now(),
+            ]);
+            Mail::to($to)->send(new FormAdminNotifyMail($submission, $fromAddress, $fromName));
+            return response()->json(['message' => 'Test email sent to '.$to]);
+        } catch (\Throwable $e) {
+            Log::error('Test mail failed: '.$e->getMessage());
+            return response()->json(['message' => 'Test email failed: '.$e->getMessage()], 500);
+        }
     }
 }
