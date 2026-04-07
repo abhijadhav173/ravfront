@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Kanit, Instrument_Sans } from "next/font/google";
 import "@/styles/globals.css";
 import { CustomCursor } from "@/components/shared/CustomCursor";
+import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/next";
 
@@ -65,6 +66,7 @@ export default function RootLayout({
         className={`${cormorant.variable} ${kanit.variable} ${instrument.variable} antialiased bg-black text-white cursor-none`}
       >
         <CustomCursor />
+        <GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
         {children}
         <Toaster
           position="top-right"
