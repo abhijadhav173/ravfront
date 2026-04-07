@@ -303,8 +303,8 @@ export default function AboutUsPage() {
             {[
               { name: "Amanda Aoki Rak", role: "CEO & Founder", image: "/images/team/amanda.jpg", slug: "amanda" },
               { name: "Thibault Dominici", role: "CFO", image: "/images/team/thibault.jpg", slug: "thibault" },
-              { name: "Lois Ungar", role: "Strategic Advisor", image: "/images/team/lois.jpg", slug: "lois" },
-              { name: "Pye Eshraghian", role: "Board Advisor", image: "/images/team/pye.jpg", slug: "pye" },
+              { name: "Lois Ungar", role: "Board Member", image: "/images/team/lois.jpg", slug: "lois" },
+              { name: "Pye Eshraghian", role: "Advisor", image: "/images/team/pye.jpg", slug: "pye" },
             ].map((member, i) => (
               <Link key={i} href={`/team/${member.slug}`}>
               <motion.div
