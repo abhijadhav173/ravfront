@@ -1,10 +1,10 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { ChevronLeft, CheckCircle } from "lucide-react";
+import { ChevronLeft, CheckCircle, Clock, Save, Trash2 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { RatingScale } from "../_components/RatingScale";
@@ -14,6 +14,16 @@ import {
   producerQuestions,
   type FormQuestion,
 } from "../_components/formQuestions";
+
+// ─── Intake window configuration ────────────────────────────────────────────
+const INTAKE_OPEN_DATE  = new Date("2026-05-12T00:00:00-07:00"); // May 12, PDT
+const INTAKE_CLOSE_DATE = new Date("2026-06-12T23:59:59-07:00"); // June 12, PDT
+
+function isIntakeOpen(): boolean {
+  const now = new Date();
+  return now >= INTAKE_OPEN_DATE && now <= INTAKE_CLOSE_DATE;
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 type FormType = "writer" | "director" | "producer";
 
@@ -29,6 +39,10 @@ function titleForType(t: FormType) {
   return "Producer / Executive Submission";
 }
 
+function localStorageKey(t: FormType) {
+  return `ravok_form_draft_${t}`;
+}
+
 export default function PitchFormPage() {
   const params = useParams();
   const router = useRouter();
@@ -38,11 +52,52 @@ export default function PitchFormPage() {
       ? rawType
       : "writer";
 
+  const intakeOpen = isIntakeOpen();
   const questions = useMemo(() => questionsForType(t), [t]);
+
   const [answers, setAnswers] = useState<Record<string, string | number | boolean>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [draftSaved, setDraftSaved] = useState(false);
+  const [hasDraft, setHasDraft] = useState(false);
+
+  // ── Restore draft from localStorage on mount ────────────────────────────
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(localStorageKey(t));
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setAnswers(parsed);
+        setHasDraft(true);
+      }
+    } catch {
+      // ignore
+    }
+  }, [t]);
+
+  // ── Auto-save draft to localStorage on change ───────────────────────────
+  useEffect(() => {
+    if (Object.keys(answers).length === 0) return;
+    try {
+      localStorage.setItem(localStorageKey(t), JSON.stringify(answers));
+      setDraftSaved(true);
+      const timer = setTimeout(() => setDraftSaved(false), 2000);
+      return () => clearTimeout(timer);
+    } catch {
+      // ignore
+    }
+  }, [answers, t]);
+
+  function clearDraft() {
+    try {
+      localStorage.removeItem(localStorageKey(t));
+    } catch {
+      // ignore
+    }
+    setAnswers({});
+    setHasDraft(false);
+  }
 
   function setValue(id: string, val: string | number | boolean) {
     setAnswers((prev) => ({ ...prev, [id]: val }));
@@ -76,8 +131,8 @@ export default function PitchFormPage() {
   }
 
   async function handleSubmit() {
+    if (!intakeOpen) return;
     if (!validate()) {
-      // Scroll to first error
       const firstErr = Object.keys(errors)[0] || questions.find((q) => q.required && !answers[q.id])?.id;
       if (firstErr) {
         document.getElementById(`field-${firstErr}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -87,7 +142,6 @@ export default function PitchFormPage() {
 
     setSubmitting(true);
     try {
-      // Build submission data
       const name = (answers["name"] as string) || "";
       const email = (answers["email"] as string) || "";
       const data: Record<string, string | number | boolean> = {};
@@ -97,13 +151,13 @@ export default function PitchFormPage() {
         }
       }
 
-      // Try API first
       const { submitPublicForm } = await import("@/lib/api/v1/forms");
       await submitPublicForm(t, { name, email, data: data as Record<string, any> });
 
+      // Clear draft on successful submit
+      try { localStorage.removeItem(localStorageKey(t)); } catch { /* ignore */ }
       setSubmitted(true);
     } catch {
-      // Fallback: build mailto
       const name = (answers["name"] as string) || "Unknown";
       const subject = encodeURIComponent(`[${t.toUpperCase()} SUBMISSION] ${name}`);
       const bodyLines = questions.map((q) => `${q.label}: ${answers[q.id] ?? "(empty)"}`).join("\n\n");
@@ -205,47 +259,33 @@ export default function PitchFormPage() {
       case "checkbox":
         return (
           <div className="space-y-4">
-            {/* Scrollable T&C text */}
             <div className="max-h-64 overflow-y-auto rounded-lg border border-white/10 bg-white/[0.03] p-6 font-sans text-xs text-white/70 leading-relaxed space-y-4 scrollbar-thin">
               <p className="font-bold text-white text-sm uppercase tracking-wider">Script Submission Terms and Conditions</p>
               <p className="text-[10px] text-ravok-slate">Last Updated April 1, 2026</p>
               <p>PLEASE READ THESE TERMS AND CONDITIONS CAREFULLY BEFORE SUBMITTING ANY MATERIAL. BY SUBMITTING A SCRIPT, TREATMENT, SYNOPSIS, OR ANY RELATED MATERIAL (COLLECTIVELY, &ldquo;SUBMISSION&rdquo;) THROUGH THIS WEBSITE, YOU (&ldquo;SUBMITTER&rdquo;) ACKNOWLEDGE THAT YOU HAVE READ, UNDERSTOOD, AND AGREE TO BE BOUND BY THESE TERMS AND CONDITIONS.</p>
-
               <p className="font-bold text-white/90">1. ELIGIBILITY</p>
               <p>The Submitter must be at least 18 years of age and legally authorized to enter into a binding agreement.</p>
-
               <p className="font-bold text-white/90">2. UNSOLICITED MATERIAL ACKNOWLEDGMENT</p>
               <p>The Submitter acknowledges that Ravok Studios receives numerous script submissions and that ideas, themes, story elements, and concepts contained within the Submission may be similar to material already under development, previously received from other sources, or independently created by Ravok Studios or its affiliates. No confidential or fiduciary relationship is established.</p>
-
               <p className="font-bold text-white/90">3. OWNERSHIP AND ORIGINALITY</p>
               <p>The Submitter represents and warrants that: (a) The Submission is original work or all necessary rights have been obtained; (b) The Submission does not infringe upon any intellectual property rights; (c) No prior agreement conflicts with the rights granted herein; (d) If based on pre-existing work, all necessary rights to underlying material have been obtained.</p>
-
               <p className="font-bold text-white/90">4. LIMITED LICENSE TO REVIEW</p>
               <p>By submitting material, the Submitter grants Ravok Studios a non-exclusive, royalty-free, worldwide license to read, evaluate, analyze (including through automated or AI-assisted means), and internally discuss the Submission.</p>
-
               <p className="font-bold text-white/90">5. NO OBLIGATION</p>
               <p>Ravok Studios is under no obligation to review, respond to, develop, produce, return, or enter into any agreement regarding any Submission.</p>
-
               <p className="font-bold text-white/90">6. COMPENSATION</p>
               <p>No compensation is owed for the act of submitting or for review thereof. Any compensation for development or production shall be subject to a separate written agreement.</p>
-
               <p className="font-bold text-white/90">7. DATA COLLECTION AND USE</p>
               <p>Ravok Studios may collect personal information and process Submissions using proprietary AI-powered analytical frameworks for script analysis, market assessment, audience evaluation, and concept validation. Anonymized, aggregated insights may be derived. The Submitter waives any right to additional compensation in connection with these uses.</p>
-
               <p className="font-bold text-white/90">8. INDEMNIFICATION</p>
               <p>The Submitter agrees to indemnify and hold harmless Ravok Studios from any claims arising from breach of representations or third-party IP disputes.</p>
-
               <p className="font-bold text-white/90">9. LIMITATION OF LIABILITY</p>
               <p>Ravok Studios shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from these Terms or any Submission.</p>
-
               <p className="font-bold text-white/90">10. NO WAIVER OF RIGHTS</p>
               <p>The Submitter retains ownership of the Submission. Nothing herein constitutes an assignment of copyright, except as expressly stated.</p>
-
               <p className="font-bold text-white/90">11-14. ADDITIONAL PROVISIONS</p>
               <p>Ravok Studios may modify these Terms at any time. Governed by California law (corporate matters by Delaware law). Exclusive jurisdiction in Los Angeles County courts. If any provision is invalid, remaining provisions continue. These Terms constitute the entire agreement.</p>
             </div>
-
-            {/* Checkbox */}
             <label className="flex items-start gap-3 cursor-pointer group">
               <input
                 type="checkbox"
@@ -257,8 +297,6 @@ export default function PitchFormPage() {
                 I have read and agree to the Script Submission Terms and Conditions, including the use of my submission data for AI-assisted analysis as described in Section 7.
               </span>
             </label>
-
-            {/* Warning if not checked */}
             {!val && errors[q.id] && (
               <p className="font-sans text-xs text-red-400">You must agree to the Terms and Conditions to submit.</p>
             )}
@@ -270,16 +308,13 @@ export default function PitchFormPage() {
     }
   }
 
+  // ── Submitted state ──────────────────────────────────────────────────────
   if (submitted) {
     return (
       <main className="min-h-screen bg-black text-white selection:bg-ravok-gold selection:text-black">
         <Navbar />
         <div className="container mx-auto max-w-2xl px-6 pt-32 pb-24 text-center">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-          >
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
             <CheckCircle className="w-16 h-16 text-ravok-gold mx-auto mb-6" />
             <h1 className="font-heading text-4xl text-white mb-4">Submission Received</h1>
             <p className="font-sans text-ravok-slate mb-8">
@@ -304,11 +339,7 @@ export default function PitchFormPage() {
 
       <div className="container mx-auto max-w-3xl px-6 pt-32 pb-24">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <Link
             href="/pitch-us"
             className="inline-flex items-center gap-1.5 font-sans text-sm text-ravok-slate hover:text-ravok-gold transition-colors mb-8"
@@ -326,11 +357,69 @@ export default function PitchFormPage() {
           <div className="mt-4 h-0.5 w-16 bg-ravok-gold mb-8" />
         </motion.div>
 
+        {/* ── Intake Closed Banner ─────────────────────────────────────────── */}
+        {!intakeOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mb-8 rounded-2xl border border-ravok-gold/30 bg-ravok-gold/5 p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4"
+          >
+            <div className="shrink-0 w-12 h-12 rounded-full bg-ravok-gold/10 border border-ravok-gold/30 flex items-center justify-center">
+              <Clock className="w-5 h-5 text-ravok-gold" />
+            </div>
+            <div>
+              <p className="font-heading text-lg text-white mb-0.5">Intake is currently closed</p>
+              <p className="font-sans text-sm text-ravok-slate">
+                The next submission window opens <span className="text-ravok-gold font-medium">May 12, 2026</span> and closes <span className="text-ravok-gold font-medium">June 12, 2026</span>.
+                You can preview and fill out the form now — your draft is saved automatically.
+              </p>
+            </div>
+          </motion.div>
+        )}
+
+        {/* ── Draft restored / save nudge ─────────────────────────────────── */}
+        {hasDraft && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mb-6 flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3"
+          >
+            <div className="flex items-center gap-2 font-sans text-sm text-ravok-slate">
+              <Save className="w-4 h-4 text-ravok-gold shrink-0" />
+              Draft restored from your last visit.
+            </div>
+            <button
+              onClick={clearDraft}
+              className="flex items-center gap-1.5 font-sans text-xs text-white/40 hover:text-red-400 transition-colors"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Clear draft
+            </button>
+          </motion.div>
+        )}
+
         {/* Progress bar */}
         <div className="sticky top-0 z-10 bg-black/90 backdrop-blur-xl py-3 mb-6 -mx-6 px-6 border-b border-white/5">
           <div className="flex items-center justify-between font-sans text-xs text-ravok-slate mb-2">
             <span>{filled}/{questions.length} completed</span>
-            <span>{pct}%</span>
+            <span className="flex items-center gap-2">
+              <AnimatePresence>
+                {draftSaved && (
+                  <motion.span
+                    key="saved"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center gap-1 text-ravok-gold/70"
+                  >
+                    <Save className="w-3 h-3" />
+                    Draft saved
+                  </motion.span>
+                )}
+              </AnimatePresence>
+              {pct}%
+            </span>
           </div>
           <div className="h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
             <motion.div
@@ -373,24 +462,74 @@ export default function PitchFormPage() {
           ))}
         </div>
 
-        {/* Submit */}
+        {/* ── Submit / Intake Closed CTA ───────────────────────────────────── */}
         <div className="mt-12 pt-8 border-t border-white/10">
-          {!answers["agreement"] && (
-            <p className="font-sans text-sm text-ravok-slate text-center mb-4">
-              You must agree to the Terms and Conditions to submit.
-            </p>
+          {intakeOpen ? (
+            <>
+              {!answers["agreement"] && (
+                <p className="font-sans text-sm text-ravok-slate text-center mb-4">
+                  You must agree to the Terms and Conditions to submit.
+                </p>
+              )}
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={submitting || !answers["agreement"]}
+                className="w-full bg-ravok-gold text-black px-8 py-4 rounded-full font-sans font-bold text-sm tracking-widest uppercase hover:bg-ravok-beige transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {submitting ? "Submitting..." : "Submit Application"}
+              </button>
+              <p className="font-sans text-xs text-ravok-slate/60 text-center mt-4">
+                By submitting, your information will be reviewed by the RAVOK development team. We typically respond within 2–4 weeks.
+              </p>
+            </>
+          ) : (
+            /* Intake is closed — show gate + account CTA */
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="space-y-4"
+            >
+              {/* Disabled submit */}
+              <div className="w-full bg-white/5 border border-white/10 text-white/30 px-8 py-4 rounded-full font-sans font-bold text-sm tracking-widest uppercase text-center cursor-not-allowed select-none">
+                Intake opens May 12, 2026
+              </div>
+
+              {/* Divider */}
+              <div className="flex items-center gap-4 py-2">
+                <div className="flex-1 h-px bg-white/10" />
+                <span className="font-sans text-xs text-white/30 uppercase tracking-widest">In the meantime</span>
+                <div className="flex-1 h-px bg-white/10" />
+              </div>
+
+              {/* Account save nudge */}
+              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 text-center space-y-3">
+                <p className="font-heading text-lg text-white">Save your progress to your account</p>
+                <p className="font-sans text-sm text-ravok-slate">
+                  Create a free RAVOK account so your draft is safely stored and ready to submit when the window opens on May 12.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+                  <Link
+                    href="/register"
+                    className="inline-block bg-ravok-gold text-black px-6 py-3 rounded-full font-sans font-bold text-sm tracking-widest uppercase hover:bg-ravok-beige transition-colors"
+                  >
+                    Create account
+                  </Link>
+                  <Link
+                    href="/login"
+                    className="inline-block border border-white/20 text-white px-6 py-3 rounded-full font-sans text-sm tracking-widest uppercase hover:border-ravok-gold hover:text-ravok-gold transition-colors"
+                  >
+                    Sign in
+                  </Link>
+                </div>
+              </div>
+
+              <p className="font-sans text-xs text-ravok-slate/50 text-center">
+                Your draft is also saved locally in your browser automatically.
+              </p>
+            </motion.div>
           )}
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={submitting || !answers["agreement"]}
-            className="w-full bg-ravok-gold text-black px-8 py-4 rounded-full font-sans font-bold text-sm tracking-widest uppercase hover:bg-ravok-beige transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {submitting ? "Submitting..." : "Submit Application"}
-          </button>
-          <p className="font-sans text-xs text-ravok-slate/60 text-center mt-4">
-            By submitting, your information will be reviewed by the RAVOK development team. We typically respond within 2-4 weeks.
-          </p>
         </div>
       </div>
 

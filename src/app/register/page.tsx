@@ -51,7 +51,7 @@ export default function RegisterPage() {
               Register
             </h1>
             <p className="text-ravok-slate font-sans text-sm mb-8">
-              Create your RAVOK account (investor)
+              Create your RAVOK account to save submissions and access the portal.
             </p>
 
             <form className="space-y-6" onSubmit={handleSubmit}>
