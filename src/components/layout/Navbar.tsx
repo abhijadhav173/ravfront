@@ -60,7 +60,6 @@ export default function Navbar() {
         { href: "/about-us", label: "ABOUT US" },
         { href: "/our-model", label: "OUR MODEL" },
         { href: "/insights", label: "BLOG" },
-        { href: "/pitch-us", label: "PITCH US" },
         { href: "/contact-us", label: "CONTACT" },
     ];
 
