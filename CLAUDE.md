@@ -134,14 +134,26 @@ Monorepo for ravokstudios.com. Frontend (Next.js 16) in `src/`, Laravel 12 backe
 
 ## Current State (April 2026)
 
-- **`main` / `v0`**: Production — April 4, 2026 state. Commit `fb9a7d4`. DO NOT TOUCH.
-- **`v2`**: Arch rebuild — all code in `src/`, same visual design as main. Work in progress.
-- **`dev`**: Soft changes branched from main
-- **Next up**: Design system (colors, typography, spacing) on `dev`/`v2`, new pages (team/[slug], portfolio, pitch-us), newsletter, Vercel Analytics
+- **`main`**: Production — v2 arch restructure merged, pitch-us intake gated, team pages live, Vercel Speed Insights installed. Last commit `5b2e241` (form submissions hotfix, 2026-04-16).
+- **`v0`**: Snapshot of April 4, 2026 state (commit `fb9a7d4`). Reference only.
+- **`v2`**: Arch rebuild — merged to main. Now effectively historical.
+- **`dev`**: Stale — 20 commits behind main, 1 ahead. Needs to be synced or retired (tracked in issue #14).
+- **Active workflow**: Feature branches → PR → main. `dev` is not currently used.
+
+### In flight
+- **Papermark-style investor document viewer + analytics** — phases tracked in issues #7–#10
+- **CI/CD pipeline** — issue #11 / PR #18 (GitHub Actions for type check + lint + build)
+- **Cleanup backlog** — issues #13–#17 (stale PRs, dev branch decision, image compression, CLAUDE.md updates)
+
+### Next up (after cleanup)
+- Design system expansion (colors beyond 3, typography scale, spacing tokens)
+- Portfolio page
+- Newsletter signup
 
 ## Known Issues
 
-- `public/images/` is 36MB — images need compression
-- `next.config.ts` defaults to production URL instead of localhost
-- `fav.png` is 1MB (should be <50KB)
-- globals.css on main has only 3 brand colors — full design system not yet defined
+- `public/images/` is 36MB — compression tracked in issue #16
+- `fav.png` is 1MB (should be <50KB) — tracked in issue #16
+- `next.config.ts` rewrite defaults to `backend.ravokstudios.com` instead of `localhost:8000` — breaks local dev unless `NEXT_PUBLIC_API_URL` is set
+- `globals.css` has only 3 brand colors — full design system not yet defined
+- Railway `storage/app/public/investor-docs/` may not persist across deploys — migrate to S3 or Railway volumes before building out document features at scale
