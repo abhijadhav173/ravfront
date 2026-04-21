@@ -59,6 +59,17 @@ export async function deleteDocumentCategory(id: number): Promise<{ status: stri
   });
 }
 
+export async function getInvestorDocument(id: number): Promise<InvestorDocument> {
+  return fetchApi<InvestorDocument>(`${getApiBase()}/api/documents/${id}`, {
+    headers: getAuthHeaders(),
+  });
+}
+
+export function investorDocumentFileUrl(id: number): string {
+  const base = getApiBase().replace(/\/$/, "");
+  return `${base}/api/documents/${id}/file`;
+}
+
 export async function listInvestorDocuments(page = 1, params?: { document_category_id?: number; per_page?: number }): Promise<InvestorDocumentsResponse> {
   const sp = new URLSearchParams();
   sp.set("page", String(page));
