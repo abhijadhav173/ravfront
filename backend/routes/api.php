@@ -48,6 +48,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/posts/{post}', [PostController::class, 'show']);
         // Investor documents listing (view only)
         Route::get('/documents', [InvestorDocumentController::class, 'index']);
+        Route::get('/documents/{document}', [InvestorDocumentController::class, 'show']);
+        Route::get('/documents/{document}/file', [InvestorDocumentController::class, 'streamFile']);
         // Document categories (view only)
         Route::get('/document-categories', [DocumentCategoryController::class, 'index']);
     });

@@ -22,6 +22,30 @@ class InvestorDocumentController extends Controller
         return response()->json($docs);
     }
 
+    public function show(InvestorDocument $document)
+    {
+        return response()->json($document->load('category'));
+    }
+
+    public function streamFile(InvestorDocument $document)
+    {
+        if (! $document->file_path || ! Storage::disk('public')->exists($document->file_path)) {
+            abort(404);
+        }
+
+        return Storage::disk('public')->response(
+            $document->file_path,
+            $document->original_name ?? $document->name,
+            [
+                'Content-Type' => $document->mime_type ?? 'application/octet-stream',
+                'Content-Disposition' => 'inline; filename="'.($document->original_name ?? $document->name).'"',
+                'Cache-Control' => 'private, no-store, no-cache, must-revalidate, max-age=0',
+                'Pragma' => 'no-cache',
+                'X-Content-Type-Options' => 'nosniff',
+            ]
+        );
+    }
+
     public function store(Request $request)
     {
         $request->validate([

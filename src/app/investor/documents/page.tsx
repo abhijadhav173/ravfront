@@ -151,12 +151,12 @@ export default function InvestorDocumentsPage() {
               Investor Documents
             </motion.h1>
             <motion.p
-              className="mt-2 font-sans text-sm text-ravok-slate/90"
+              className="mt-2 font-sans text-xs uppercase tracking-[0.2em] text-ravok-slate/90"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.1 }}
             >
-              Documents and resources available to approved investors.
+              View Only · Confidential
             </motion.p>
             <motion.div
               className="mt-3 h-0.5 w-12 bg-ravok-gold"
@@ -189,29 +189,32 @@ export default function InvestorDocumentsPage() {
                     <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                       {inCat.map((d) => {
                         const isImage = (d.mime_type ?? "").startsWith("image/");
+                        const viewerHref = `/investor/documents/${d.id}`;
                         return (
                           <div key={d.id} className="rounded-lg border border-white/10 bg-black/30 p-3">
-                            <div className="text-sm text-white font-medium truncate">
-                              {d.original_name || d.name}
-                            </div>
+                            <Link href={viewerHref} className="block">
+                              <div className="text-sm text-white font-medium truncate hover:text-ravok-gold">
+                                {d.original_name || d.name}
+                              </div>
+                            </Link>
                             {isImage && (
-                              <a href={storageUrl(d.file_path)} target="_blank" className="block mt-2">
+                              <Link href={viewerHref} className="block mt-2">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                   src={storageUrl(d.file_path)}
                                   alt={d.original_name || d.name}
                                   className="max-h-36 w-full object-contain rounded border border-white/10"
+                                  draggable={false}
                                 />
-                              </a>
+                              </Link>
                             )}
-                            <div className="mt-2 flex items-center justify-between text-xs text-ravok-slate">
+                            <div className="mt-3 flex items-center justify-between text-xs text-ravok-slate">
                               <span>{(d.size_bytes / 1024).toFixed(1)} KB</span>
                               <Link
-                                href={storageUrl(d.file_path)}
-                                target="_blank"
-                                className="text-ravok-gold hover:text-ravok-beige"
+                                href={viewerHref}
+                                className="rounded border border-ravok-gold/40 bg-ravok-gold/10 px-3 py-1 font-sans uppercase tracking-[0.15em] text-ravok-gold hover:bg-ravok-gold hover:text-black"
                               >
-                                {isImage ? "View / Download" : "Download"}
+                                View
                               </Link>
                             </div>
                           </div>
