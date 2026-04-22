@@ -70,6 +70,18 @@ export function investorDocumentFileUrl(id: number): string {
   return `${base}/api/documents/${id}/file`;
 }
 
+export async function getDocumentFileUrl(id: number): Promise<string> {
+  const url = investorDocumentFileUrl(id);
+  const res = await fetch(url, { headers: getAuthHeaders() });
+  if (!res.ok) throw new Error("Failed to load document file.");
+  const contentType = res.headers.get("content-type") ?? "";
+  if (contentType.includes("application/json")) {
+    const data = (await res.json()) as { url?: string };
+    if (data.url) return data.url;
+  }
+  return url;
+}
+
 export async function listInvestorDocuments(page = 1, params?: { document_category_id?: number; per_page?: number }): Promise<InvestorDocumentsResponse> {
   const sp = new URLSearchParams();
   sp.set("page", String(page));
