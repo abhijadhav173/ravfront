@@ -6,11 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\InvestorDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 
 class InvestorDocumentController extends Controller
 {
+    private function disk(): \Illuminate\Contracts\Filesystem\Filesystem
+    {
+        return Storage::disk(config('filesystems.default') === 's3' ? 's3' : 'public');
+    }
+
     public function index(Request $request)
     {
         $query = InvestorDocument::with('category')->orderByDesc('created_at');
@@ -19,6 +23,7 @@ class InvestorDocumentController extends Controller
         }
         $perPage = max(1, (int) $request->input('per_page', 15));
         $docs = $query->paginate($perPage);
+
         return response()->json($docs);
     }
 
@@ -29,11 +34,19 @@ class InvestorDocumentController extends Controller
 
     public function streamFile(InvestorDocument $document)
     {
-        if (! $document->file_path || ! Storage::disk('public')->exists($document->file_path)) {
+        if (! $document->file_path || ! $this->disk()->exists($document->file_path)) {
             abort(404);
         }
 
-        return Storage::disk('public')->response(
+        $disk = $this->disk();
+
+        if (config('filesystems.default') === 's3') {
+            $url = $disk->temporaryUrl($document->file_path, now()->addMinutes(15));
+
+            return response()->json(['url' => $url]);
+        }
+
+        return $disk->response(
             $document->file_path,
             $document->original_name ?? $document->name,
             [
@@ -55,15 +68,15 @@ class InvestorDocumentController extends Controller
             'files' => ['required', 'array', 'min:1'],
             'files.*' => [
                 'file',
-                'max:20480', // 20MB
-                'mimetypes:image/jpeg,image/png,image/gif,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain,application/rtf,application/zip'
+                'max:20480',
+                'mimetypes:image/jpeg,image/png,image/gif,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain,application/rtf,application/zip',
             ],
         ]);
 
         $saved = [];
         $groupKey = (string) Str::uuid();
         foreach ($request->file('files') as $file) {
-            $path = $file->store('investor-docs', 'public');
+            $path = $file->store('investor-docs', $this->disk() === Storage::disk('s3') ? 's3' : 'public');
             $doc = InvestorDocument::create([
                 'document_category_id' => $request->integer('document_category_id'),
                 'name' => (string) $request->string('name'),
@@ -89,15 +102,17 @@ class InvestorDocumentController extends Controller
             'description' => ['sometimes', 'required', 'string'],
         ]);
         $document->update($data);
+
         return response()->json($document);
     }
 
     public function destroy(InvestorDocument $document)
     {
         if ($document->file_path) {
-            Storage::disk('public')->delete($document->file_path);
+            $this->disk()->delete($document->file_path);
         }
         $document->delete();
+
         return response()->json(['status' => 'ok']);
     }
 }
