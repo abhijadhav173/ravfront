@@ -35,7 +35,10 @@ export default function RoomDocumentsPage() {
         setRoomName(res.room.name);
         setDocs(res.documents);
       })
-      .catch(() => router.replace(`/room/${slug}`))
+      .catch(() => {
+        sessionStorage.removeItem(`ravok_room_${slug}`);
+        router.replace(`/room/${slug}`);
+      })
       .finally(() => setLoading(false));
   }, [slug, router]);
 

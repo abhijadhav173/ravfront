@@ -26,8 +26,23 @@ export default function RoomEntryPage() {
 
   useEffect(() => {
     if (!slug) return;
-    if (getRoomToken(slug)) {
-      router.replace(`/room/${slug}/documents`);
+    const existingToken = getRoomToken(slug);
+    if (existingToken) {
+      getPublicRoomInfo(slug)
+        .then((info) => {
+          if (info.is_active && !info.is_expired) {
+            router.replace(`/room/${slug}/documents`);
+          } else {
+            sessionStorage.removeItem(`ravok_room_${slug}`);
+            setRoom(info);
+            setLoading(false);
+          }
+        })
+        .catch(() => {
+          sessionStorage.removeItem(`ravok_room_${slug}`);
+          setError("Room not found.");
+          setLoading(false);
+        });
       return;
     }
     getPublicRoomInfo(slug)

@@ -117,9 +117,9 @@ class PublicRoomController extends Controller
             }
         }
 
-        if (\Illuminate\Support\Facades\Storage::disk('local')->exists($doc->file_path)) {
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($doc->file_path)) {
             return response()->file(
-                storage_path('app/' . $doc->file_path),
+                storage_path('app/public/' . $doc->file_path),
                 [
                     'Content-Type' => $doc->mime_type,
                     'Content-Disposition' => 'inline; filename="' . ($doc->original_name ?: $doc->name) . '"',
