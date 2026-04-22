@@ -13,20 +13,20 @@ class InvestorDocumentController extends Controller
 {
     private function useR2(): bool
     {
-        return ! empty(config('services.r2.token'));
+        return ! empty(env('R2_API_TOKEN'));
     }
 
     private function r2Url(string $key): string
     {
-        $account = config('services.r2.account_id');
-        $bucket = config('services.r2.bucket');
+        $account = env('R2_ACCOUNT_ID');
+        $bucket = env('R2_BUCKET', 'ravok-investor-docs');
 
         return "https://api.cloudflare.com/client/v4/accounts/{$account}/r2/buckets/{$bucket}/objects/{$key}";
     }
 
     private function r2Put(string $key, string $content, string $contentType): bool
     {
-        $response = Http::withToken(config('services.r2.token'))
+        $response = Http::withToken(env('R2_API_TOKEN'))
             ->withHeaders(['Content-Type' => $contentType])
             ->withBody($content, $contentType)
             ->put($this->r2Url($key));
@@ -36,7 +36,7 @@ class InvestorDocumentController extends Controller
 
     private function r2Get(string $key): ?string
     {
-        $response = Http::withToken(config('services.r2.token'))
+        $response = Http::withToken(env('R2_API_TOKEN'))
             ->get($this->r2Url($key));
 
         return $response->successful() ? $response->body() : null;
@@ -44,7 +44,7 @@ class InvestorDocumentController extends Controller
 
     private function r2Delete(string $key): void
     {
-        Http::withToken(config('services.r2.token'))
+        Http::withToken(env('R2_API_TOKEN'))
             ->delete($this->r2Url($key));
     }
 
