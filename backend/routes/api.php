@@ -91,6 +91,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/documents/{document}', [InvestorDocumentController::class, 'destroy']);
 
         // Document analytics
+        Route::get('/analytics/overview', [DocumentAnalyticsController::class, 'overview']);
         Route::get('/analytics/documents', [DocumentAnalyticsController::class, 'index']);
         Route::get('/analytics/documents/{document}', [DocumentAnalyticsController::class, 'show']);
         Route::get('/analytics/documents/{document}/export', [DocumentAnalyticsController::class, 'export']);
