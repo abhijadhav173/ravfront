@@ -36,7 +36,9 @@ export default function Partners() {
     ];
 
     return (
-        <section id="investors" className="relative py-32 bg-black text-white overflow-hidden rounded-t-3xl shadow-2xl isolate">
+        <section id="investors" className="relative py-32 bg-[#1c1c1a] text-white overflow-hidden section-card isolate">
+            {/* Gold top fade — C-reveal landing */}
+            <div className="absolute inset-x-0 top-0 h-[200px] bg-gradient-to-b from-[rgba(196,149,58,0.06)] to-transparent pointer-events-none z-[1]" />
             {/* Background Image Layer */}
             <div className="absolute inset-0 z-0">
                 <img

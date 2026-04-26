@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default function VentureModel() {
     return (
-        <section id="model" className="py-24 lg:py-32 bg-zinc-950 text-white border-t border-white/5 relative overflow-hidden rounded-t-3xl shadow-2xl">
+        <section id="model" className="py-24 lg:py-32 bg-[#1c1c1a] text-white relative overflow-hidden section-card">
             {/* Background Image Layer */}
             <div className="absolute inset-0 z-0">
                 <img
@@ -14,7 +14,9 @@ export default function VentureModel() {
                     alt="Venture Model Background"
                     className="w-full h-full object-cover opacity-30 grayscale"
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-zinc-950/80 to-black" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/80 to-black" />
+                {/* Gold top fade — C-reveal landing */}
+                <div className="absolute inset-x-0 top-0 h-[200px] bg-gradient-to-b from-[rgba(196,149,58,0.06)] to-transparent pointer-events-none" />
             </div>
 
             <div className="container mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center relative z-10">
@@ -57,13 +59,13 @@ export default function VentureModel() {
                     <FadeIn delay={0.4} className="flex items-center gap-4">
                         <Link
                             href="/our-model"
-                            className="bg-ravok-gold text-black px-8 py-3 rounded-full font-bold text-sm tracking-widest uppercase hover:bg-ravok-beige transition-colors"
+                            className="bg-ravok-gold text-[#1c1c1a] px-6 py-[0.85rem] rounded-full font-sans font-semibold text-[0.68rem] tracking-[0.2em] uppercase transition-all duration-[250ms] hover:bg-[#d4a54a] hover:-translate-y-px hover:shadow-[0_10px_25px_-10px_rgba(196,149,58,0.5)]"
                         >
                             LEARN MORE
                         </Link>
                         <button
                             type="button"
-                            className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors"
+                            className="w-10 h-10 rounded-full border border-white/15 flex items-center justify-center transition-all duration-[250ms] hover:border-ravok-gold hover:-translate-y-px"
                             aria-label="Watch"
                         >
                             <Eye className="w-4 h-4" />

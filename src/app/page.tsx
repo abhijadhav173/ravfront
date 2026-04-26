@@ -9,47 +9,14 @@ export default function Home() {
       <Hero />
       <IntroSection />
 
-      {/* Stacking Sections Container */}
+      {/* Stacking Sections Container — C-reveal: each section rises and covers the one before */}
       <div className="relative">
-        {/* Philosophy Section - First Card */}
-        <div className="sticky top-0 z-10">
-          <div className="scale-[0.95] origin-top">
-            <Philosophy />
-          </div>
-        </div>
-
-        {/* Quote Section - Second Card */}
-        <div className="sticky top-0 z-20">
-          <div className="scale-[0.96] origin-top">
-            <QuoteSection />
-          </div>
-        </div>
-
-        {/* Venture Model Section - Third Card */}
-        <div className="sticky top-0 z-30">
-          <div className="scale-[0.97] origin-top">
-            <VentureModel />
-          </div>
-        </div>
-
-        {/* Offerings Section - Fourth Card */}
-        <div className="sticky top-0 z-40">
-          <div className="scale-[0.98] origin-top">
-            <Offerings />
-          </div>
-        </div>
-
-        {/* Partners Section - Fifth Card */}
-        <div className="sticky top-0 z-50">
-          <div className="scale-[0.99] origin-top">
-            <Partners />
-          </div>
-        </div>
-
-        {/* Footer - Final Section (not sticky) */}
-        <div className="relative z-[60]">
-          <Footer />
-        </div>
+        <div className="sticky top-0 z-10"><Philosophy /></div>
+        <div className="sticky top-0 z-20"><QuoteSection /></div>
+        <div className="sticky top-0 z-30"><VentureModel /></div>
+        <div className="sticky top-0 z-40"><Offerings /></div>
+        <div className="sticky top-0 z-50"><Partners /></div>
+        <div className="relative z-[60]"><Footer /></div>
       </div>
     </main>
   );

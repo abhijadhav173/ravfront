@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 
 export default function IntroSection() {
     return (
-        <section className="py-24 lg:py-32 px-6 bg-black text-white relative overflow-hidden rounded-t-3xl shadow-2xl">
+        <section className="py-24 lg:py-32 px-6 bg-[#1c1c1a] text-white relative overflow-hidden section-card">
             {/* Background Image Layer - Fixed Size */}
             <div className="absolute inset-0 z-0 overflow-hidden">
                 <img
@@ -16,6 +16,8 @@ export default function IntroSection() {
                     className="absolute inset-0 w-full h-full object-cover opacity-20 grayscale"
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/85 to-black" />
+                {/* Gold top fade — C-reveal landing */}
+                <div className="absolute inset-x-0 top-0 h-[200px] bg-gradient-to-b from-[rgba(196,149,58,0.06)] to-transparent pointer-events-none" />
             </div>
 
             <div className="container mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-center relative z-10">
@@ -45,16 +47,16 @@ export default function IntroSection() {
                         <div className="flex flex-wrap items-center gap-4">
                             <Link
                                 href="#investors"
-                                className="rounded-full bg-ravok-gold px-6 py-3 font-sans text-xs font-medium uppercase tracking-wider text-white transition hover:bg-ravok-gold/80 sm:px-8 sm:py-4 sm:text-sm"
+                                className="rounded-full bg-ravok-gold px-6 py-[0.85rem] font-sans text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-[#1c1c1a] transition-all duration-[250ms] hover:bg-[#d4a54a] hover:-translate-y-px hover:shadow-[0_10px_25px_-10px_rgba(196,149,58,0.5)]"
                             >
                                 Partner with us
                             </Link>
                             <button
                                 type="button"
-                                className="flex h-12 w-12 items-center justify-center rounded-full border border-white/30 bg-white/5 transition hover:bg-white/10 sm:h-14 sm:w-14"
+                                className="flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-transparent transition-all duration-[250ms] hover:border-ravok-gold hover:-translate-y-px"
                                 aria-label="Watch"
                             >
-                                <Eye className="h-5 w-5 text-ravok-gold sm:h-6 sm:w-6" />
+                                <Eye className="h-5 w-5 text-ravok-gold" />
                             </button>
                         </div>
                     </FadeIn>

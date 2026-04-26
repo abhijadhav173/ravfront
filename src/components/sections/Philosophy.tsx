@@ -30,7 +30,7 @@ export default function Philosophy() {
     ];
 
     return (
-        <section className="py-24 lg:py-32 px-6 bg-black text-white relative border-t border-white/5 overflow-hidden rounded-t-3xl shadow-2xl">
+        <section className="py-24 lg:py-32 px-6 bg-[#1c1c1a] text-white relative overflow-hidden section-card">
             {/* Background Image Layer */}
             <div className="absolute inset-0 z-0">
                 <img
@@ -39,6 +39,8 @@ export default function Philosophy() {
                     className="w-full h-full object-cover opacity-30 grayscale"
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/80 to-black" />
+                {/* Gold top fade — C-reveal landing */}
+                <div className="absolute inset-x-0 top-0 h-[200px] bg-gradient-to-b from-[rgba(196,149,58,0.06)] to-transparent pointer-events-none" />
             </div>
 
             {/* Animated background particles - only render on client */}

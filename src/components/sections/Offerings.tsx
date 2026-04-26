@@ -27,7 +27,7 @@ export default function Offerings() {
     ];
 
     return (
-        <section className="py-32 bg-black text-white px-6 relative z-10 rounded-t-3xl shadow-2xl overflow-hidden">
+        <section className="py-32 bg-[#1c1c1a] text-white px-6 relative z-10 section-card overflow-hidden">
             {/* Background Image Layer */}
             <div className="absolute inset-0 z-0">
                 <img
@@ -36,6 +36,8 @@ export default function Offerings() {
                     className="w-full h-full object-cover opacity-80 grayscale"
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/85 to-black" />
+                {/* Gold top fade — C-reveal landing */}
+                <div className="absolute inset-x-0 top-0 h-[200px] bg-gradient-to-b from-[rgba(196,149,58,0.06)] to-transparent pointer-events-none" />
             </div>
 
             <div className="absolute inset-0 bg-gradient-to-b from-black via-zinc-950/20 to-black pointer-events-none z-[1]" />
@@ -87,7 +89,7 @@ export default function Offerings() {
                                         <span className="text-white">{offer.stats}</span>
                                     </div>
 
-                                    <Link href="/contact-us" className="border border-ravok-gold/30 text-white px-6 py-2 text-xs uppercase tracking-widest hover:bg-ravok-gold hover:text-black transition-all flex items-center justify-center gap-2 w-full">
+                                    <Link href="/contact-us" className="rounded-full border border-white/15 text-white px-6 py-[0.85rem] font-sans font-semibold text-[0.68rem] uppercase tracking-[0.2em] transition-all duration-[250ms] hover:border-ravok-gold hover:text-ravok-gold hover:-translate-y-px flex items-center justify-center gap-2 w-full">
                                         Contact us <ArrowRight className="w-3 h-3" />
                                     </Link>
                                 </div>
