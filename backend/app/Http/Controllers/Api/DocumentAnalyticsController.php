@@ -3,15 +3,111 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\DataRoom;
 use App\Models\DocumentPageView;
 use App\Models\DocumentView;
 use App\Models\InvestorDocument;
+use App\Models\RoomVisitor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DocumentAnalyticsController extends Controller
 {
+    public function overview()
+    {
+        $now = now();
+        $week = $now->copy()->subDays(7);
+        $month = $now->copy()->subDays(30);
+
+        $totalViews = DocumentView::count();
+        $viewsLast7 = DocumentView::where('started_at', '>=', $week)->count();
+        $viewsLast30 = DocumentView::where('started_at', '>=', $month)->count();
+
+        $uniqueUsers = DocumentView::whereNotNull('user_id')->distinct('user_id')->count('user_id');
+        $uniqueVisitors = DocumentView::whereNotNull('room_visitor_id')->distinct('room_visitor_id')->count('room_visitor_id');
+        $totalUniqueViewers = $uniqueUsers + $uniqueVisitors;
+
+        $totalSeconds = (int) DocumentView::sum('total_duration_seconds');
+
+        $topDocs = InvestorDocument::withCount('views')
+            ->withSum('views', 'total_duration_seconds')
+            ->orderByDesc('views_count')
+            ->limit(5)
+            ->get()
+            ->map(fn ($d) => [
+                'id' => $d->id,
+                'name' => $d->original_name ?: $d->name,
+                'views' => $d->views_count,
+                'total_duration_seconds' => (int) ($d->views_sum_total_duration_seconds ?? 0),
+            ]);
+
+        $topRooms = DataRoom::withCount(['visitors', 'views'])
+            ->withSum('views', 'total_duration_seconds')
+            ->orderByDesc('visitors_count')
+            ->limit(5)
+            ->get()
+            ->map(fn ($r) => [
+                'id' => $r->id,
+                'name' => $r->name,
+                'visitors' => $r->visitors_count,
+                'views' => $r->views_count,
+                'total_duration_seconds' => (int) ($r->views_sum_total_duration_seconds ?? 0),
+            ]);
+
+        $topViewers = RoomVisitor::withSum('documentViews', 'total_duration_seconds')
+            ->withCount('documentViews')
+            ->orderByDesc('document_views_sum_total_duration_seconds')
+            ->limit(5)
+            ->get()
+            ->filter(fn ($v) => ($v->document_views_sum_total_duration_seconds ?? 0) > 0)
+            ->values()
+            ->map(fn ($v) => [
+                'id' => $v->id,
+                'name' => $v->name,
+                'email' => $v->email,
+                'views' => $v->document_views_count,
+                'total_duration_seconds' => (int) ($v->document_views_sum_total_duration_seconds ?? 0),
+            ]);
+
+        $recentActivity = DocumentView::with('user:id,name,email', 'roomVisitor:id,name,email', 'document:id,name,original_name', 'dataRoom:id,name')
+            ->orderByDesc('started_at')
+            ->limit(10)
+            ->get()
+            ->map(function ($v) {
+                $name = $v->user?->name ?? $v->roomVisitor?->name ?? 'Unknown';
+                $email = $v->user?->email ?? $v->roomVisitor?->email;
+                $location = trim(implode(', ', array_filter([$v->city, $v->region, $v->country])));
+                return [
+                    'id' => $v->id,
+                    'viewer_name' => $name,
+                    'viewer_email' => $email,
+                    'document' => $v->document ? [
+                        'id' => $v->document->id,
+                        'name' => $v->document->original_name ?: $v->document->name,
+                    ] : null,
+                    'room' => $v->dataRoom ? ['id' => $v->dataRoom->id, 'name' => $v->dataRoom->name] : null,
+                    'location' => $location ?: null,
+                    'started_at' => $v->started_at,
+                    'total_duration_seconds' => $v->total_duration_seconds,
+                ];
+            });
+
+        return response()->json([
+            'totals' => [
+                'views' => $totalViews,
+                'views_last_7_days' => $viewsLast7,
+                'views_last_30_days' => $viewsLast30,
+                'unique_viewers' => $totalUniqueViewers,
+                'total_duration_seconds' => $totalSeconds,
+            ],
+            'top_documents' => $topDocs,
+            'top_rooms' => $topRooms,
+            'top_viewers' => $topViewers,
+            'recent_activity' => $recentActivity,
+        ]);
+    }
+
     public function index()
     {
         $documents = InvestorDocument::withCount('views')

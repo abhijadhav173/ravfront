@@ -71,6 +71,35 @@ export type ViewDetail = {
   page_summary: PageSummaryEntry[];
 };
 
+export type AnalyticsOverview = {
+  totals: {
+    views: number;
+    views_last_7_days: number;
+    views_last_30_days: number;
+    unique_viewers: number;
+    total_duration_seconds: number;
+  };
+  top_documents: { id: number; name: string; views: number; total_duration_seconds: number }[];
+  top_rooms: { id: number; name: string; visitors: number; views: number; total_duration_seconds: number }[];
+  top_viewers: { id: number; name: string; email: string; views: number; total_duration_seconds: number }[];
+  recent_activity: {
+    id: number;
+    viewer_name: string;
+    viewer_email: string | null;
+    document: { id: number; name: string } | null;
+    room: { id: number; name: string } | null;
+    location: string | null;
+    started_at: string;
+    total_duration_seconds: number;
+  }[];
+};
+
+export async function getAnalyticsOverview(): Promise<AnalyticsOverview> {
+  return fetchApi<AnalyticsOverview>(`${getApiBase()}/api/analytics/overview`, {
+    headers: getAuthHeaders(),
+  });
+}
+
 export async function getDocumentAnalytics(): Promise<DocumentStats[]> {
   return fetchApi<DocumentStats[]>(`${getApiBase()}/api/analytics/documents`, {
     headers: getAuthHeaders(),
