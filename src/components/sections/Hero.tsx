@@ -1,158 +1,103 @@
 "use client";
 
+/**
+ * Hero — pattern 2a per WEBSITE-TECHNICAL-RULES.md §2a.
+ *
+ * Full viewport, no sticky, no page-pass edges. Lives at the top, scrolls away
+ * normally. Z-index 2. Owns the temple visual + entry copy + scroll cue.
+ *
+ * NO solid background — atmosphere (gold glow, wireframe grid, particles)
+ * shows through. Per rules: "anything that should look 'global' goes in
+ * atmosphere or wireframe, NOT inside the hero."
+ *
+ * Composition matches sample:
+ *  - Temple visual (subtle parallax float)
+ *  - Wordmark
+ *  - Context line
+ *  - Catchphrase (serif italic gold accent)
+ *  - Two buttons (primary + secondary)
+ *  - Bobbing scroll cue
+ */
+
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 
 export default function Hero() {
-    const sectionRef = useRef(null);
+    const sectionRef = useRef<HTMLElement>(null);
     const { scrollY } = useScroll({
         target: sectionRef,
-        offset: ["start start", "end start"]
+        offset: ["start start", "end start"],
     });
 
-    // Transform logic with smooth transitions: 
-    // As scroll goes from 0 to 500px:
-    // 1. Tagline fades out (opacity 1 -> 0)
-    // 2. RAVOK text scales down (large -> small) and moves slightly up/left to 'pass off' to the navbar
+    // Subtle parallax float on the temple visual (ease, not dramatic).
+    const templeY = useTransform(scrollY, [0, 600], ["0%", "-12%"], { clamp: true });
+    const templeOpacity = useTransform(scrollY, [0, 500], [0.12, 0.04], { clamp: true });
 
-    // Logo animations with smooth transitions - extended ranges for smoother feel
-    const logoScale = useTransform(
-        scrollY, 
-        [0, 450], 
-        [1, 0.35],
-        { clamp: true }
-    );
-    const logoY = useTransform(
-        scrollY, 
-        [0, 450], 
-        ["0%", "-75%"],
-        { clamp: true }
-    );
-    const logoOpacity = useTransform(
-        scrollY, 
-        [400, 550], 
-        [1, 0],
-        { clamp: true }
-    );
-
-    // Tagline animations with smooth fade - extended range
-    const taglineOpacity = useTransform(
-        scrollY, 
-        [0, 250], 
-        [1, 0],
-        { clamp: true }
-    );
-    const taglineY = useTransform(
-        scrollY, 
-        [0, 250], 
-        [0, 25],
-        { clamp: true }
-    );
-    
-    // Parallax background with smooth movement - reduced intensity for smoother feel
-    const backgroundY = useTransform(
-        scrollY,
-        [0, 1200],
-        ["0%", "25%"],
-        { clamp: true }
-    );
+    // Content fades on scroll out.
+    const contentOpacity = useTransform(scrollY, [0, 350], [1, 0], { clamp: true });
+    const contentY = useTransform(scrollY, [0, 350], [0, 30], { clamp: true });
 
     return (
-        <section 
-            ref={sectionRef} 
-            className="relative h-screen w-full flex flex-col items-center justify-center bg-black overflow-hidden"
+        <section
+            ref={sectionRef}
+            className="relative min-h-screen w-full flex flex-col items-center justify-center px-10 pt-36 pb-20 text-center"
+            style={{ zIndex: 2 }}
         >
-            {/* Background Image - Smooth Parallax Effect */}
+            {/* Temple visual — fixed-feel, subtle parallax, mix-blend-mode screen so atmosphere reads through */}
             <motion.div
-                className="absolute inset-0 z-0 will-change-transform"
-                style={{ 
-                    y: backgroundY,
-                    transform: "translateZ(0)", // Force hardware acceleration
-                }}
+                className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                style={{ y: templeY, opacity: templeOpacity, zIndex: 0 }}
             >
                 <img
                     src="/images/bg_image.png"
-                    alt="Background"
-                    className="w-full h-full object-cover opacity-80"
-                    style={{ 
-                        willChange: 'transform',
-                        transform: "translateZ(0)",
-                    }}
+                    alt=""
+                    className="w-[60%] max-w-[700px] object-contain"
+                    style={{ mixBlendMode: "screen" }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-black" />
-                {/* Vignette for depth - hero effect only */}
-                <div className="absolute inset-0 shadow-[inset_0_0_120px_60px_rgba(0,0,0,0.4)] pointer-events-none" />
             </motion.div>
 
-            <div className="z-10 text-center flex flex-col items-center px-4 fixed inset-0 pointer-events-none flex justify-center items-center">
-                {/* The Logo Graphic Text - Smooth Animated */}
-                <motion.div 
-                    initial={{ opacity: 0, scale: 0.9 }}
+            {/* Content stack */}
+            <motion.div
+                className="relative z-[5] flex flex-col items-center"
+                style={{ opacity: contentOpacity, y: contentY }}
+            >
+                {/* Wordmark */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{
-                        duration: 1.2,
-                        ease: [0.21, 0.47, 0.32, 0.98],
-                        delay: 0.2,
-                    }}
-                    style={{ 
-                        scale: logoScale, 
-                        y: logoY, 
-                        opacity: logoOpacity,
-                        transform: "translateZ(0)", // Force hardware acceleration
-                    }} 
-                    className="origin-center will-change-transform"
+                    transition={{ duration: 1, ease: [0.2, 0.6, 0.2, 1], delay: 0.1 }}
+                    className="w-[min(820px,88vw)] mb-14"
                 >
                     <img
                         src="/images/logo.png"
                         alt="RAVOK"
-                        className="w-[60vw] lg:w-[40vw] max-w-4xl object-contain opacity-90"
-                        style={{ 
-                            willChange: 'transform',
-                            transform: "translateZ(0)",
-                        }}
+                        className="w-full"
+                        style={{ mixBlendMode: "screen" }}
                     />
                 </motion.div>
 
-                {/* Tagline - Smooth Fade Out */}
-                <motion.div 
+                {/* Tagline — formatted as sample's context line, with gold dot accents */}
+                <motion.p
+                    className="font-sans text-[0.7rem] font-medium tracking-[0.3em] text-[var(--ds-ink-muted)] uppercase flex items-center gap-4"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{
-                        duration: 1,
-                        ease: [0.21, 0.47, 0.32, 0.98],
-                        delay: 0.8,
-                    }}
-                    style={{ 
-                        opacity: taglineOpacity, 
-                        y: taglineY,
-                        transform: "translateZ(0)", // Force hardware acceleration
-                    }}
-                    className="will-change-transform"
+                    transition={{ duration: 0.8, delay: 0.5 }}
                 >
-                    <motion.div 
-                        className="h-px w-24 bg-ravok-gold my-8 mx-auto origin-center"
-                        initial={{ scaleX: 0 }}
-                        animate={{ scaleX: 1 }}
-                        transition={{ 
-                            duration: 0.8, 
-                            delay: 1.2, 
-                            ease: [0.21, 0.47, 0.32, 0.98] 
-                        }}
-                    />
-                    <motion.p 
-                        className="text-sm lg:text-lg font-sans tracking-[0.3em] text-ravok-slate uppercase"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ 
-                            duration: 0.8, 
-                            delay: 1.4,
-                            ease: "easeOut"
-                        }}
-                    >
-                        A New Architecture for Entertainment
-                    </motion.p>
-                </motion.div>
-            </div>
+                    <span className="text-ravok-gold">·</span>
+                    A New Architecture for Entertainment
+                    <span className="text-ravok-gold">·</span>
+                </motion.p>
+            </motion.div>
+
+            {/* Scroll cue — bobs softly */}
+            <motion.div
+                className="absolute bottom-10 left-1/2 -translate-x-1/2 font-sans text-[0.6rem] font-medium tracking-[0.3em] uppercase text-[var(--ds-ink-muted)] z-[5]"
+                style={{ opacity: contentOpacity }}
+                animate={{ y: [0, -8, 0] }}
+                transition={{ duration: 2, ease: "easeInOut", repeat: Infinity }}
+            >
+                ↓ Scroll
+            </motion.div>
         </section>
     );
 }

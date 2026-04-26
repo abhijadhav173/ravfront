@@ -20,7 +20,8 @@ import Footer from "@/components/layout/Footer";
 
 export default function Home() {
   return (
-    <main className="min-h-screen text-white overflow-x-hidden selection:bg-ravok-gold selection:text-black">
+    <main className="min-h-screen text-white selection:bg-ravok-gold selection:text-black"
+          style={{ overflowX: "clip" }}>
       <Navbar />
       <Hero />
       <IntroSection />
