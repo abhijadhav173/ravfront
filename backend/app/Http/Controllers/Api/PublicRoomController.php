@@ -3,11 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\RoomVisitorNotifyMail;
 use App\Models\DataRoom;
 use App\Models\RoomVisitor;
 use App\Services\GeolocateIp;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class PublicRoomController extends Controller
 {
@@ -65,7 +69,7 @@ class PublicRoomController extends Controller
         ]);
 
         if ($isNew && $room->notify_on_visit) {
-            // TODO: send notification email to admin
+            $this->sendVisitorNotification($room, $visitor);
         }
 
         return response()->json([
@@ -135,5 +139,38 @@ class PublicRoomController extends Controller
         }
 
         return response()->json(['message' => 'File not found.'], 404);
+    }
+
+    private function sendVisitorNotification(DataRoom $room, RoomVisitor $visitor): void
+    {
+        $fromAddress = config('mail.from.address');
+        $fromName = config('mail.from.name');
+        $adminTarget = $fromAddress;
+
+        try {
+            $addr = DB::table('settings')->where('key', 'mail_from_address')->value('value');
+            $name = DB::table('settings')->where('key', 'mail_from_name')->value('value');
+            $admin = DB::table('settings')->where('key', 'mail_admin_to')->value('value');
+            if ($addr) {
+                $fromAddress = $addr;
+            }
+            if ($name) {
+                $fromName = $name;
+            }
+            if ($admin) {
+                $adminTarget = $admin;
+            }
+        } catch (\Throwable $e) {
+            // settings table may not exist yet; fall back to config
+        }
+
+        try {
+            Mail::to($adminTarget)->send(new RoomVisitorNotifyMail($room, $visitor, $fromAddress, $fromName));
+        } catch (\Throwable $e) {
+            Log::error('Mail send (room visitor notify) failed: '.$e->getMessage(), [
+                'room_id' => $room->id,
+                'visitor_id' => $visitor->id,
+            ]);
+        }
     }
 }
