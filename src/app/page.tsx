@@ -1,38 +1,37 @@
-import Navbar from "@/components/layout/Navbar";
-import { Hero, IntroSection, Philosophy, QuoteSection, VentureModel, Offerings, Partners } from "@/components/sections";
+import { Hero, IntroSection, Bridge, Portfolio, Team } from "@/components/sections";
 import Footer from "@/components/layout/Footer";
 
 /**
- * Homepage — composed of design-system primitives.
+ * Homepage — Q2 redesign one-pager.
  *
- * Each section is mapped to a pattern from WEBSITE-TECHNICAL-RULES.md §12:
- *   Hero          → 2a Hero (entry only)
- *   IntroSection  → 2c C-Reveal (manifesto, non-sticky)
- *   Philosophy    → 2c C-Reveal (multi-step thesis — upgrade to 2b later)
- *   QuoteSection  → 2c C-Reveal (quote callout)
- *   VentureModel  → 2c C-Reveal (comparison)
- *   Offerings     → 2c C-Reveal (portfolio w/ stone cards)
- *   Partners      → 2c C-Reveal (team / partner grid w/ stone cards)
+ * Section sequence (per WEBSITE-TECHNICAL-RULES.md §12):
+ *   Hero          → 2a Hero (entry only — wordmark + tagline + scroll cue)
+ *   IntroSection  → 2c C-Reveal (about + statue + facts + CTAs)
+ *   Bridge        → 2c C-Reveal (REITs analogy + Hollywood-vs-RAVOK comparison)
+ *   Portfolio     → 2b Scrollytell (4 pillars: Film SPVs / Meris / Delphi / Phema)
+ *   Team          → 2c C-Reveal (Greek-coin marquee)
+ *   Footer        → standard
  *
- * C-ladder z-indexes are owned by each CRevealSection via the `zIndex` prop.
- * Sticky positioning is also handled inside the primitive — page.tsx just orders them.
+ * No Navbar — this is a one-pager. /about-us and /our-model still exist as
+ * routes but are no longer linked from the homepage.
+ *
+ * C-ladder z-indexes are owned by each section primitive via the `zIndex` prop.
  */
 
 export default function Home() {
-  return (
-    <main className="min-h-screen text-white selection:bg-ravok-gold selection:text-black"
-          style={{ overflowX: "clip" }}>
-      <Navbar />
-      <Hero />
-      <IntroSection />
-      <Philosophy />
-      <QuoteSection />
-      <VentureModel />
-      <Offerings />
-      <Partners />
-      <div className="relative z-[60]">
-        <Footer />
-      </div>
-    </main>
-  );
+    return (
+        <main
+            className="min-h-screen text-white selection:bg-ravok-gold selection:text-black"
+            style={{ overflowX: "clip" }}
+        >
+            <Hero />
+            <IntroSection />
+            <Bridge />
+            <Portfolio />
+            <Team />
+            <div className="relative z-[60]">
+                <Footer />
+            </div>
+        </main>
+    );
 }
