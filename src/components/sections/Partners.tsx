@@ -1,15 +1,17 @@
 "use client";
 
 /**
- * Partners — partner-types scrollytelling (4 steps).
- * 2-column grid: text steps on left, big icon visual pinned on right.
+ * Partners — Who We Build With.
+ * Sticky CRevealSection with a horizontal MARQUEE of partner stone cards
+ * (matches the sample's `.team` pattern). Auto-scrolls via CSS animation;
+ * pauses on hover so people can read.
  *
- * Copy preserved from prior version. Bring/get details rendered inside
- * the description block of each step.
+ * Architecture: sticky single section (NOT scrollytell) so it participates
+ * fully in the C-ladder cover-from-below flip. Fits in viewport height.
  */
 
 import { Video, DollarSign, Monitor, User, Mail, LucideIcon } from "lucide-react";
-import { ScrollytellSection, type ScrollytellStep } from "@/components/design-system";
+import { CRevealSection, StoneCard } from "@/components/design-system";
 
 type PartnerData = {
     type: string;
@@ -50,76 +52,76 @@ const partners: PartnerData[] = [
     },
 ];
 
-const partnerSteps: ScrollytellStep[] = partners.map((p, i) => {
-    const Icon = p.icon;
-    return {
-        tag: `Partners · 0${i + 1}`,
-        name: p.type,
-        description: (
-            <>
-                {p.desc}
-                <br />
-                <br />
-                <strong className="font-sans text-[0.6rem] font-semibold uppercase tracking-[0.3em] text-ravok-gold">
-                    What you bring:
-                </strong>{" "}
-                {p.bring}
-                <br />
-                <br />
-                <strong className="font-sans text-[0.6rem] font-semibold uppercase tracking-[0.3em] text-ravok-gold">
-                    What you get:
-                </strong>{" "}
-                {p.get}
-            </>
-        ),
-        visual: (
-            <div className="flex items-center justify-center w-full h-full">
-                <Icon className="w-[60%] h-[60%] text-ravok-gold opacity-90" strokeWidth={0.8} />
-            </div>
-        ),
-    };
-});
+// Duplicate the list so the marquee loops seamlessly (we translate by -50%).
+const marqueeCards = [...partners, ...partners];
 
 export default function Partners() {
     return (
-        <>
-            <ScrollytellSection
-                id="investors"
-                zIndex={15}
-                label="Who We Build With"
-                counterSuffix="THE PARTNERS"
-                steps={partnerSteps}
-            />
-
-            {/* Email contact strip — final cap below the scrollytell */}
-            <div
-                className="relative section-card px-6 lg:px-10 py-24 z-[16]"
-                style={{
-                    backgroundColor: "var(--ds-bg)",
-                    backgroundImage: [
-                        "linear-gradient(to bottom, rgba(196,149,58,0.06) 0, transparent 200px)",
-                        "linear-gradient(to right, rgba(255,255,255,0.025) 1px, transparent 1px)",
-                        "linear-gradient(to bottom, rgba(255,255,255,0.025) 1px, transparent 1px)",
-                    ].join(", "),
-                    backgroundSize: "100% 100%, 80px 80px, 80px 80px",
-                    backgroundAttachment: "scroll, fixed, fixed",
-                }}
-            >
-                <div className="max-w-[900px] mx-auto flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 bg-[rgba(15,15,13,0.5)] backdrop-blur-sm border-y border-[var(--ds-border)] px-8 py-8">
-                    <Mail className="w-7 h-7 text-ravok-gold flex-shrink-0" />
-                    <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
-                        <span className="font-sans text-[0.95rem] text-[var(--ds-ink-dim)] whitespace-nowrap">
-                            Questions? Email us at:
-                        </span>
-                        <a
-                            href="mailto:contact@ravokstudios.com"
-                            className="font-heading text-xl lg:text-2xl text-ravok-gold hover:text-[var(--ds-ink)] transition-colors break-all sm:break-normal"
-                        >
-                            contact@ravokstudios.com
-                        </a>
-                    </div>
+        <CRevealSection
+            id="investors"
+            zIndex={15}
+            eyebrow="To scale this model, we need the right partners."
+            headline={
+                <>
+                    The Future of Media
+                    <br />
+                    <span className="text-[var(--ds-ink)]">Won&apos;t Be Built by Gatekeepers.</span>
+                </>
+            }
+            lead="It will be built by creators, partners, and investors who believe ownership matters."
+            contentMaxWidth="1400px"
+        >
+            {/* Horizontal marquee — auto-scrolls, pauses on hover */}
+            <div className="partners-marquee relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] overflow-hidden py-8 mt-4">
+                <div className="partners-marquee-track flex gap-6 lg:gap-8 w-max">
+                    {marqueeCards.map((p, i) => {
+                        const Icon = p.icon;
+                        return (
+                            <StoneCard
+                                key={i}
+                                className="!flex-none !w-[340px] lg:!w-[380px] !min-h-[320px] !p-7"
+                                aria-hidden={i >= partners.length}
+                            >
+                                <Icon className="w-7 h-7 text-[var(--ds-stone-gold)] mb-4" />
+                                <h3 className="font-heading text-[1.4rem] leading-tight text-[var(--ds-stone-ink)] mb-3">
+                                    {p.type}
+                                </h3>
+                                <p className="text-[0.88rem] leading-relaxed mb-5">{p.desc}</p>
+                                <div className="space-y-3 pt-3 border-t border-[rgba(26,23,19,0.12)]">
+                                    <div>
+                                        <h4 className="font-sans text-[0.55rem] font-semibold uppercase tracking-[0.3em] text-[var(--ds-stone-gold)] mb-1">
+                                            Bring
+                                        </h4>
+                                        <p className="text-[0.78rem] leading-[1.5] text-[rgba(26,23,19,0.7)]">{p.bring}</p>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-sans text-[0.55rem] font-semibold uppercase tracking-[0.3em] text-[var(--ds-stone-gold)] mb-1">
+                                            Get
+                                        </h4>
+                                        <p className="text-[0.78rem] leading-[1.5] text-[rgba(26,23,19,0.7)]">{p.get}</p>
+                                    </div>
+                                </div>
+                            </StoneCard>
+                        );
+                    })}
                 </div>
             </div>
-        </>
+
+            {/* Email contact strip */}
+            <div className="mt-10 max-w-[900px] mx-auto flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 bg-[rgba(15,15,13,0.5)] backdrop-blur-sm border-y border-[var(--ds-border)] px-8 py-6">
+                <Mail className="w-6 h-6 text-ravok-gold flex-shrink-0" />
+                <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
+                    <span className="font-sans text-[0.85rem] text-[var(--ds-ink-dim)] whitespace-nowrap">
+                        Questions? Email us at:
+                    </span>
+                    <a
+                        href="mailto:contact@ravokstudios.com"
+                        className="font-heading text-lg lg:text-xl text-ravok-gold hover:text-[var(--ds-ink)] transition-colors break-all sm:break-normal"
+                    >
+                        contact@ravokstudios.com
+                    </a>
+                </div>
+            </div>
+        </CRevealSection>
     );
 }

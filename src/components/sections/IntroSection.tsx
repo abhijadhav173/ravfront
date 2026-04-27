@@ -15,11 +15,9 @@ import { CRevealSection, Button } from "@/components/design-system";
 export default function IntroSection() {
     return (
         <CRevealSection
-            zIndex={9}
-            nonSticky
+            zIndex={10}
             eyebrow="2025 Slate: Fully Committed"
             centerHeader={false}
-            paddingY="py-32"
             contentMaxWidth="1200px"
         >
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">

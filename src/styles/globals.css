@@ -265,6 +265,23 @@ body::after {
   }
 }
 
+/* ============ HORIZONTAL MARQUEE (Partners section) ============
+   Auto-scrolling row of cards. Track is duplicated content, animated
+   to translate -50% so it loops seamlessly. Pauses on hover. */
+.partners-marquee-track {
+  animation: partners-marquee 40s linear infinite;
+}
+.partners-marquee:hover .partners-marquee-track {
+  animation-play-state: paused;
+}
+@keyframes partners-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .partners-marquee-track { animation: none; }
+}
+
 /* ============ STONE CARD — light card on dark page ============ */
 .stone-card {
   background-color: var(--ds-stone-bg);

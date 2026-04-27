@@ -40,7 +40,7 @@ export default function Hero() {
     return (
         <section
             ref={sectionRef}
-            className="relative min-h-screen w-full flex flex-col items-center justify-center px-10 pt-36 pb-20 text-center"
+            className="sticky top-0 min-h-screen w-full flex flex-col items-center justify-center px-10 pt-36 pb-20 text-center"
             style={{ zIndex: 2 }}
         >
             {/* Temple visual — fixed-feel, subtle parallax, mix-blend-mode screen so atmosphere reads through */}
