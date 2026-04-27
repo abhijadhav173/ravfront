@@ -1,23 +1,31 @@
 "use client";
 
 /**
- * ScrollytellSection — portfolio scrollytelling pattern.
- * Per the sample's `.portfolio` section.
+ * ScrollytellSection — sticky-outer + scroll-tracker pattern.
  *
- * Layout:
- *   2-column grid. Left = stacked text steps (each min-h 90vh, opacity 0.22 default,
- *   full opacity when "active"). Right = pinned visual (sticky top:0 h-screen) that
- *   cross-fades between step visuals as the active step changes.
+ * Why this architecture:
+ *   The C-ladder cover-from-below requires the section's outer element to
+ *   be sticky at top:0 so the next section can flip OVER it. But if the
+ *   outer is sticky AND tall enough to hold N stacked steps, the inner
+ *   content gets frozen (sticky elements with overflow content render
+ *   their content at fixed positions during the stuck range, so only the
+ *   first step is ever in the viewport).
  *
- * Active step detection:
- *   On every scroll, the step whose vertical center is closest to the viewport
- *   center wins. (Same algorithm as the sample.)
+ *   Solution: outer is sticky h-screen (just 100vh), so it stays locked
+ *   at top. Inside, ONE active step is shown at a time with cross-fade
+ *   between steps. A scroll tracker rendered AFTER the section provides
+ *   the scroll range that drives the active-step index. As the user
+ *   scrolls through the tracker, the active step changes — content
+ *   "scrolls" while the section stays locked. After the tracker ends,
+ *   the next sibling section rises up and flips over this one.
+ *
+ * Layout inside the sticky outer:
+ *   2-column grid. Left = active text step (cross-fade). Right = active
+ *   visual (cross-fade). Counter pill at the top.
  *
  * z-index/cover behavior:
- *   The outer section is position:relative with the section's z-index. As the
- *   user scrolls in, this section's z-index covers prior sticky sections via
- *   stacking context. The next section (Partners or wherever) needs higher z
- *   to cover this one when it enters.
+ *   Outer holds the section's z-index. Next sticky section with higher
+ *   z covers it as it rises.
  */
 
 import { ReactNode, useEffect, useRef, useState } from "react";
@@ -48,6 +56,8 @@ type ScrollytellSectionProps = {
     id?: string;
     className?: string;
     noTopFade?: boolean;
+    /** vh per step in the tracker. Default 100vh per step. Larger = slower scrub. */
+    vhPerStep?: number;
 };
 
 export function ScrollytellSection({
@@ -58,37 +68,28 @@ export function ScrollytellSection({
     id,
     className = "",
     noTopFade = false,
+    vhPerStep = 100,
 }: ScrollytellSectionProps) {
     const [activeIdx, setActiveIdx] = useState(0);
-    const stepRefs = useRef<Array<HTMLDivElement | null>>([]);
+    const trackerRef = useRef<HTMLDivElement | null>(null);
+    const lastIdxRef = useRef(0);
 
     useEffect(() => {
-        // rAF-throttled scroll handler. Without this we ran getBoundingClientRect
-        // on every step on every scroll event (60+/sec), forcing layout each time.
-        // Now we batch into one update per frame, max.
         let rafId: number | null = null;
-        let lastActive = -1;
 
         function update() {
             rafId = null;
-            const viewportCenter = window.innerHeight / 2;
-            let active = 0;
-            let bestDist = Infinity;
-            for (let i = 0; i < stepRefs.current.length; i++) {
-                const el = stepRefs.current[i];
-                if (!el) continue;
-                const r = el.getBoundingClientRect();
-                const stepCenter = r.top + r.height / 2;
-                const dist = Math.abs(viewportCenter - stepCenter);
-                if (dist < bestDist) {
-                    bestDist = dist;
-                    active = i;
-                }
-            }
-            // Only setState if value actually changed — avoids React re-render churn.
-            if (active !== lastActive) {
-                lastActive = active;
-                setActiveIdx(active);
+            const tracker = trackerRef.current;
+            if (!tracker) return;
+            const r = tracker.getBoundingClientRect();
+            // Scroll progress within the tracker. r.top is negative when scrolled past tracker start.
+            const totalRange = Math.max(1, r.height);
+            const scrolled = Math.max(0, -r.top);
+            const progress = Math.min(0.9999, scrolled / totalRange);
+            const idx = Math.min(steps.length - 1, Math.floor(progress * steps.length));
+            if (idx !== lastIdxRef.current) {
+                lastIdxRef.current = idx;
+                setActiveIdx(idx);
             }
         }
 
@@ -105,66 +106,64 @@ export function ScrollytellSection({
             window.removeEventListener("scroll", onScroll);
             window.removeEventListener("resize", onScroll);
         };
-    }, []);
+    }, [steps.length]);
 
     return (
-        <section
-            id={id}
-            className={`sticky top-0 section-card ${className}`.trim()}
-            style={{
-                zIndex,
-                backgroundColor: "var(--ds-bg)",
-                // Grid is now global (body::before z=99) — no per-section grid bg
-                // so we skip the costly background-attachment: fixed paints.
-                backgroundImage: noTopFade
-                    ? undefined
-                    : "linear-gradient(to bottom, rgba(196,149,58,0.06) 0, transparent 200px)",
-            }}
-        >
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 px-6 lg:px-[6vw] pt-24 pb-0">
-                {/* Left — scrolling text steps */}
-                <div className="relative z-[2]">
-                    {label && <SectionLabel className="mb-16 lg:mb-20">{label}</SectionLabel>}
-                    {steps.map((step, i) => (
-                        <div
-                            key={i}
-                            ref={(el) => {
-                                stepRefs.current[i] = el;
-                            }}
-                            className={`min-h-[90vh] lg:min-h-[90vh] flex flex-col justify-center transition-opacity duration-500 py-4 ${
-                                activeIdx === i ? "opacity-100" : "opacity-25"
-                            }`}
-                        >
-                            {step.tag && (
-                                <span className="font-sans text-[0.56rem] font-semibold tracking-[0.3em] uppercase text-ravok-gold mb-4">
-                                    {step.tag}
-                                </span>
-                            )}
-                            <h3 className="font-heading italic font-normal text-ravok-gold text-[clamp(2.5rem,4vw,3.5rem)] leading-[1] mb-6">
-                                {step.name}
-                            </h3>
-                            {step.title && (
-                                <h4 className="font-heading font-normal text-[1.6rem] lg:text-[1.8rem] leading-tight mb-5 text-[var(--ds-ink)]">
-                                    {step.title}
-                                </h4>
-                            )}
-                            {step.description && (
-                                <p className="font-heading text-[1rem] lg:text-[1.05rem] leading-[1.65] text-[var(--ds-ink-dim)] max-w-[480px] mb-6">
-                                    {step.description}
-                                </p>
-                            )}
-                            {step.chip && (
-                                <span className="self-start font-sans text-[0.58rem] font-semibold tracking-[0.22em] uppercase px-[0.9rem] py-2 border border-[rgba(196,149,58,0.3)] rounded-full text-ravok-gold">
-                                    {step.chip}
-                                </span>
-                            )}
+        <>
+            {/* Sticky scrollytell scene — exactly 100vh, locked at top */}
+            <section
+                id={id}
+                className={`sticky top-0 h-screen w-full overflow-hidden section-card flex flex-col ${className}`.trim()}
+                style={{
+                    zIndex,
+                    backgroundColor: "var(--ds-bg)",
+                    backgroundImage: noTopFade
+                        ? undefined
+                        : "linear-gradient(to bottom, rgba(196,149,58,0.06) 0, transparent 200px)",
+                }}
+            >
+                <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-12 lg:gap-20 px-6 lg:px-[6vw] py-20 lg:py-24 flex-1 max-w-[1500px] mx-auto w-full">
+                    {/* Left — active text step (cross-fade) */}
+                    <div className="relative flex flex-col justify-center">
+                        {label && <SectionLabel className="mb-10 lg:mb-14">{label}</SectionLabel>}
+                        <div className="relative flex-1 flex items-center">
+                            {steps.map((step, i) => (
+                                <div
+                                    key={i}
+                                    className={`absolute inset-0 flex flex-col justify-center transition-opacity duration-500 ${
+                                        activeIdx === i ? "opacity-100" : "opacity-0 pointer-events-none"
+                                    }`}
+                                >
+                                    {step.tag && (
+                                        <span className="font-sans text-[0.56rem] font-semibold tracking-[0.3em] uppercase text-ravok-gold mb-4">
+                                            {step.tag}
+                                        </span>
+                                    )}
+                                    <h3 className="font-heading italic font-normal text-ravok-gold text-[clamp(2.5rem,4vw,3.5rem)] leading-[1] mb-5">
+                                        {step.name}
+                                    </h3>
+                                    {step.title && (
+                                        <h4 className="font-heading font-normal text-[1.5rem] lg:text-[1.7rem] leading-tight mb-4 text-[var(--ds-ink)]">
+                                            {step.title}
+                                        </h4>
+                                    )}
+                                    {step.description && (
+                                        <p className="font-heading text-[1rem] leading-[1.65] text-[var(--ds-ink-dim)] max-w-[480px] mb-5">
+                                            {step.description}
+                                        </p>
+                                    )}
+                                    {step.chip && (
+                                        <span className="self-start font-sans text-[0.58rem] font-semibold tracking-[0.22em] uppercase px-[0.9rem] py-2 border border-[rgba(196,149,58,0.3)] rounded-full text-ravok-gold">
+                                            {step.chip}
+                                        </span>
+                                    )}
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
+                    </div>
 
-                {/* Right — pinned visual */}
-                <div className="relative hidden lg:block">
-                    <div className="sticky top-0 h-screen flex items-center justify-center">
+                    {/* Right — active visual (cross-fade) */}
+                    <div className="relative hidden lg:flex items-center justify-center">
                         {counterSuffix !== undefined && (
                             <div className="absolute top-[5vh] left-1/2 -translate-x-1/2 font-heading text-[13px] tracking-[0.3em] uppercase text-[var(--ds-ink-dim)] z-[3] whitespace-nowrap">
                                 <span className="text-ravok-gold italic">
@@ -187,7 +186,15 @@ export function ScrollytellSection({
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+
+            {/* Scroll tracker — invisible spacer that provides the scroll range
+                for active-step calculation. Total height = N × vhPerStep. */}
+            <div
+                ref={trackerRef}
+                aria-hidden="true"
+                style={{ height: `${steps.length * vhPerStep}vh` }}
+            />
+        </>
     );
 }
