@@ -18,7 +18,7 @@ const howItWorks = [
 export default function VentureModel() {
     return (
         <CRevealSection id="model" zIndex={13} centerHeader={false} contentMaxWidth="1300px">
-            <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+            <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-start">
                 {/* Left — text */}
                 <div className="max-w-2xl">
                     <h2 className="font-heading font-normal text-[clamp(2rem,4vw,3.4rem)] leading-[1.05] tracking-[-0.015em] text-[var(--ds-ink)] mb-5">

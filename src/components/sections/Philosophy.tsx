@@ -18,7 +18,7 @@ const items = [
 export default function Philosophy() {
     return (
         <CRevealSection zIndex={11} centerHeader={false} contentMaxWidth="1300px">
-            <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-start">
                 {/* Left — text */}
                 <div className="order-2 lg:order-1">
                     <motion.p
