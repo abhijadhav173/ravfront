@@ -1,20 +1,17 @@
 "use client";
 
 /**
- * Partners — Team / partner type grid.
- * Per rules §12: "Team / people" → C-Reveal w/ stone cards.
- *
- * Refactored to use design-system primitives.
- * Copy preserved; layout standardized to stone-card grid + email contact.
+ * Partners — partner-types scrollytell (4 steps).
+ * Per rules §12: "Process / how-it-works (3–6)" → ScrollytellSection.
+ * Each partner type gets a full 100vh moment.
  */
 
-import { motion } from "framer-motion";
-import { Video, DollarSign, Monitor, User, Mail } from "lucide-react";
-import { CRevealSection, StoneCard } from "@/components/design-system";
+import { Video, DollarSign, Monitor, User, Mail, LucideIcon } from "lucide-react";
+import { ScrollytellSection, StoneCard } from "@/components/design-system";
 
 type Partner = {
     type: string;
-    icon: typeof Video;
+    icon: LucideIcon;
     desc: string;
     bring: string;
     get: string;
@@ -53,83 +50,80 @@ const partners: Partner[] = [
 
 export default function Partners() {
     return (
-        <CRevealSection
-            id="investors"
-            zIndex={15}
-            nonSticky
-            eyebrow="To scale this model, we need the right partners."
-            headline={
-                <>
-                    The Future of Media
-                    <br />
-                    <span className="text-[var(--ds-ink)]">Won&apos;t Be Built by Gatekeepers.</span>
-                </>
-            }
-            lead="It will be built by creators, partners, and investors who believe ownership matters."
-            contentMaxWidth="1400px"
-        >
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16">
-                {partners.map((p, i) => {
-                    const Icon = p.icon;
-                    return (
-                        <motion.div
-                            key={p.type}
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6, delay: i * 0.1, ease: [0.2, 0.6, 0.2, 1] }}
-                        >
-                            <StoneCard
-                                title={p.type}
-                                className="h-full !p-8"
-                            >
-                                <Icon className="w-7 h-7 text-[var(--ds-stone-gold)] mb-4" />
-                                <p className="text-[0.85rem] leading-relaxed mb-6 min-h-[40px]">{p.desc}</p>
-                                <div className="space-y-4">
-                                    <div>
-                                        <h4 className="font-sans text-[0.55rem] font-semibold uppercase tracking-[0.3em] text-[var(--ds-stone-gold)] mb-2">
-                                            What you bring
-                                        </h4>
-                                        <p className="text-[0.78rem] leading-relaxed border-l border-[rgba(26,23,19,0.18)] pl-3 text-[rgba(26,23,19,0.7)]">
-                                            {p.bring}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <h4 className="font-sans text-[0.55rem] font-semibold uppercase tracking-[0.3em] text-[var(--ds-stone-gold)] mb-2">
-                                            What you get
-                                        </h4>
-                                        <p className="text-[0.78rem] leading-relaxed border-l border-[rgba(26,23,19,0.18)] pl-3 text-[rgba(26,23,19,0.7)]">
-                                            {p.get}
-                                        </p>
-                                    </div>
-                                </div>
-                            </StoneCard>
-                        </motion.div>
-                    );
-                })}
-            </div>
+        <>
+            <ScrollytellSection
+                id="investors"
+                zIndex={15}
+                eyebrow="To scale this model, we need the right partners."
+                headline={
+                    <>
+                        The Future of Media
+                        <br />
+                        <span className="text-[var(--ds-ink)]">Won&apos;t Be Built by Gatekeepers.</span>
+                    </>
+                }
+                lead="It will be built by creators, partners, and investors who believe ownership matters."
+                steps={partners.map((p, i) => ({
+                    label: `${String(i + 1).padStart(2, "0")} / ${String(partners.length).padStart(2, "0")}`,
+                    content: <PartnerStage partner={p} />,
+                }))}
+            />
 
-            {/* Email contact strip — inline within the section per rules §12 (quote/contact slot) */}
-            <motion.div
-                className="mt-24 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 bg-[rgba(15,15,13,0.5)] backdrop-blur-sm border-y border-[var(--ds-border)] px-8 py-8"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.3 }}
+            {/* Email contact strip — separate sticky cap on top of the scrollytell chain */}
+            <div className="sticky top-0 z-[16] section-card bg-[var(--ds-bg)] py-24 px-10"
+                 style={{
+                    backgroundImage: [
+                        "linear-gradient(to bottom, rgba(196,149,58,0.06) 0, transparent 200px)",
+                        "linear-gradient(to right, rgba(255,255,255,0.025) 1px, transparent 1px)",
+                        "linear-gradient(to bottom, rgba(255,255,255,0.025) 1px, transparent 1px)",
+                    ].join(", "),
+                    backgroundSize: "100% 100%, 80px 80px, 80px 80px",
+                 }}
             >
-                <Mail className="w-7 h-7 text-ravok-gold flex-shrink-0" />
-                <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
-                    <span className="font-sans text-[0.95rem] text-[var(--ds-ink-dim)] whitespace-nowrap">
-                        Questions? Email us at:
-                    </span>
-                    <a
-                        href="mailto:contact@ravokstudios.com"
-                        className="font-heading text-xl lg:text-2xl text-ravok-gold hover:text-[var(--ds-ink)] transition-colors break-all sm:break-normal"
-                    >
-                        contact@ravokstudios.com
-                    </a>
+                <div className="max-w-[900px] mx-auto flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 bg-[rgba(15,15,13,0.5)] backdrop-blur-sm border-y border-[var(--ds-border)] px-8 py-8">
+                    <Mail className="w-7 h-7 text-ravok-gold flex-shrink-0" />
+                    <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
+                        <span className="font-sans text-[0.95rem] text-[var(--ds-ink-dim)] whitespace-nowrap">
+                            Questions? Email us at:
+                        </span>
+                        <a
+                            href="mailto:contact@ravokstudios.com"
+                            className="font-heading text-xl lg:text-2xl text-ravok-gold hover:text-[var(--ds-ink)] transition-colors break-all sm:break-normal"
+                        >
+                            contact@ravokstudios.com
+                        </a>
+                    </div>
                 </div>
-            </motion.div>
-        </CRevealSection>
+            </div>
+        </>
+    );
+}
+
+function PartnerStage({ partner }: { partner: Partner }) {
+    const Icon = partner.icon;
+    return (
+        <div className="max-w-[820px] mx-auto">
+            <StoneCard className="!p-10 lg:!p-14">
+                <Icon className="w-10 h-10 text-[var(--ds-stone-gold)] mb-5" />
+                <h3 className="font-heading text-[1.85rem] lg:text-[2.2rem] leading-tight text-[var(--ds-stone-ink)] mb-4">
+                    {partner.type}
+                </h3>
+                <p className="text-[1.05rem] leading-[1.6] mb-8">{partner.desc}</p>
+                <div className="grid sm:grid-cols-2 gap-6 pt-6 border-t border-[rgba(26,23,19,0.12)]">
+                    <div>
+                        <h4 className="font-sans text-[0.6rem] font-semibold uppercase tracking-[0.3em] text-[var(--ds-stone-gold)] mb-2">
+                            What you bring
+                        </h4>
+                        <p className="text-[0.92rem] leading-[1.55] text-[rgba(26,23,19,0.7)]">{partner.bring}</p>
+                    </div>
+                    <div>
+                        <h4 className="font-sans text-[0.6rem] font-semibold uppercase tracking-[0.3em] text-[var(--ds-stone-gold)] mb-2">
+                            What you get
+                        </h4>
+                        <p className="text-[0.92rem] leading-[1.55] text-[rgba(26,23,19,0.7)]">{partner.get}</p>
+                    </div>
+                </div>
+            </StoneCard>
+        </div>
     );
 }

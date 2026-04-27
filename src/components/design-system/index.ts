@@ -20,3 +20,4 @@ export type { ButtonProps } from "./Button";
 export { SectionLabel } from "./SectionLabel";
 export { StoneCard } from "./StoneCard";
 export { CRevealSection } from "./CRevealSection";
+export { ScrollytellSection } from "./ScrollytellSection";
