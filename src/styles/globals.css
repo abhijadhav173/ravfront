@@ -4,9 +4,14 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-heading: var(--font-libre);
-  --font-body: var(--font-montserrat);
-  --font-sans: var(--font-montserrat);
+  /* The Next.js font loader sets --font-libre and --font-montserrat on <body>
+     (via the variable class). Tailwind v4 @theme can't reliably chain through
+     those at :root scope, so we hardcode the same font names here as the
+     `font-heading` / `font-sans` utility values. The actual @font-face entries
+     are still loaded by Next.js so these names resolve correctly. */
+  --font-heading: "Libre Baskerville", Georgia, serif;
+  --font-body: "Montserrat", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: "Montserrat", -apple-system, BlinkMacSystemFont, sans-serif;
 
   --color-background: #1c1c1a;
   --color-foreground: #e8e4dc;
@@ -17,7 +22,9 @@
 }
 
 body {
-  font-family: var(--font-body);
+  /* Use the Next.js variable directly — it's set on <body> by the font loader.
+     Fallback to "Montserrat" by name in case the variable isn't applied. */
+  font-family: var(--font-montserrat, "Montserrat"), -apple-system, BlinkMacSystemFont, sans-serif;
   /* `overflow-x: hidden` creates a scroll container that kills position:sticky
      on descendants — use `overflow-x: clip` which prevents horizontal scroll
      without breaking sticky cover-from-below sections. */
@@ -25,7 +32,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
+  font-family: var(--font-libre, "Libre Baskerville"), Georgia, serif;
 }
 
 ::selection {
