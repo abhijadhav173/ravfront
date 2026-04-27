@@ -71,18 +71,18 @@ export default function Bridge() {
 
                 {/* Right — text + comparison table */}
                 <div className="order-2 min-w-0">
-                    <p className="font-sans text-[0.62rem] font-semibold tracking-[0.32em] text-ravok-gold uppercase mb-5">
+                    <p className="font-sans text-[0.6rem] font-semibold tracking-[0.32em] text-ravok-gold uppercase mb-3">
                         — The Pattern
                     </p>
 
-                    <h2 className="font-heading font-normal text-[clamp(1.8rem,3.4vw,2.6rem)] leading-[1.1] tracking-[-0.015em] text-[var(--ds-ink)] mb-4">
+                    <h2 className="font-heading font-normal text-[clamp(1.5rem,2.8vw,2.1rem)] leading-[1.1] tracking-[-0.015em] text-[var(--ds-ink)] mb-3">
                         REITs did it for real estate.
                         <br />
                         We&apos;re doing it for{" "}
                         <em className="text-ravok-gold not-italic font-heading italic">entertainment</em>.
                     </h2>
 
-                    <p className="font-heading italic text-[1rem] leading-[1.55] text-[var(--ds-ink-dim)] max-w-[600px] mb-10">
+                    <p className="font-heading italic text-[0.88rem] leading-[1.5] text-[var(--ds-ink-dim)] max-w-[600px] mb-5">
                         Before REITs, real estate was illiquid, opaque, relationship-driven.
                         A legal structure and a disclosure regime turned it into a{" "}
                         <em className="text-[var(--ds-ink)] font-heading italic">$4T asset class</em>.
@@ -92,11 +92,11 @@ export default function Bridge() {
                     <table className="comparison-table w-full text-left border-collapse border-t border-[var(--ds-border-strong,rgba(232,228,218,0.15))]">
                         <thead>
                             <tr>
-                                <th className="dim-head font-sans text-[0.58rem] font-semibold tracking-[0.28em] uppercase text-[var(--ds-ink-muted)] py-3.5 px-3.5 align-bottom border-b border-[rgba(232,228,218,0.15)] w-[22%]"></th>
-                                <th className="col-old font-sans text-[0.58rem] font-semibold tracking-[0.28em] uppercase text-[var(--ds-ink-dim)] py-3.5 px-3.5 align-bottom border-b border-[rgba(232,228,218,0.15)] w-[39%]">
+                                <th className="dim-head font-sans text-[0.52rem] font-semibold tracking-[0.28em] uppercase text-[var(--ds-ink-muted)] py-2 px-2.5 align-bottom border-b border-[rgba(232,228,218,0.15)] w-[22%]"></th>
+                                <th className="col-old font-sans text-[0.52rem] font-semibold tracking-[0.28em] uppercase text-[var(--ds-ink-dim)] py-2 px-2.5 align-bottom border-b border-[rgba(232,228,218,0.15)] w-[39%]">
                                     Hollywood (today)
                                 </th>
-                                <th className="col-new font-sans text-[0.58rem] font-semibold tracking-[0.28em] uppercase text-ravok-gold py-3.5 px-3.5 align-bottom w-[39%]">
+                                <th className="col-new font-sans text-[0.52rem] font-semibold tracking-[0.28em] uppercase text-ravok-gold py-2 px-2.5 align-bottom w-[39%]">
                                     RAVOK
                                 </th>
                             </tr>
@@ -104,22 +104,22 @@ export default function Bridge() {
                         <tbody>
                             {rows.map((r, i) => (
                                 <tr key={i}>
-                                    <td className="dim font-heading italic text-[0.92rem] text-[var(--ds-ink)] py-3.5 px-3.5 align-top border-b border-[var(--ds-border,rgba(232,228,218,0.08))]">
+                                    <td className="dim font-heading italic text-[0.82rem] text-[var(--ds-ink)] py-2 px-2.5 align-top border-b border-[var(--ds-border,rgba(232,228,218,0.08))]">
                                         {r.dim}
                                     </td>
-                                    <td className="cell-old font-sans text-[0.78rem] leading-[1.45] text-[var(--ds-ink-dim)] py-3.5 px-3.5 align-top border-b border-[var(--ds-border,rgba(232,228,218,0.08))]">
+                                    <td className="cell-old font-sans text-[0.7rem] leading-[1.4] text-[var(--ds-ink-dim)] py-2 px-2.5 align-top border-b border-[var(--ds-border,rgba(232,228,218,0.08))]">
                                         <span className="flex items-start">
-                                            <span className="icon-x inline-flex items-center justify-center w-[18px] h-[18px] rounded-full mr-2 flex-shrink-0 font-sans font-bold text-[0.62rem]">
+                                            <span className="icon-x inline-flex items-center justify-center w-[16px] h-[16px] rounded-full mr-1.5 flex-shrink-0 font-sans font-bold text-[0.56rem]">
                                                 ✗
                                             </span>
                                             <span>{r.old}</span>
                                         </span>
                                     </td>
                                     <td
-                                        className={`cell-new font-sans text-[0.78rem] leading-[1.45] text-[var(--ds-ink)] py-3.5 px-3.5 align-top border-b border-[var(--ds-border,rgba(232,228,218,0.08))]`}
+                                        className={`cell-new font-sans text-[0.7rem] leading-[1.4] text-[var(--ds-ink)] py-2 px-2.5 align-top border-b border-[var(--ds-border,rgba(232,228,218,0.08))]`}
                                     >
                                         <span className="flex items-start">
-                                            <span className="icon-check inline-flex items-center justify-center w-[18px] h-[18px] rounded-full mr-2 flex-shrink-0 font-sans font-bold text-[0.62rem]">
+                                            <span className="icon-check inline-flex items-center justify-center w-[16px] h-[16px] rounded-full mr-1.5 flex-shrink-0 font-sans font-bold text-[0.56rem]">
                                                 ✓
                                             </span>
                                             <span>{r.next}</span>

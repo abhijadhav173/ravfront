@@ -10,15 +10,25 @@
 
 import { ScrollytellSection, type ScrollytellStep } from "@/components/design-system";
 
-function StepBadge({ num, label }: { num: string; label: string }) {
+function StepBadge({ num, label, comingSoon = false }: { num: string; label: string; comingSoon?: boolean }) {
     return (
-        <div className="w-[65%] aspect-square rounded-full border-[1.5px] border-ravok-gold flex flex-col items-center justify-center font-heading text-ravok-gold"
-             style={{
-                 background: "radial-gradient(ellipse at center, rgba(196,149,58,0.06) 0%, transparent 70%)",
-             }}
+        <div
+            className={`w-[65%] aspect-square rounded-full border-[1.5px] flex flex-col items-center justify-center font-heading ${
+                comingSoon ? "border-[var(--ds-ink-muted,rgba(232,228,218,0.4))] text-[var(--ds-ink-muted,rgba(232,228,218,0.4))]" : "border-ravok-gold text-ravok-gold"
+            }`}
+            style={{
+                background: comingSoon
+                    ? "radial-gradient(ellipse at center, rgba(232,228,218,0.04) 0%, transparent 70%)"
+                    : "radial-gradient(ellipse at center, rgba(196,149,58,0.06) 0%, transparent 70%)",
+            }}
         >
             <div className="font-heading italic text-[clamp(3rem,6vw,5rem)] leading-none mb-2">{num}</div>
             <div className="font-heading italic text-[clamp(1rem,1.5vw,1.4rem)] tracking-[0.05em]">{label}</div>
+            {comingSoon && (
+                <div className="mt-3 font-sans not-italic text-[0.56rem] font-semibold tracking-[0.32em] uppercase">
+                    Coming Soon
+                </div>
+            )}
         </div>
     );
 }
@@ -90,36 +100,24 @@ const portfolioSteps: ScrollytellStep[] = [
     {
         tag: "AI Validation · 03",
         name: "Delphi",
-        title: <>Audience signal <em className="text-ravok-gold not-italic font-heading italic">before</em> capital deploys.</>,
-        description: (
-            <StepBody
-                body="Audience validation engine, talent analytics, and a project management Co-Pilot for every entertainment role. Data-backed greenlights instead of gut calls."
-                meta={[
-                    <><strong className="font-heading italic text-ravok-gold">880+</strong> films analyzed</>,
-                    <><strong className="font-heading italic text-ravok-gold">70+</strong> talent analytics runs</>,
-                    <><strong className="font-heading italic text-ravok-gold">7+</strong> AI agents deployed</>,
-                ]}
-            />
+        title: (
+            <span className="text-[var(--ds-ink-muted,rgba(232,228,218,0.4))]">
+                Coming soon.
+            </span>
         ),
-        chip: "Enterprise SaaS",
-        visual: <StepBadge num="03" label="Delphi" />,
+        chip: "Coming Soon",
+        visual: <StepBadge num="03" label="Delphi" comingSoon />,
     },
     {
         tag: "Creator Economy · 04",
         name: "Phema",
-        title: <>Direct-to-consumer distribution — <em className="text-ravok-gold not-italic font-heading italic">no studio deal required</em>.</>,
-        description: (
-            <StepBody
-                body="Creator-first AVOD platform. The SPV owns its IP, controls its exit, and keeps the upside. Distribution stops being a tollbooth — it becomes a channel."
-                meta={[
-                    <>Frontend built</>,
-                    <>Backend in development</>,
-                    <>Creator-first economics</>,
-                ]}
-            />
+        title: (
+            <span className="text-[var(--ds-ink-muted,rgba(232,228,218,0.4))]">
+                Coming soon.
+            </span>
         ),
-        chip: "AVOD + Tips",
-        visual: <StepBadge num="04" label="Phema" />,
+        chip: "Coming Soon",
+        visual: <StepBadge num="04" label="Phema" comingSoon />,
     },
 ];
 

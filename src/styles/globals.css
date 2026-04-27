@@ -387,9 +387,9 @@ body::after {
    .coin-frame is the wireframe SVG, scaled up so the circle reads at coin size. */
 .coin {
   position: relative;
-  width: clamp(280px, 28vw, 340px);
+  width: clamp(190px, 18vw, 230px);
   aspect-ratio: 1 / 1;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   cursor: pointer;
   transition: transform 0.4s cubic-bezier(0.2,0.6,0.2,1);
 }

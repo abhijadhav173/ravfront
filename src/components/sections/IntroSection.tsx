@@ -29,25 +29,25 @@ export default function IntroSection() {
             centerHeader={false}
             contentMaxWidth="1300px"
         >
-            <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
                 {/* Left — text */}
                 <div className="order-2 lg:order-1">
-                    <p className="font-sans text-[0.62rem] font-semibold tracking-[0.32em] text-ravok-gold uppercase mb-6">
+                    <p className="font-sans text-[0.62rem] font-semibold tracking-[0.32em] text-ravok-gold uppercase mb-3">
                         — About
                     </p>
 
-                    <h2 className="font-heading font-normal text-[clamp(2rem,4.5vw,3.5rem)] leading-[1.1] tracking-[-0.015em] text-[var(--ds-ink)] mb-6">
+                    <h2 className="font-heading font-normal text-[clamp(1.8rem,3.6vw,2.8rem)] leading-[1.1] tracking-[-0.015em] text-[var(--ds-ink)] mb-4">
                         Film is historically uninvestable.{" "}
                         <em className="text-ravok-gold not-italic font-heading italic">Until now.</em>
                     </h2>
 
-                    <p className="font-sans text-[1rem] leading-[1.65] text-[var(--ds-ink-dim)] mb-6 max-w-[540px]">
+                    <p className="font-sans text-[0.95rem] leading-[1.55] text-[var(--ds-ink-dim)] mb-3 max-w-[540px]">
                         The legal and accounting infrastructure that makes a tech startup underwritable —
                         cap tables, audit trails, verifiable performance — was never built for film.{" "}
                         <em className="text-[var(--ds-ink)]">So we&apos;re building it.</em>
                     </p>
 
-                    <p className="font-sans text-[1rem] leading-[1.65] text-[var(--ds-ink-dim)] mb-6 max-w-[540px]">
+                    <p className="font-sans text-[0.95rem] leading-[1.55] text-[var(--ds-ink-dim)] mb-5 max-w-[540px]">
                         RAVOK is a venture studio for entertainment. Each project incorporates as its own company,
                         with creator equity, transparent waterfalls, and audit-grade reporting.{" "}
                         <strong className="text-[var(--ds-ink)] font-medium">
@@ -56,11 +56,11 @@ export default function IntroSection() {
                         </strong>
                     </p>
 
-                    <ul className="intro-facts list-none p-0 mb-8 max-w-[540px] grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
+                    <ul className="intro-facts list-none p-0 mb-5 max-w-[540px] grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-1.5">
                         {facts.map((fact, i) => (
                             <li
                                 key={i}
-                                className="relative pl-4 font-sans text-[0.78rem] font-medium tracking-[0.02em] text-[var(--ds-ink)]"
+                                className="relative pl-4 font-sans text-[0.74rem] font-medium tracking-[0.02em] text-[var(--ds-ink)]"
                             >
                                 <span className="absolute left-0 text-ravok-gold font-semibold">✓</span>
                                 {fact}
@@ -90,7 +90,7 @@ export default function IntroSection() {
                     <img
                         src="/images/statues/intro-statue.svg"
                         alt=""
-                        className="w-full h-auto max-h-[600px] object-contain"
+                        className="w-full h-auto max-h-[68vh] object-contain"
                         aria-hidden="true"
                     />
                 </div>

@@ -50,7 +50,7 @@ const members: Member[] = [
 function CoinMember({ member, ariaHidden = false }: { member: Member; ariaHidden?: boolean }) {
     return (
         <div
-            className="team-member flex-none w-[360px] text-center flex flex-col items-center"
+            className="team-member flex-none w-[260px] text-center flex flex-col items-center"
             aria-hidden={ariaHidden || undefined}
         >
             <div className="coin">
@@ -59,13 +59,13 @@ function CoinMember({ member, ariaHidden = false }: { member: Member; ariaHidden
                 </div>
                 <img className="coin-frame" src="/images/coins/coin-frame.svg" alt="" aria-hidden="true" />
             </div>
-            <div className="member-role font-sans text-[0.56rem] font-semibold tracking-[0.3em] uppercase text-ravok-gold mb-2">
+            <div className="member-role font-sans text-[0.52rem] font-semibold tracking-[0.3em] uppercase text-ravok-gold mb-1">
                 {member.role}
             </div>
-            <div className="member-name font-heading italic text-[1.2rem] leading-[1.2] text-[var(--ds-ink)] mb-2">
+            <div className="member-name font-heading italic text-[1.05rem] leading-[1.15] text-[var(--ds-ink)] mb-1.5">
                 {member.name}
             </div>
-            <div className="member-bio font-sans text-[0.76rem] leading-[1.55] text-[var(--ds-ink-dim)] max-w-[250px] mx-auto">
+            <div className="member-bio font-sans text-[0.7rem] leading-[1.5] text-[var(--ds-ink-dim)] max-w-[230px] mx-auto">
                 {member.bio}
             </div>
         </div>
@@ -79,17 +79,22 @@ export default function Team() {
             id="team"
             centerHeader={true}
             contentMaxWidth="1400px"
-            eyebrow="— Who's building this"
-            headline={
-                <>
+        >
+            {/* Compact header (smaller than CRevealSection's default header slot) */}
+            <div className="text-center mb-6">
+                <p className="font-sans text-[0.6rem] font-semibold tracking-[0.32em] text-ravok-gold uppercase mb-3">
+                    — Who&apos;s building this
+                </p>
+                <h2 className="font-heading font-normal text-[clamp(1.5rem,2.6vw,2rem)] leading-[1.15] tracking-[-0.015em] text-[var(--ds-ink)] mb-2">
                     Built by people who&apos;ve{" "}
                     <em className="text-ravok-gold not-italic font-heading italic">lived the problem</em>.
-                </>
-            }
-            lead="Film veterans, finance operators, and platform builders. Advised by executives who've shaped the last fifty years of the industry."
-        >
-            <div className="team-marquee relative w-full overflow-hidden py-6">
-                <div className="team-marquee-inner flex gap-16 w-max">
+                </h2>
+                <p className="font-heading italic text-[0.85rem] leading-[1.45] text-[var(--ds-ink-dim)] max-w-[520px] mx-auto">
+                    Film veterans, finance operators, and platform builders. Advised by executives who&apos;ve shaped the last fifty years of the industry.
+                </p>
+            </div>
+            <div className="team-marquee relative w-full overflow-hidden py-2">
+                <div className="team-marquee-inner flex gap-12 w-max">
                     {members.map((m, i) => (
                         <CoinMember key={`s1-${i}`} member={m} />
                     ))}
