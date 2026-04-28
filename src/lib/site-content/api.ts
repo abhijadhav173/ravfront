@@ -9,7 +9,7 @@
  * edits via PUT /api/v1/admin/site/content/{slug}.
  */
 
-import { getApiBase } from "@/lib/api/base";
+import { getApiBase, getAuthHeaders } from "@/lib/api/base";
 import { DEFAULT_HOME_CONTENT } from "./defaults";
 import type { HomeContent, SiteContentEnvelope } from "./types";
 
@@ -51,11 +51,12 @@ export async function fetchHomeContent(): Promise<HomeContent> {
     }
 }
 
-/** Client-side fetch — used by /admin/site to load + edit. Includes cookie credentials. */
+/** Client-side fetch — used by /admin/site to load + edit. Bearer-token auth. */
 export async function fetchHomeContentForAdmin(): Promise<HomeContent> {
+    // Public endpoint — no auth needed. Use it from admin UI as well so
+    // we get the latest persisted content (admin doesn't see drafts).
     const url = `${getApiBase()}/api/site/content/home`;
     const res = await fetch(url, {
-        credentials: "include",
         headers: { Accept: "application/json" },
     });
 
@@ -68,21 +69,13 @@ export async function fetchHomeContentForAdmin(): Promise<HomeContent> {
     return json.content ?? DEFAULT_HOME_CONTENT;
 }
 
-/** Client-side write — admin save. Sanctum cookie auth required. */
+/** Client-side write — admin save. Bearer token auth (matches the rest of the admin API). */
 export async function saveHomeContent(content: HomeContent): Promise<HomeContent> {
     const url = `${getApiBase()}/api/admin/site/content/home`;
 
-    // Pull XSRF cookie for Sanctum (matches the pattern in src/lib/api/client.ts).
-    const xsrf = getCookie("XSRF-TOKEN");
-
     const res = await fetch(url, {
         method: "PUT",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            ...(xsrf ? { "X-XSRF-TOKEN": xsrf } : {}),
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ content }),
     });
 
@@ -93,11 +86,4 @@ export async function saveHomeContent(content: HomeContent): Promise<HomeContent
 
     const json = (await res.json()) as SiteContentEnvelope<HomeContent>;
     return json.content;
-}
-
-function getCookie(name: string): string | null {
-    if (typeof document === "undefined") return null;
-    const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
-    if (!match) return null;
-    return decodeURIComponent(match[2]);
 }
