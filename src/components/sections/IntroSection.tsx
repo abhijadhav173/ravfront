@@ -3,13 +3,13 @@
 /**
  * IntroSection — "About" / hook section.
  * Per WEBSITE-TECHNICAL-RULES.md §12: manifesto/brand statement → CRevealSection.
- *
- * Layout: 2-column grid (text left, statue right). Content CMS-driven.
+ * Layout: 2-column grid (text left, statue right). Content CMS-driven, in-page editable.
  */
 
 import { Eye } from "lucide-react";
 import { CRevealSection, Button } from "@/components/design-system";
-import { DEFAULT_HOME_CONTENT, renderInline, type HomeContent } from "@/lib/site-content";
+import { DEFAULT_HOME_CONTENT, type HomeContent } from "@/lib/site-content";
+import { EditableText, EditableImage } from "@/lib/edit-mode";
 
 type IntroSectionProps = {
     content?: HomeContent["intro"];
@@ -27,21 +27,35 @@ export default function IntroSection({ content }: IntroSectionProps = {}) {
         >
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
                 <div className="order-2 lg:order-1">
-                    <p className="font-sans text-[0.62rem] font-semibold tracking-[0.32em] text-ravok-gold uppercase mb-3">
-                        {c.eyebrow}
-                    </p>
+                    <EditableText
+                        path="intro.eyebrow"
+                        value={c.eyebrow}
+                        as="p"
+                        className="font-sans text-[0.62rem] font-semibold tracking-[0.32em] text-ravok-gold uppercase mb-3"
+                    />
 
-                    <h2 className="font-heading font-normal text-[clamp(1.8rem,3.6vw,2.8rem)] leading-[1.1] tracking-[-0.015em] text-[var(--ds-ink)] mb-4">
-                        {renderInline(c.headline)}
-                    </h2>
+                    <EditableText
+                        path="intro.headline"
+                        value={c.headline}
+                        as="h2"
+                        className="font-heading font-normal text-[clamp(1.8rem,3.6vw,2.8rem)] leading-[1.1] tracking-[-0.015em] text-[var(--ds-ink)] mb-4"
+                    />
 
-                    <p className="font-sans text-[0.95rem] leading-[1.55] text-[var(--ds-ink-dim)] mb-3 max-w-[540px]">
-                        {renderInline(c.body1)}
-                    </p>
+                    <EditableText
+                        path="intro.body1"
+                        value={c.body1}
+                        as="p"
+                        multiline
+                        className="font-sans text-[0.95rem] leading-[1.55] text-[var(--ds-ink-dim)] mb-3 max-w-[540px]"
+                    />
 
-                    <p className="font-sans text-[0.95rem] leading-[1.55] text-[var(--ds-ink-dim)] mb-5 max-w-[540px]">
-                        {renderInline(c.body2)}
-                    </p>
+                    <EditableText
+                        path="intro.body2"
+                        value={c.body2}
+                        as="p"
+                        multiline
+                        className="font-sans text-[0.95rem] leading-[1.55] text-[var(--ds-ink-dim)] mb-5 max-w-[540px]"
+                    />
 
                     {c.facts.length > 0 && (
                         <ul className="intro-facts list-none p-0 mb-5 max-w-[540px] grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-1.5">
@@ -51,7 +65,7 @@ export default function IntroSection({ content }: IntroSectionProps = {}) {
                                     className="relative pl-4 font-sans text-[0.74rem] font-medium tracking-[0.02em] text-[var(--ds-ink)]"
                                 >
                                     <span className="absolute left-0 text-ravok-gold font-semibold">✓</span>
-                                    {fact}
+                                    <EditableText path={`intro.facts.${i}`} value={fact} inline={false} />
                                 </li>
                             ))}
                         </ul>
@@ -60,7 +74,7 @@ export default function IntroSection({ content }: IntroSectionProps = {}) {
                     <div className="flex flex-wrap items-center gap-3">
                         {c.ctas.map((cta, i) => (
                             <Button key={i} href={cta.href} variant={cta.variant}>
-                                {cta.label}
+                                <EditableText path={`intro.ctas.${i}.label`} value={cta.label} inline={false} />
                             </Button>
                         ))}
                         <button
@@ -74,12 +88,16 @@ export default function IntroSection({ content }: IntroSectionProps = {}) {
                 </div>
 
                 <div className="order-1 lg:order-2 relative flex items-center justify-center">
-                    <img
-                        src={c.statueImage}
-                        alt=""
-                        className="w-full h-auto max-h-[68vh] object-contain"
-                        aria-hidden="true"
-                    />
+                    <EditableImage path="intro.statueImage" value={c.statueImage}>
+                        {(src) => (
+                            <img
+                                src={src}
+                                alt=""
+                                className="w-full h-auto max-h-[68vh] object-contain"
+                                aria-hidden="true"
+                            />
+                        )}
+                    </EditableImage>
                 </div>
             </div>
         </CRevealSection>

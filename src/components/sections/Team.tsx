@@ -1,17 +1,24 @@
 "use client";
 
 /**
- * Team — horizontal coin marquee. Content (members + coin frame asset) is CMS-driven.
- * Marquee + coin styles live in globals.css under TEAM MARQUEE and COIN.
+ * Team — horizontal coin marquee.
+ * Content is CMS-driven and in-page editable. Per-member fields (role, name,
+ * bio, photo, linkedin) are individually editable when in edit mode.
+ *
+ * Marquee animation pauses naturally on hover (CSS), which makes editing
+ * feasible. Members are duplicated for the seamless loop; only the first set
+ * is editable so admins don't accidentally try to edit a duplicate (the
+ * second-set EditableTexts use the same path so changes propagate, but we
+ * mark them aria-hidden + tabIndex={-1} so focus skips them).
  */
 
 import { CRevealSection } from "@/components/design-system";
 import {
     DEFAULT_HOME_CONTENT,
-    renderInline,
     type HomeContent,
     type TeamMemberContent,
 } from "@/lib/site-content";
+import { EditableText, EditableImage, useEditMode } from "@/lib/edit-mode";
 
 type TeamProps = {
     content?: HomeContent["team"];
@@ -19,44 +26,78 @@ type TeamProps = {
 
 function CoinMember({
     member,
+    index,
     coinFrame,
-    ariaHidden = false,
+    isDuplicate = false,
 }: {
     member: TeamMemberContent;
+    index: number;
     coinFrame: string;
-    ariaHidden?: boolean;
+    isDuplicate?: boolean;
 }) {
+    const { enabled } = useEditMode();
+    const wrapperClass = "team-member flex-none w-[260px] text-center flex flex-col items-center";
+    const tabIdx = isDuplicate ? -1 : undefined;
+
     const card = (
         <>
             <div className="coin">
-                <div className="coin-portrait">
-                    <img src={member.photo} alt="" />
-                </div>
+                <EditableImage
+                    path={`team.members.${index}.photo`}
+                    value={member.photo}
+                >
+                    {(src) => (
+                        <div className="coin-portrait">
+                            <img src={src} alt="" />
+                        </div>
+                    )}
+                </EditableImage>
                 <img className="coin-frame" src={coinFrame} alt="" aria-hidden="true" />
             </div>
-            <div className="member-role font-sans text-[0.52rem] font-semibold tracking-[0.3em] uppercase text-ravok-gold mb-1">
-                {member.role}
-            </div>
-            <div className="member-name font-heading italic text-[1.05rem] leading-[1.15] text-[var(--ds-ink)] mb-1.5">
-                {member.name}
-            </div>
-            <div className="member-bio font-sans text-[0.7rem] leading-[1.5] text-[var(--ds-ink-dim)] max-w-[230px] mx-auto">
-                {member.bio}
-            </div>
+            <EditableText
+                path={`team.members.${index}.role`}
+                value={member.role}
+                as="div"
+                inline={false}
+                className="member-role font-sans text-[0.52rem] font-semibold tracking-[0.3em] uppercase text-ravok-gold mb-1"
+            />
+            <EditableText
+                path={`team.members.${index}.name`}
+                value={member.name}
+                as="div"
+                inline={false}
+                className="member-name font-heading italic text-[1.05rem] leading-[1.15] text-[var(--ds-ink)] mb-1.5"
+            />
+            <EditableText
+                path={`team.members.${index}.bio`}
+                value={member.bio}
+                as="div"
+                inline={false}
+                multiline
+                className="member-bio font-sans text-[0.7rem] leading-[1.5] text-[var(--ds-ink-dim)] max-w-[230px] mx-auto"
+            />
+            {enabled && (
+                <EditableText
+                    path={`team.members.${index}.linkedin`}
+                    value={member.linkedin}
+                    as="div"
+                    inline={false}
+                    className="font-mono text-[0.6rem] text-[var(--ds-ink-muted)] mt-2 max-w-[230px] mx-auto"
+                />
+            )}
         </>
     );
 
-    const wrapperClass = "team-member flex-none w-[260px] text-center flex flex-col items-center";
-
-    if (member.linkedin) {
+    // Outside edit mode: live anchor if linkedin exists; otherwise plain div.
+    if (!enabled && member.linkedin) {
         return (
             <a
                 href={member.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={wrapperClass}
-                aria-hidden={ariaHidden || undefined}
-                tabIndex={ariaHidden ? -1 : undefined}
+                aria-hidden={isDuplicate || undefined}
+                tabIndex={tabIdx}
             >
                 {card}
             </a>
@@ -64,7 +105,7 @@ function CoinMember({
     }
 
     return (
-        <div className={wrapperClass} aria-hidden={ariaHidden || undefined}>
+        <div className={wrapperClass} aria-hidden={isDuplicate || undefined}>
             {card}
         </div>
     );
@@ -76,23 +117,40 @@ export default function Team({ content }: TeamProps = {}) {
     return (
         <CRevealSection zIndex={13} id="team" centerHeader={true} contentMaxWidth="1400px">
             <div className="text-center mb-6">
-                <p className="font-sans text-[0.6rem] font-semibold tracking-[0.32em] text-ravok-gold uppercase mb-3">
-                    {c.eyebrow}
-                </p>
-                <h2 className="font-heading font-normal text-[clamp(1.5rem,2.6vw,2rem)] leading-[1.15] tracking-[-0.015em] text-[var(--ds-ink)] mb-2">
-                    {renderInline(c.headline)}
-                </h2>
-                <p className="font-heading italic text-[0.85rem] leading-[1.45] text-[var(--ds-ink-dim)] max-w-[520px] mx-auto">
-                    {c.lead}
-                </p>
+                <EditableText
+                    path="team.eyebrow"
+                    value={c.eyebrow}
+                    as="p"
+                    className="font-sans text-[0.6rem] font-semibold tracking-[0.32em] text-ravok-gold uppercase mb-3"
+                />
+                <EditableText
+                    path="team.headline"
+                    value={c.headline}
+                    as="h2"
+                    className="font-heading font-normal text-[clamp(1.5rem,2.6vw,2rem)] leading-[1.15] tracking-[-0.015em] text-[var(--ds-ink)] mb-2"
+                />
+                <EditableText
+                    path="team.lead"
+                    value={c.lead}
+                    as="p"
+                    multiline
+                    inline={false}
+                    className="font-heading italic text-[0.85rem] leading-[1.45] text-[var(--ds-ink-dim)] max-w-[520px] mx-auto"
+                />
             </div>
             <div className="team-marquee relative w-full overflow-hidden py-2">
                 <div className="team-marquee-inner flex gap-12 w-max">
                     {c.members.map((m, i) => (
-                        <CoinMember key={`s1-${i}`} member={m} coinFrame={c.coinFrame} />
+                        <CoinMember key={`s1-${i}`} member={m} index={i} coinFrame={c.coinFrame} />
                     ))}
                     {c.members.map((m, i) => (
-                        <CoinMember key={`s2-${i}`} member={m} coinFrame={c.coinFrame} ariaHidden />
+                        <CoinMember
+                            key={`s2-${i}`}
+                            member={m}
+                            index={i}
+                            coinFrame={c.coinFrame}
+                            isDuplicate
+                        />
                     ))}
                 </div>
             </div>

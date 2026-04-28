@@ -6,13 +6,14 @@
  * Full viewport, no sticky, no page-pass edges. Lives at the top, scrolls away
  * normally. Z-index 2. Owns the temple visual + entry copy + scroll cue.
  *
- * Content (tagline, logo image, temple image, scroll cue) is now CMS-driven via
- * the `content` prop. Falls back to DEFAULT_HOME_CONTENT.hero when omitted.
+ * Content is CMS-driven via the `content` prop with EditableText/EditableImage
+ * wrappers active when EditModeProvider.enabled === true.
  */
 
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { DEFAULT_HOME_CONTENT, type HomeContent } from "@/lib/site-content";
+import { EditableText, EditableImage } from "@/lib/edit-mode";
 
 type HeroProps = {
     content?: HomeContent["hero"];
@@ -37,19 +38,23 @@ export default function Hero({ content }: HeroProps = {}) {
             className="sticky top-0 min-h-screen w-full flex flex-col items-center justify-center px-10 pt-36 pb-20 text-center"
             style={{ zIndex: 2 }}
         >
-            {/* Hidden h1 for SEO — page topic in semantic HTML */}
             <h1 className="sr-only">RAVOK Studios — {c.tagline}</h1>
 
             <motion.div
                 className="absolute inset-0 flex items-center justify-center pointer-events-none"
                 style={{ y: templeY, opacity: templeOpacity, zIndex: 0 }}
             >
-                <img
-                    src={c.templeImage}
-                    alt=""
-                    className="w-[60%] max-w-[700px] object-contain"
-                    style={{ mixBlendMode: "screen" }}
-                />
+                <EditableImage path="hero.templeImage" value={c.templeImage}>
+                    {(src) => (
+                        <img
+                            src={src}
+                            alt=""
+                            className="w-[60%] max-w-[700px] object-contain"
+                            style={{ mixBlendMode: "screen" }}
+                            aria-hidden="true"
+                        />
+                    )}
+                </EditableImage>
             </motion.div>
 
             <motion.div
@@ -62,12 +67,16 @@ export default function Hero({ content }: HeroProps = {}) {
                     transition={{ duration: 1, ease: [0.2, 0.6, 0.2, 1], delay: 0.1 }}
                     className="w-[min(820px,88vw)] mb-14"
                 >
-                    <img
-                        src={c.logoImage}
-                        alt="RAVOK"
-                        className="w-full"
-                        style={{ mixBlendMode: "screen" }}
-                    />
+                    <EditableImage path="hero.logoImage" value={c.logoImage} decorative={false} alt="RAVOK">
+                        {(src) => (
+                            <img
+                                src={src}
+                                alt="RAVOK"
+                                className="w-full"
+                                style={{ mixBlendMode: "screen" }}
+                            />
+                        )}
+                    </EditableImage>
                 </motion.div>
 
                 <motion.p
@@ -77,7 +86,7 @@ export default function Hero({ content }: HeroProps = {}) {
                     transition={{ duration: 0.8, delay: 0.5 }}
                 >
                     <span className="text-ravok-gold">·</span>
-                    {c.tagline}
+                    <EditableText path="hero.tagline" value={c.tagline} />
                     <span className="text-ravok-gold">·</span>
                 </motion.p>
             </motion.div>
@@ -88,7 +97,7 @@ export default function Hero({ content }: HeroProps = {}) {
                 animate={{ y: [0, -8, 0] }}
                 transition={{ duration: 2, ease: "easeInOut", repeat: Infinity }}
             >
-                {c.scrollCue}
+                <EditableText path="hero.scrollCue" value={c.scrollCue} />
             </motion.div>
         </section>
     );
