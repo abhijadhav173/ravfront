@@ -9,7 +9,7 @@
 import { Eye } from "lucide-react";
 import { CRevealSection, Button } from "@/components/design-system";
 import { DEFAULT_HOME_CONTENT, type HomeContent } from "@/lib/site-content";
-import { EditableText, EditableImage } from "@/lib/edit-mode";
+import { EditableText, EditableImage, EditableList } from "@/lib/edit-mode";
 
 type IntroSectionProps = {
     content?: HomeContent["intro"];
@@ -57,26 +57,35 @@ export default function IntroSection({ content }: IntroSectionProps = {}) {
                         className="font-sans text-[0.95rem] leading-[1.55] text-[var(--ds-ink-dim)] mb-5 max-w-[540px]"
                     />
 
-                    {c.facts.length > 0 && (
-                        <ul className="intro-facts list-none p-0 mb-5 max-w-[540px] grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-1.5">
-                            {c.facts.map((fact, i) => (
-                                <li
-                                    key={i}
-                                    className="relative pl-4 font-sans text-[0.74rem] font-medium tracking-[0.02em] text-[var(--ds-ink)]"
-                                >
-                                    <span className="absolute left-0 text-ravok-gold font-semibold">✓</span>
-                                    <EditableText path={`intro.facts.${i}`} value={fact} inline={false} />
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+                    <EditableList
+                        arrayPath="intro.facts"
+                        items={c.facts}
+                        defaultNewItem="New fact"
+                        addLabel="Add fact"
+                        as="ul"
+                        className="intro-facts list-none p-0 mb-5 max-w-[540px] grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-1.5"
+                        renderItem={(fact, i) => (
+                            <li className="relative pl-4 font-sans text-[0.74rem] font-medium tracking-[0.02em] text-[var(--ds-ink)]">
+                                <span className="absolute left-0 text-ravok-gold font-semibold">✓</span>
+                                <EditableText path={`intro.facts.${i}`} value={fact} inline={false} />
+                            </li>
+                        )}
+                    />
 
-                    <div className="flex flex-wrap items-center gap-3">
-                        {c.ctas.map((cta, i) => (
-                            <Button key={i} href={cta.href} variant={cta.variant}>
+                    <EditableList
+                        arrayPath="intro.ctas"
+                        items={c.ctas}
+                        defaultNewItem={{ label: "Learn more", href: "#", variant: "secondary" } as HomeContent["intro"]["ctas"][number]}
+                        addLabel="Add CTA"
+                        as="div"
+                        className="flex flex-wrap items-center gap-3"
+                        renderItem={(cta, i) => (
+                            <Button href={cta.href} variant={cta.variant}>
                                 <EditableText path={`intro.ctas.${i}.label`} value={cta.label} inline={false} />
                             </Button>
-                        ))}
+                        )}
+                    />
+                    <div className="mt-3">
                         <button
                             type="button"
                             className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(232,228,218,0.15)] bg-transparent transition-all duration-[250ms] ease-[cubic-bezier(0.2,0.6,0.2,1)] hover:border-ravok-gold hover:-translate-y-px"

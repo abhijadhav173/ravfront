@@ -33,7 +33,13 @@ import {
     type HomeContent,
 } from "@/lib/site-content";
 import { getStoredUser } from "@/lib/api/base";
-import { setAtPath, type Path } from "./path-utils";
+import {
+    setAtPath,
+    pushAtPath,
+    removeFromArrayAtPath,
+    moveInArrayAtPath,
+    type Path,
+} from "./path-utils";
 
 type EditModeContextValue = {
     enabled: boolean;
@@ -41,6 +47,9 @@ type EditModeContextValue = {
 
     content: HomeContent;
     setAt: (path: Path, value: unknown) => void;
+    pushAt: (arrayPath: Path, item: unknown) => void;
+    removeAt: (arrayPath: Path, index: number) => void;
+    moveAt: (arrayPath: Path, from: number, to: number) => void;
 
     isAdmin: boolean;
     dirty: boolean;
@@ -63,6 +72,9 @@ export function useEditMode(): EditModeContextValue {
             setEnabled: () => {},
             content: {} as HomeContent,
             setAt: () => {},
+            pushAt: () => {},
+            removeAt: () => {},
+            moveAt: () => {},
             isAdmin: false,
             dirty: false,
             saving: false,
@@ -99,6 +111,18 @@ export function EditModeProvider({
 
     const setAt = useCallback((path: Path, value: unknown) => {
         setContent((prev) => setAtPath(prev, path, value));
+    }, []);
+
+    const pushAt = useCallback((arrayPath: Path, item: unknown) => {
+        setContent((prev) => pushAtPath(prev, arrayPath, item));
+    }, []);
+
+    const removeAt = useCallback((arrayPath: Path, index: number) => {
+        setContent((prev) => removeFromArrayAtPath(prev, arrayPath, index));
+    }, []);
+
+    const moveAt = useCallback((arrayPath: Path, from: number, to: number) => {
+        setContent((prev) => moveInArrayAtPath(prev, arrayPath, from, to));
     }, []);
 
     const save = useCallback(async () => {
@@ -138,13 +162,16 @@ export function EditModeProvider({
             setEnabled,
             content,
             setAt,
+            pushAt,
+            removeAt,
+            moveAt,
             isAdmin,
             dirty,
             saving,
             save,
             discard,
         }),
-        [enabled, content, setAt, isAdmin, dirty, saving, save, discard]
+        [enabled, content, setAt, pushAt, removeAt, moveAt, isAdmin, dirty, saving, save, discard]
     );
 
     return <EditModeContext.Provider value={value}>{children}</EditModeContext.Provider>;

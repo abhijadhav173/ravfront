@@ -10,6 +10,7 @@ import type { HomeContent } from "./types";
  * from this even if the API is down.
  */
 export const DEFAULT_HOME_CONTENT: HomeContent = {
+    sectionOrder: ["intro", "bridge", "portfolio", "team"],
     hero: {
         tagline: "A New Architecture for Entertainment",
         logoImage: "/images/logo.png",

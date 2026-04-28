@@ -6,17 +6,18 @@
  * Why this exists:
  *   - The homepage is a server component that fetches `HomeContent` once.
  *   - Edit mode is a CLIENT concern (contentEditable, localStorage admin
- *     check, save state). So we wrap the section tree in a client component
- *     that owns the EditModeProvider.
- *   - Sections still receive their content as props (decoupled), but this
- *     wrapper reads from the provider's live state, so when an admin edits a
- *     field the section re-renders with the new value immediately.
+ *     check, save state).
+ *   - This wrapper owns the EditModeProvider and renders the section tree
+ *     from the live context state, so admins see edits applied immediately.
  *
- * Out of edit mode this is a transparent pass-through: sections render with
- * the server-fetched initialContent.
+ * Section order is data-driven via `content.sectionOrder` (an array of
+ * SectionKey). Hero is always first; Footer is always last; everything
+ * between renders in the order defined by the array. Admins can drag-
+ * reorder these sections in edit mode.
  */
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { GripVertical } from "lucide-react";
 import { Hero, IntroSection, Bridge, Portfolio, Team } from "@/components/sections";
 import Footer from "@/components/layout/Footer";
 import {
@@ -24,7 +25,8 @@ import {
     EditModeOverlay,
     useEditMode,
 } from "@/lib/edit-mode";
-import type { HomeContent } from "@/lib/site-content";
+import { ALL_SECTION_KEYS, type HomeContent, type SectionKey } from "@/lib/site-content";
+import { moveInArrayAtPath } from "@/lib/edit-mode/path-utils";
 
 export function PageBody({ initialContent }: { initialContent: HomeContent }) {
     return (
@@ -36,19 +38,25 @@ export function PageBody({ initialContent }: { initialContent: HomeContent }) {
     );
 }
 
-/** Reads the live content from context and renders the section tree. */
 function Sections() {
     const { content } = useEditMode();
+    // Resolve order: stored array (filtered to known keys) + any missing keys
+    // appended at the end so newly-added section types still appear.
+    const stored = (content.sectionOrder ?? []).filter((k): k is SectionKey =>
+        ALL_SECTION_KEYS.includes(k)
+    );
+    const missing = ALL_SECTION_KEYS.filter((k) => !stored.includes(k));
+    const order: SectionKey[] = [...stored, ...missing];
+
     return (
         <main
             className="min-h-screen text-white selection:bg-ravok-gold selection:text-black"
             style={{ overflowX: "clip" }}
         >
             <Hero content={content.hero} />
-            <IntroSection content={content.intro} />
-            <Bridge content={content.bridge} />
-            <Portfolio content={content.portfolio} />
-            <Team content={content.team} />
+            {order.map((key, position) => (
+                <SectionSlot key={key} sectionKey={key} position={position} />
+            ))}
             <div className="relative z-[60]">
                 <Footer />
             </div>
@@ -56,8 +64,87 @@ function Sections() {
     );
 }
 
-/** Adds .edit-mode-active to <body> when edit mode is on (drives toolbar
- *  spacing CSS in globals.css). */
+/**
+ * Renders one section by key, optionally wrapped in a drag-handle overlay
+ * when in edit mode. The overlay sits at the top-left of each section's
+ * page-pass edge so it doesn't obscure content.
+ */
+function SectionSlot({
+    sectionKey,
+    position,
+}: {
+    sectionKey: SectionKey;
+    position: number;
+}) {
+    const { enabled, content, setAt } = useEditMode();
+    const [dragFrom, setDragFrom] = useState<number | null>(null);
+
+    const stored = (content.sectionOrder ?? []).filter((k): k is SectionKey =>
+        ALL_SECTION_KEYS.includes(k)
+    );
+    const missing = ALL_SECTION_KEYS.filter((k) => !stored.includes(k));
+    const fullOrder: SectionKey[] = [...stored, ...missing];
+
+    function moveSection(from: number, to: number) {
+        const moved = moveInArrayAtPath({ arr: fullOrder } as { arr: SectionKey[] }, "arr", from, to);
+        setAt("sectionOrder", moved.arr);
+    }
+
+    const sectionEl = (() => {
+        switch (sectionKey) {
+            case "intro":
+                return <IntroSection content={content.intro} />;
+            case "bridge":
+                return <Bridge content={content.bridge} />;
+            case "portfolio":
+                return <Portfolio content={content.portfolio} />;
+            case "team":
+                return <Team content={content.team} />;
+        }
+    })();
+
+    if (!enabled) return <>{sectionEl}</>;
+
+    return (
+        <div
+            className="edit-mode-section-slot"
+            data-section={sectionKey}
+            data-position={position}
+            onDragOver={(e) => {
+                if (dragFrom !== null && dragFrom !== position) e.preventDefault();
+            }}
+            onDrop={(e) => {
+                e.preventDefault();
+                const fromStr = e.dataTransfer.getData("text/plain");
+                const from = Number.parseInt(fromStr, 10);
+                if (Number.isNaN(from) || from === position) return;
+                moveSection(from, position);
+                setDragFrom(null);
+            }}
+        >
+            <div className="edit-mode-section-handle">
+                <button
+                    type="button"
+                    className="edit-mode-section-handle-btn"
+                    draggable
+                    onDragStart={(e) => {
+                        setDragFrom(position);
+                        e.dataTransfer.effectAllowed = "move";
+                        e.dataTransfer.setData("text/plain", String(position));
+                    }}
+                    onDragEnd={() => setDragFrom(null)}
+                    title={`Drag to reorder ${sectionKey}`}
+                    aria-label={`Reorder ${sectionKey} section`}
+                >
+                    <GripVertical className="w-3.5 h-3.5" />
+                    <span>{sectionKey}</span>
+                </button>
+            </div>
+            {sectionEl}
+        </div>
+    );
+}
+
 function BodyClassToggle() {
     const { enabled } = useEditMode();
     useEffect(() => {

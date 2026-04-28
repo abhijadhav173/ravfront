@@ -49,7 +49,18 @@ export type TeamMemberContent = {
     linkedin: string;
 };
 
+/**
+ * Order of body sections (after the always-first Hero, and before the
+ * always-last Footer). Admins can drag-reorder these in edit mode.
+ *
+ * Optional in schema for backwards compat — when missing, the default
+ * order from DEFAULT_HOME_CONTENT is used.
+ */
+export type SectionKey = "intro" | "bridge" | "portfolio" | "team";
+export const ALL_SECTION_KEYS: SectionKey[] = ["intro", "bridge", "portfolio", "team"];
+
 export type HomeContent = {
+    sectionOrder?: SectionKey[];
     hero: {
         tagline: string;
         logoImage: string;

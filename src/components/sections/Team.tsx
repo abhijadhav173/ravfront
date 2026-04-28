@@ -18,7 +18,15 @@ import {
     type HomeContent,
     type TeamMemberContent,
 } from "@/lib/site-content";
-import { EditableText, EditableImage, useEditMode } from "@/lib/edit-mode";
+import { EditableText, EditableImage, EditableList, useEditMode } from "@/lib/edit-mode";
+
+const NEW_MEMBER_DEFAULT: TeamMemberContent = {
+    name: "New Member",
+    role: "Role",
+    bio: "Bio…",
+    photo: "/images/team/amanda.jpg",
+    linkedin: "",
+};
 
 type TeamProps = {
     content?: HomeContent["team"];
@@ -113,6 +121,7 @@ function CoinMember({
 
 export default function Team({ content }: TeamProps = {}) {
     const c = content ?? DEFAULT_HOME_CONTENT.team;
+    const { enabled } = useEditMode();
 
     return (
         <CRevealSection zIndex={13} id="team" centerHeader={true} contentMaxWidth="1400px">
@@ -138,22 +147,40 @@ export default function Team({ content }: TeamProps = {}) {
                     className="font-heading italic text-[0.85rem] leading-[1.45] text-[var(--ds-ink-dim)] max-w-[520px] mx-auto"
                 />
             </div>
-            <div className="team-marquee relative w-full overflow-hidden py-2">
-                <div className="team-marquee-inner flex gap-12 w-max">
-                    {c.members.map((m, i) => (
-                        <CoinMember key={`s1-${i}`} member={m} index={i} coinFrame={c.coinFrame} />
-                    ))}
-                    {c.members.map((m, i) => (
-                        <CoinMember
-                            key={`s2-${i}`}
-                            member={m}
-                            index={i}
-                            coinFrame={c.coinFrame}
-                            isDuplicate
-                        />
-                    ))}
+
+            {enabled ? (
+                /* Edit mode: static grid so admins can drag/remove/add without
+                   the marquee animation pulling things out from under them. */
+                <EditableList
+                    arrayPath="team.members"
+                    items={c.members}
+                    defaultNewItem={NEW_MEMBER_DEFAULT}
+                    addLabel="Add team member"
+                    as="div"
+                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 justify-items-center"
+                    renderItem={(m, i) => (
+                        <CoinMember member={m} index={i} coinFrame={c.coinFrame} />
+                    )}
+                />
+            ) : (
+                /* Production: scrolling coin marquee */
+                <div className="team-marquee relative w-full overflow-hidden py-2">
+                    <div className="team-marquee-inner flex gap-12 w-max">
+                        {c.members.map((m, i) => (
+                            <CoinMember key={`s1-${i}`} member={m} index={i} coinFrame={c.coinFrame} />
+                        ))}
+                        {c.members.map((m, i) => (
+                            <CoinMember
+                                key={`s2-${i}`}
+                                member={m}
+                                index={i}
+                                coinFrame={c.coinFrame}
+                                isDuplicate
+                            />
+                        ))}
+                    </div>
                 </div>
-            </div>
+            )}
         </CRevealSection>
     );
 }

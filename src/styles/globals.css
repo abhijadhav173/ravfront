@@ -623,6 +623,128 @@ body.edit-mode-active main {
   padding-top: 56px;
 }
 
+/* Section drag handle (top-level reorder of Intro/Bridge/Portfolio/Team) */
+.edit-mode-section-slot {
+  position: relative;
+}
+.edit-mode-section-handle {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 50;
+  pointer-events: none;
+}
+.edit-mode-section-handle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.7rem;
+  background: rgba(28,28,26,0.9);
+  border: 1px solid rgba(196,149,58,0.5);
+  border-radius: 999px;
+  color: var(--ds-gold);
+  font-family: var(--font-montserrat, "Montserrat"), sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  cursor: grab;
+  pointer-events: auto;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+  transition: all 0.15s ease;
+}
+.edit-mode-section-handle-btn:active {
+  cursor: grabbing;
+}
+.edit-mode-section-handle-btn:hover {
+  background: rgba(196,149,58,0.95);
+  color: #1c1c1a;
+  border-color: var(--ds-gold);
+}
+
+/* List controls — drag handle, remove button, add button */
+.edit-mode-list-item {
+  position: relative;
+}
+.edit-mode-list-controls {
+  position: absolute;
+  left: -36px;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.edit-mode-list-item:hover .edit-mode-list-controls,
+.edit-mode-list-item:focus-within .edit-mode-list-controls {
+  opacity: 1;
+}
+.edit-mode-list-item--vertical .edit-mode-list-controls {
+  position: relative;
+  left: 0;
+  top: 0;
+  flex-direction: row;
+  margin-bottom: 0.4rem;
+}
+.edit-mode-list-handle,
+.edit-mode-list-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: rgba(28,28,26,0.85);
+  border: 1px solid rgba(232,228,218,0.18);
+  border-radius: 6px;
+  color: rgba(232,228,218,0.55);
+  cursor: pointer;
+  padding: 0;
+}
+.edit-mode-list-handle {
+  cursor: grab;
+}
+.edit-mode-list-handle:active {
+  cursor: grabbing;
+}
+.edit-mode-list-handle:hover {
+  border-color: rgba(196,149,58,0.6);
+  color: var(--ds-gold);
+}
+.edit-mode-list-remove:hover {
+  border-color: rgba(220,80,80,0.5);
+  color: rgba(220,140,140,0.95);
+  background: rgba(220,80,80,0.12);
+}
+.edit-mode-list-content {
+  /* Allow item content to render naturally without wrapper interference */
+  display: contents;
+}
+.edit-mode-list-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+  padding: 0.45rem 0.85rem;
+  background: transparent;
+  color: var(--ds-gold);
+  border: 1px dashed rgba(196,149,58,0.45);
+  border-radius: 999px;
+  font-family: var(--font-montserrat, "Montserrat"), sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.edit-mode-list-add:hover {
+  background: rgba(196,149,58,0.1);
+  border-color: var(--ds-gold);
+  border-style: solid;
+}
+
 /* Image picker modal */
 .edit-mode-modal-backdrop {
   position: fixed;

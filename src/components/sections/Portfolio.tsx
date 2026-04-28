@@ -21,7 +21,19 @@ import {
     type HomeContent,
     type PortfolioStepContent,
 } from "@/lib/site-content";
-import { EditableText, useEditMode } from "@/lib/edit-mode";
+import { EditableText, EditableList, useEditMode } from "@/lib/edit-mode";
+
+const NEW_STEP_DEFAULT: PortfolioStepContent = {
+    tag: "Tag · 0X",
+    name: "New Pillar",
+    title: "Headline.",
+    body: "Body copy…",
+    meta: ["Bullet 1"],
+    chip: "Chip",
+    badgeNum: "0X",
+    badgeLabel: "Pillar",
+    comingSoon: false,
+};
 
 type PortfolioProps = {
     content?: HomeContent["portfolio"];
@@ -246,9 +258,15 @@ function PortfolioStacked({ content }: { content: HomeContent["portfolio"] }) {
                 <p className="text-[0.6rem] uppercase tracking-[0.2em] text-white/40 mb-8 italic">
                     Edit-mode preview · stacked layout. Public site shows scroll-driven advance.
                 </p>
-                {content.steps.map((step, i) => (
-                    <StackedStep key={i} step={step} index={i} />
-                ))}
+                <EditableList
+                    arrayPath="portfolio.steps"
+                    items={content.steps}
+                    defaultNewItem={NEW_STEP_DEFAULT}
+                    addLabel="Add pillar"
+                    controlsAbove
+                    as="div"
+                    renderItem={(step, i) => <StackedStep step={step} index={i} />}
+                />
             </div>
         </section>
     );

@@ -6,19 +6,27 @@
  *
  * Layout: 2-column (statue left, text + table right). Content CMS-driven and
  * in-page editable. Each comparison row's dim/old/next cell is its own
- * EditableText so admins can edit individual phrases inline.
+ * EditableText. In edit mode rows get a leading control column (drag handle +
+ * remove) and an "+ Add row" button below the table; out of edit mode the
+ * table renders normally (no extra column).
  */
 
+import { GripVertical, Trash2, Plus } from "lucide-react";
+import { useState } from "react";
 import { CRevealSection } from "@/components/design-system";
 import { DEFAULT_HOME_CONTENT, type HomeContent } from "@/lib/site-content";
-import { EditableText, EditableImage } from "@/lib/edit-mode";
+import { EditableText, EditableImage, useEditMode } from "@/lib/edit-mode";
 
 type BridgeProps = {
     content?: HomeContent["bridge"];
 };
 
+const NEW_ROW_DEFAULT = { dim: "New dimension", old: "Old way…", next: "RAVOK way…" };
+
 export default function Bridge({ content }: BridgeProps = {}) {
     const c = content ?? DEFAULT_HOME_CONTENT.bridge;
+    const { enabled, pushAt, removeAt, moveAt } = useEditMode();
+    const [dragFrom, setDragFrom] = useState<number | null>(null);
 
     return (
         <CRevealSection
@@ -68,6 +76,7 @@ export default function Bridge({ content }: BridgeProps = {}) {
                     <table className="comparison-table w-full text-left border-collapse border-t border-[var(--ds-border-strong,rgba(232,228,218,0.15))]">
                         <thead>
                             <tr>
+                                {enabled && <th className="w-[36px]"></th>}
                                 <th className="dim-head font-sans text-[0.52rem] font-semibold tracking-[0.28em] uppercase text-[var(--ds-ink-muted)] py-2 px-2.5 align-bottom border-b border-[rgba(232,228,218,0.15)] w-[22%]"></th>
                                 <th className="col-old font-sans text-[0.52rem] font-semibold tracking-[0.28em] uppercase text-[var(--ds-ink-dim)] py-2 px-2.5 align-bottom border-b border-[rgba(232,228,218,0.15)] w-[39%]">
                                     <EditableText
@@ -87,7 +96,50 @@ export default function Bridge({ content }: BridgeProps = {}) {
                         </thead>
                         <tbody>
                             {c.rows.map((r, i) => (
-                                <tr key={i}>
+                                <tr
+                                    key={i}
+                                    onDragOver={(e) => {
+                                        if (enabled && dragFrom !== null && dragFrom !== i) e.preventDefault();
+                                    }}
+                                    onDrop={(e) => {
+                                        if (!enabled) return;
+                                        e.preventDefault();
+                                        if (dragFrom === null || dragFrom === i) return;
+                                        moveAt("bridge.rows", dragFrom, i);
+                                        setDragFrom(null);
+                                    }}
+                                >
+                                    {enabled && (
+                                        <td className="py-2 pr-1 align-top">
+                                            <div className="flex flex-col gap-1">
+                                                <button
+                                                    type="button"
+                                                    className="edit-mode-list-handle"
+                                                    draggable
+                                                    onDragStart={(e) => {
+                                                        setDragFrom(i);
+                                                        e.dataTransfer.effectAllowed = "move";
+                                                    }}
+                                                    onDragEnd={() => setDragFrom(null)}
+                                                    title="Drag to reorder"
+                                                    aria-label={`Reorder row ${i + 1}`}
+                                                >
+                                                    <GripVertical className="w-3 h-3" />
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="edit-mode-list-remove"
+                                                    onClick={() => {
+                                                        if (confirm("Remove this row?")) removeAt("bridge.rows", i);
+                                                    }}
+                                                    title="Remove"
+                                                    aria-label={`Remove row ${i + 1}`}
+                                                >
+                                                    <Trash2 className="w-3 h-3" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    )}
                                     <td className="dim font-heading italic text-[0.82rem] text-[var(--ds-ink)] py-2 px-2.5 align-top border-b border-[var(--ds-border,rgba(232,228,218,0.08))]">
                                         <EditableText path={`bridge.rows.${i}.dim`} value={r.dim} inline={false} />
                                     </td>
@@ -119,6 +171,16 @@ export default function Bridge({ content }: BridgeProps = {}) {
                             ))}
                         </tbody>
                     </table>
+                    {enabled && (
+                        <button
+                            type="button"
+                            className="edit-mode-list-add mt-3"
+                            onClick={() => pushAt("bridge.rows", NEW_ROW_DEFAULT)}
+                        >
+                            <Plus className="w-3.5 h-3.5" />
+                            <span>Add comparison row</span>
+                        </button>
+                    )}
                 </div>
             </div>
         </CRevealSection>

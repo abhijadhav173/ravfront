@@ -26,6 +26,7 @@ class SiteContentSeeder extends Seeder
     private function homeContent(): array
     {
         return [
+            'sectionOrder' => ['intro', 'bridge', 'portfolio', 'team'],
             'hero' => [
                 'tagline' => 'A New Architecture for Entertainment',
                 'logoImage' => '/images/logo.png',
