@@ -12,6 +12,22 @@
 
 export type CtaVariant = "primary" | "secondary";
 
+/**
+ * Per-image transform overrides. Allows admins to free-form an image
+ * (resize, move, rotate) outside the column layout. All fields optional —
+ * absence means "render at the section's default size and position".
+ *
+ * Values are applied as inline styles + a CSS transform on the rendered img.
+ */
+export type ImageTransform = {
+    scale?: number;        // 1 = native column-fill, 1.5 = 50% bigger
+    offsetX?: number;      // px, positive = move right
+    offsetY?: number;      // px, positive = move down
+    rotate?: number;       // degrees
+    width?: string;        // e.g. "120%" or "640px" — overrides parent column
+    zIndex?: number;       // for stacking when bleeding past sibling sections
+};
+
 export type Cta = {
     label: string;
     href: string;
@@ -66,6 +82,8 @@ export type HomeContent = {
         logoImage: string;
         templeImage: string;
         scrollCue: string;
+        logoImageTransform?: ImageTransform;
+        templeImageTransform?: ImageTransform;
     };
     intro: {
         eyebrow: string;
@@ -75,6 +93,7 @@ export type HomeContent = {
         facts: string[];
         ctas: Cta[];
         statueImage: string;
+        statueImageTransform?: ImageTransform;
     };
     bridge: {
         eyebrow: string;
@@ -84,6 +103,7 @@ export type HomeContent = {
         columnNewLabel: string;
         rows: ComparisonRow[];
         statueImage: string;
+        statueImageTransform?: ImageTransform;
     };
     portfolio: {
         label: string;
@@ -96,6 +116,7 @@ export type HomeContent = {
         lead: string;
         members: TeamMemberContent[];
         coinFrame: string;
+        coinFrameTransform?: ImageTransform;
     };
     footer: {
         email: string;

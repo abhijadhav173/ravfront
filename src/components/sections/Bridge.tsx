@@ -37,12 +37,18 @@ export default function Bridge({ content }: BridgeProps = {}) {
         >
             <div className="grid lg:grid-cols-[1fr_1.55fr] gap-10 lg:gap-16 items-center">
                 <div className="order-1 relative flex items-center justify-center">
-                    <EditableImage path="bridge.statueImage" value={c.statueImage}>
-                        {(src) => (
+                    <EditableImage
+                        path="bridge.statueImage"
+                        value={c.statueImage}
+                        transformPath="bridge.statueImageTransform"
+                        transform={c.statueImageTransform}
+                    >
+                        {(src, transformStyle) => (
                             <img
                                 src={src}
                                 alt=""
                                 className="w-full h-auto max-h-[600px] object-contain"
+                                style={transformStyle}
                                 aria-hidden="true"
                             />
                         )}

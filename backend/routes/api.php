@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\PublicRoomController;
 use App\Http\Controllers\Api\PublicRoomViewController;
 use App\Http\Controllers\Api\FormSubmissionController;
 use App\Http\Controllers\Api\SiteContentController;
+use App\Http\Controllers\Api\SiteAssetController;
 use Illuminate\Support\Facades\Route;
 
 // Public
@@ -124,6 +125,12 @@ Route::middleware('auth:sanctum')->group(function () {
         // Site content editor (CMS MVP) — admin can edit homepage copy + image references
         Route::get('/admin/site/content', [SiteContentController::class, 'index']);
         Route::put('/admin/site/content/{slug}', [SiteContentController::class, 'update']);
+
+        // Site asset upload (CMS MVP) — multipart upload to public R2 bucket
+        Route::get('/admin/site/assets', [SiteAssetController::class, 'index']);
+        Route::post('/admin/site/assets', [SiteAssetController::class, 'store']);
+        Route::delete('/admin/site/assets/{key}', [SiteAssetController::class, 'destroy'])
+            ->where('key', '.*');
     });
 });
 

@@ -97,12 +97,18 @@ export default function IntroSection({ content }: IntroSectionProps = {}) {
                 </div>
 
                 <div className="order-1 lg:order-2 relative flex items-center justify-center">
-                    <EditableImage path="intro.statueImage" value={c.statueImage}>
-                        {(src) => (
+                    <EditableImage
+                        path="intro.statueImage"
+                        value={c.statueImage}
+                        transformPath="intro.statueImageTransform"
+                        transform={c.statueImageTransform}
+                    >
+                        {(src, transformStyle) => (
                             <img
                                 src={src}
                                 alt=""
                                 className="w-full h-auto max-h-[68vh] object-contain"
+                                style={transformStyle}
                                 aria-hidden="true"
                             />
                         )}

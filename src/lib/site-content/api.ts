@@ -9,7 +9,7 @@
  * edits via PUT /api/v1/admin/site/content/{slug}.
  */
 
-import { getApiBase, getAuthHeaders } from "@/lib/api/base";
+import { getApiBase, getAuthHeaders, getToken } from "@/lib/api/base";
 import { DEFAULT_HOME_CONTENT } from "./defaults";
 import type { HomeContent, SiteContentEnvelope } from "./types";
 
@@ -101,4 +101,58 @@ export async function saveHomeContent(content: HomeContent): Promise<HomeContent
 
     const json = (await res.json()) as SiteContentEnvelope<HomeContent>;
     return json.content;
+}
+
+/* ───────────────── ASSET UPLOAD (R2 via backend) ───────────────── */
+
+export type AssetRecord = {
+    key: string;
+    url: string;
+    size?: number;
+    mime?: string;
+    original_name?: string;
+    uploaded?: string;
+};
+
+/**
+ * POST a file to the admin asset upload endpoint. Backend uploads to the
+ * public R2 bucket and returns the public CDN URL. The caller writes that
+ * URL into a content path (e.g. via setAt("intro.statueImage", record.url)).
+ *
+ * Doesn't use getAuthHeaders because that forces Content-Type: application/json
+ * which breaks multipart uploads — manual headers + Bearer token instead.
+ */
+export async function uploadAsset(file: File, folder?: string): Promise<AssetRecord> {
+    const url = `${getApiBase()}/api/admin/site/assets`;
+    const fd = new FormData();
+    fd.append("file", file);
+    if (folder) fd.append("folder", folder);
+
+    const token = getToken();
+    const headers: HeadersInit = {
+        Accept: "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+
+    const res = await fetch(url, { method: "POST", headers, body: fd });
+    if (!res.ok) {
+        const body = await res.text();
+        throw new Error(`Upload failed (${res.status}): ${body}`);
+    }
+    return (await res.json()) as AssetRecord;
+}
+
+export async function listAssets(): Promise<AssetRecord[]> {
+    const url = `${getApiBase()}/api/admin/site/assets`;
+    const token = getToken();
+    const res = await fetch(url, {
+        headers: {
+            Accept: "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+    });
+    if (!res.ok) throw new Error(`List assets failed (${res.status})`);
+    const json = (await res.json()) as { data: AssetRecord[] };
+    return json.data ?? [];
 }
