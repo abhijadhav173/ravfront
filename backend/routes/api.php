@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\DataRoomAnalyticsController;
 use App\Http\Controllers\Api\PublicRoomController;
 use App\Http\Controllers\Api\PublicRoomViewController;
 use App\Http\Controllers\Api\FormSubmissionController;
+use App\Http\Controllers\Api\SiteContentController;
 use Illuminate\Support\Facades\Route;
 
 // Public
@@ -34,6 +35,9 @@ Route::post('/public/posts/slug/{slug}/comments', [PublicInsightsController::cla
 
 // Public forms
 Route::post('/public/forms/{type}', [FormSubmissionController::class, 'store']);
+
+// Public site content (read-only, used by the public Next.js site at request time)
+Route::get('/site/content/{slug}', [SiteContentController::class, 'show']);
 
 // Authenticated (admin or investor)
 Route::middleware('auth:sanctum')->group(function () {
@@ -116,6 +120,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/forms/export/csv', [FormSubmissionController::class, 'downloadCsv']);
         Route::delete('/forms/{submission}', [FormSubmissionController::class, 'destroy']);
         Route::post('/settings/email/test', [SettingsController::class, 'testMail']);
+
+        // Site content editor (CMS MVP) — admin can edit homepage copy + image references
+        Route::get('/admin/site/content', [SiteContentController::class, 'index']);
+        Route::put('/admin/site/content/{slug}', [SiteContentController::class, 'update']);
     });
 });
 

@@ -3,18 +3,36 @@
 /**
  * Portfolio — 4-pillar scrollytelling.
  * Per WEBSITE-TECHNICAL-RULES.md §12: portfolio → ScrollytellSection.
- *
- * Steps: Film SPVs / Meris / Delphi / Phema — each with description, meta bullets, chip.
- * Visuals are large italic gold "badge" rings (numbered 01–04).
+ * Steps content is CMS-driven via the `content` prop.
  */
 
 import { ScrollytellSection, type ScrollytellStep } from "@/components/design-system";
+import {
+    DEFAULT_HOME_CONTENT,
+    renderInline,
+    type HomeContent,
+    type PortfolioStepContent,
+} from "@/lib/site-content";
 
-function StepBadge({ num, label, comingSoon = false }: { num: string; label: string; comingSoon?: boolean }) {
+type PortfolioProps = {
+    content?: HomeContent["portfolio"];
+};
+
+function StepBadge({
+    num,
+    label,
+    comingSoon = false,
+}: {
+    num: string;
+    label: string;
+    comingSoon?: boolean;
+}) {
     return (
         <div
             className={`w-[65%] aspect-square rounded-full border-[1.5px] flex flex-col items-center justify-center font-heading ${
-                comingSoon ? "border-[var(--ds-ink-muted,rgba(232,228,218,0.4))] text-[var(--ds-ink-muted,rgba(232,228,218,0.4))]" : "border-ravok-gold text-ravok-gold"
+                comingSoon
+                    ? "border-[var(--ds-ink-muted,rgba(232,228,218,0.4))] text-[var(--ds-ink-muted,rgba(232,228,218,0.4))]"
+                    : "border-ravok-gold text-ravok-gold"
             }`}
             style={{
                 background: comingSoon
@@ -33,102 +51,61 @@ function StepBadge({ num, label, comingSoon = false }: { num: string; label: str
     );
 }
 
-function StepBody({
-    body,
-    meta,
-}: {
-    body: React.ReactNode;
-    meta: Array<React.ReactNode>;
-}) {
-    /* Important: ScrollytellSection wraps `description` in a <p>.
-       Block-level children (ul/div) auto-close the <p> in browsers and
-       break layout + cause hydration mismatches. Use spans w/ display:block
-       so the structure stays valid inline. */
+function StepBody({ body, meta }: { body: string; meta: string[] }) {
     return (
         <>
-            <span className="block mb-4">{body}</span>
-            <span className="block">
-                {meta.map((m, i) => (
-                    <span
-                        key={i}
-                        className="block relative pl-4 mb-1.5 last:mb-0 font-sans text-[0.78rem] tracking-[0.02em] text-[var(--ds-ink-dim)]"
-                    >
-                        <span className="absolute left-0 text-ravok-gold">—</span>
-                        {m}
-                    </span>
-                ))}
-            </span>
+            {body && <span className="block mb-4">{renderInline(body)}</span>}
+            {meta.length > 0 && (
+                <span className="block">
+                    {meta.map((m, i) => (
+                        <span
+                            key={i}
+                            className="block relative pl-4 mb-1.5 last:mb-0 font-sans text-[0.78rem] tracking-[0.02em] text-[var(--ds-ink-dim)]"
+                        >
+                            <span className="absolute left-0 text-ravok-gold">—</span>
+                            {renderInline(m)}
+                        </span>
+                    ))}
+                </span>
+            )}
         </>
     );
 }
 
-const portfolioSteps: ScrollytellStep[] = [
-    {
-        tag: "Entertainment · 01",
-        name: "Film SPVs",
-        title: <>Each film, a <em className="text-ravok-gold not-italic font-heading italic">standalone company</em>.</>,
-        description: (
-            <StepBody
-                body="Creator equity, clean cap table, auditable economics. Every project incorporates as its own LLC under the RAVOK umbrella, with profit participation flowing transparently from box office to cap table."
-                meta={[
-                    <><strong className="font-heading italic text-ravok-gold">2</strong> films incorporated</>,
-                    <><strong className="font-heading italic text-ravok-gold">20+</strong> IPs in development</>,
-                    <>Emmy-nominated director · PGA producer attached</>,
-                ]}
-            />
-        ),
-        chip: "10–50% Equity",
-        visual: <StepBadge num="01" label="Film SPVs" />,
-    },
-    {
-        tag: "Fintech · 02",
-        name: "Meris",
-        title: <>The accounting layer that makes waterfalls <em className="text-ravok-gold not-italic font-heading italic">actually auditable</em>.</>,
-        description: (
-            <StepBody
-                body="Carta meets Robinhood for film. Cap table management, profit participation tracking, real-time distribution to every position on the waterfall — from above-the-line to grip."
-                meta={[
-                    <>Core product built</>,
-                    <>Beta live at <strong className="text-[var(--ds-ink)]">merisbeta.com</strong></>,
-                    <>First SPV onboarded</>,
-                ]}
-            />
-        ),
-        chip: "Card + SaaS",
-        visual: <StepBadge num="02" label="Meris" />,
-    },
-    {
-        tag: "AI Validation · 03",
-        name: "Delphi",
-        title: (
-            <span className="text-[var(--ds-ink-muted,rgba(232,228,218,0.4))]">
-                Coming soon.
-            </span>
-        ),
-        chip: "Coming Soon",
-        visual: <StepBadge num="03" label="Delphi" comingSoon />,
-    },
-    {
-        tag: "Creator Economy · 04",
-        name: "Phema",
-        title: (
-            <span className="text-[var(--ds-ink-muted,rgba(232,228,218,0.4))]">
-                Coming soon.
-            </span>
-        ),
-        chip: "Coming Soon",
-        visual: <StepBadge num="04" label="Phema" comingSoon />,
-    },
-];
+function toScrollytellStep(s: PortfolioStepContent): ScrollytellStep {
+    if (s.comingSoon) {
+        return {
+            tag: s.tag,
+            name: s.name,
+            title: (
+                <span className="text-[var(--ds-ink-muted,rgba(232,228,218,0.4))]">{s.title}</span>
+            ),
+            chip: s.chip,
+            visual: <StepBadge num={s.badgeNum} label={s.badgeLabel} comingSoon />,
+        };
+    }
 
-export default function Portfolio() {
+    return {
+        tag: s.tag,
+        name: s.name,
+        title: renderInline(s.title),
+        description: <StepBody body={s.body} meta={s.meta} />,
+        chip: s.chip,
+        visual: <StepBadge num={s.badgeNum} label={s.badgeLabel} />,
+    };
+}
+
+export default function Portfolio({ content }: PortfolioProps = {}) {
+    const c = content ?? DEFAULT_HOME_CONTENT.portfolio;
+    const steps = c.steps.map(toScrollytellStep);
+
     return (
         <ScrollytellSection
             zIndex={12}
             id="portfolio"
-            label="The Portfolio"
-            counterSuffix="THE PORTFOLIO"
-            steps={portfolioSteps}
+            label={c.label}
+            counterSuffix={c.counterSuffix}
+            steps={steps}
         />
     );
 }

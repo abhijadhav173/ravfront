@@ -1,34 +1,31 @@
 import { Hero, IntroSection, Bridge, Portfolio, Team } from "@/components/sections";
 import Footer from "@/components/layout/Footer";
+import { fetchHomeContent } from "@/lib/site-content";
 
 /**
- * Homepage — Q2 redesign one-pager.
+ * Homepage — Q2 redesign one-pager. Content is CMS-driven.
  *
- * Section sequence (per WEBSITE-TECHNICAL-RULES.md §12):
- *   Hero          → 2a Hero (entry only — wordmark + tagline + scroll cue)
- *   IntroSection  → 2c C-Reveal (about + statue + facts + CTAs)
- *   Bridge        → 2c C-Reveal (REITs analogy + Hollywood-vs-RAVOK comparison)
- *   Portfolio     → 2b Scrollytell (4 pillars: Film SPVs / Meris / Delphi / Phema)
- *   Team          → 2c C-Reveal (Greek-coin marquee)
- *   Footer        → standard
- *
- * No Navbar — this is a one-pager. /about-us and /our-model still exist as
- * routes but are no longer linked from the homepage.
- *
- * C-ladder z-indexes are owned by each section primitive via the `zIndex` prop.
+ * Fetches `home` content server-side at request time (no-store cache so admin
+ * edits show immediately on next request). Each section receives its slice
+ * via props. If the backend is unreachable, sections fall back to the
+ * hard-coded DEFAULT_HOME_CONTENT and the homepage still renders.
  */
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+    const content = await fetchHomeContent();
+
     return (
         <main
             className="min-h-screen text-white selection:bg-ravok-gold selection:text-black"
             style={{ overflowX: "clip" }}
         >
-            <Hero />
-            <IntroSection />
-            <Bridge />
-            <Portfolio />
-            <Team />
+            <Hero content={content.hero} />
+            <IntroSection content={content.intro} />
+            <Bridge content={content.bridge} />
+            <Portfolio content={content.portfolio} />
+            <Team content={content.team} />
             <div className="relative z-[60]">
                 <Footer />
             </div>
