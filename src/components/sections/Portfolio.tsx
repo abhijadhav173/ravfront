@@ -381,6 +381,12 @@ export default function Portfolio({ content }: PortfolioProps = {}) {
             label={c.label}
             counterSuffix={c.counterSuffix}
             steps={steps}
+            extraOverlay={
+                <FloatingElementsLayer
+                    decorations={c.decorations ?? []}
+                    path="portfolio.decorations"
+                />
+            }
         />
     );
 }

@@ -47,6 +47,14 @@ type ScrollytellSectionProps = {
     id?: string;
     className?: string;
     noTopFade?: boolean;
+    /**
+     * Optional extra content rendered INSIDE the sticky scrollytell container,
+     * after the steps. Useful for callers that need to render their own
+     * overlays (e.g. CMS decorations) inside the section so they participate
+     * in its sticky behaviour. The primitive doesn't know what's in here —
+     * it just ensures the content is a DOM child of the same sticky element.
+     */
+    extraOverlay?: ReactNode;
 };
 
 export function ScrollytellSection({
@@ -55,6 +63,7 @@ export function ScrollytellSection({
     counterSuffix,
     steps,
     id,
+    extraOverlay,
     className = "",
     noTopFade = false,
 }: ScrollytellSectionProps) {
@@ -191,6 +200,10 @@ export function ScrollytellSection({
                         </div>
                     </div>
                 </div>
+                {/* Caller-provided overlay (e.g. CMS decorations). Rendered
+                    inside the same sticky element so it participates in the
+                    scrollytell's sticky behaviour. */}
+                {extraOverlay}
             </section>
 
             {/* Scroll tracker — invisible spacer that drives both the track
