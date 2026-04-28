@@ -141,12 +141,13 @@ export function EditModeSidebar({ open, onClose }: { open: boolean; onClose: () 
 /* ───────────── LAYERS ───────────── */
 
 function LayersPanel() {
-    const { content, setAt } = useEditMode();
+    const { content, setAt, removeAt } = useEditMode();
     const stored = (content.sectionOrder ?? []).filter((k): k is SectionKey =>
         ALL_SECTION_KEYS.includes(k)
     );
     const missing = ALL_SECTION_KEYS.filter((k) => !stored.includes(k));
     const order: SectionKey[] = [...stored, ...missing];
+    const customBlocks = content.customBlocks ?? [];
 
     return (
         <div className="edit-mode-layers">
@@ -169,9 +170,34 @@ function LayersPanel() {
                     }}
                 />
             ))}
+            {customBlocks.map((block, i) => (
+                <SectionNode
+                    key={block.id}
+                    label={`+ ${customBlockLabel(block.type)}`}
+                    anchor={`custom-${block.id}`}
+                    summary={customBlockSummary(block)}
+                    onHide={() => {
+                        if (!confirm("Remove this custom block?")) return;
+                        removeAt("customBlocks", i);
+                    }}
+                />
+            ))}
             <SectionNode label="Footer" anchor="contact" locked summary="Email · links · copyright" />
         </div>
     );
+}
+
+function customBlockLabel(t: string): string {
+    if (t === "image-block") return "Image block";
+    return t;
+}
+
+function customBlockSummary(block: NonNullable<HomeContent["customBlocks"]>[number]): string {
+    if (block.type === "image-block") {
+        const file = block.props.image ? block.props.image.split("/").pop() : "(no image)";
+        return `Image: ${file}${block.props.caption ? ` · "${block.props.caption.slice(0, 30)}"` : ""}`;
+    }
+    return "";
 }
 
 function SectionNode({
@@ -272,6 +298,25 @@ function AddPanel() {
     const [lastAddedTo, setLastAddedTo] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+    /** Add a new "image-block" custom section after the existing ones. */
+    function addImageBlock() {
+        const id = `block-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+        pushAt("customBlocks", {
+            id,
+            type: "image-block",
+            props: {
+                image: "",
+                caption: "",
+                fullBleed: false,
+            },
+        });
+        setLastAddedTo("custom image block");
+        setTimeout(() => {
+            const el = document.getElementById(`custom-${id}`);
+            if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 100);
+    }
+
     function addHiddenSection(key: SectionKey) {
         const stored = (content.sectionOrder ?? []).filter((k): k is SectionKey =>
             ALL_SECTION_KEYS.includes(k)
@@ -338,8 +383,31 @@ function AddPanel() {
         (content.portfolio.decorations?.length ?? 0) +
         (content.team.decorations?.length ?? 0);
 
+    const customCount = (content.customBlocks ?? []).length;
+
     return (
         <div className="edit-mode-add">
+            <div className="edit-mode-add-group">
+                <div className="edit-mode-add-group-label">Add a section</div>
+                <p className="edit-mode-add-empty">
+                    New sections render after the existing ones (Team) and before the footer. Currently
+                    on this page: <strong>{customCount}</strong>.
+                </p>
+                <div className="edit-mode-add-grid">
+                    <button
+                        type="button"
+                        className="edit-mode-add-tile"
+                        onClick={addImageBlock}
+                    >
+                        <ImageIcon className="w-4 h-4" />
+                        <span>Image block</span>
+                    </button>
+                </div>
+                <p className="edit-mode-add-empty" style={{ marginTop: "0.6rem" }}>
+                    More section types (rich-text, callout, two-column) are planned. Tell me which you want next.
+                </p>
+            </div>
+
             <div className="edit-mode-add-group">
                 <div className="edit-mode-add-group-label">Decorations (free-form image)</div>
                 <p className="edit-mode-add-empty">

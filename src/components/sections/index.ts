@@ -3,6 +3,7 @@ export { default as IntroSection } from './IntroSection';
 export { default as Bridge } from './Bridge';
 export { default as Portfolio } from './Portfolio';
 export { default as Team } from './Team';
+export { default as ImageBlockSection } from './ImageBlockSection';
 
 // Deprecated — kept exported so other routes/pages don't break until their
 // own refactor. These are NOT used on the homepage anymore.

@@ -202,6 +202,7 @@ class SiteContentSeeder extends Seeder
                 'copyright' => '© RAVOK Studios',
             ],
             'floatingElements' => [],
+            'customBlocks' => [],
         ];
     }
 }

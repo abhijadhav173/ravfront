@@ -18,7 +18,7 @@
 
 import { useEffect, useState } from "react";
 import { GripVertical } from "lucide-react";
-import { Hero, IntroSection, Bridge, Portfolio, Team } from "@/components/sections";
+import { Hero, IntroSection, Bridge, Portfolio, Team, ImageBlockSection } from "@/components/sections";
 import Footer from "@/components/layout/Footer";
 import {
     EditModeProvider,
@@ -48,6 +48,12 @@ function Sections() {
     const missing = ALL_SECTION_KEYS.filter((k) => !stored.includes(k));
     const order: SectionKey[] = [...stored, ...missing];
 
+    const customBlocks = content.customBlocks ?? [];
+    // Custom blocks render after the core sections — z-index above the core
+    // ladder (10–13) but below footer (60). Each block gets its own z-index
+    // so they cover-from-below in array order.
+    const CUSTOM_BLOCK_BASE_Z = 14;
+
     return (
         <main
             className="min-h-screen text-white selection:bg-ravok-gold selection:text-black"
@@ -59,10 +65,75 @@ function Sections() {
             {order.map((key, position) => (
                 <SectionSlot key={key} sectionKey={key} position={position} />
             ))}
+            {customBlocks.map((block, i) => (
+                <CustomBlockSlot key={block.id} block={block} index={i} z={CUSTOM_BLOCK_BASE_Z + i} />
+            ))}
             <div className="relative z-[60]">
                 <Footer />
             </div>
         </main>
+    );
+}
+
+function CustomBlockSlot({
+    block,
+    index,
+    z,
+}: {
+    block: NonNullable<HomeContent["customBlocks"]>[number];
+    index: number;
+    z: number;
+}) {
+    const { enabled, removeAt } = useEditMode();
+    const sectionId = `custom-${block.id}`;
+
+    const inner = (() => {
+        if (block.type === "image-block") {
+            return (
+                <ImageBlockSection
+                    blockIndex={index}
+                    zIndex={z}
+                    id={sectionId}
+                    content={block.props}
+                />
+            );
+        }
+        return null;
+    })();
+
+    if (!enabled) {
+        return (
+            <div className="section-anchor" data-section={sectionId}>
+                {inner}
+            </div>
+        );
+    }
+
+    return (
+        <div
+            className="edit-mode-section-slot section-anchor"
+            data-section={sectionId}
+        >
+            <div className="edit-mode-section-handle">
+                <span className="edit-mode-section-handle-btn" title={`Custom: ${block.type}`}>
+                    <span>{block.type}</span>
+                </span>
+                <button
+                    type="button"
+                    className="edit-mode-section-handle-btn"
+                    style={{ marginLeft: "0.4rem" }}
+                    onClick={() => {
+                        if (confirm("Remove this custom block? This can't be undone unless you don't save.")) {
+                            removeAt("customBlocks", index);
+                        }
+                    }}
+                    title="Remove custom block"
+                >
+                    Remove
+                </button>
+            </div>
+            {inner}
+        </div>
     );
 }
 

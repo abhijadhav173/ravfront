@@ -169,7 +169,31 @@ export type HomeContent = {
     };
     /** Free-floating images dropped anywhere on the page (Canva-style). */
     floatingElements?: FloatingElement[];
+    /**
+     * Admin-added custom section blocks. Rendered after the core sections
+     * (Hero, Intro, Bridge, Portfolio, Team) and before the Footer.
+     * v8 ships with one type: "image-block". More types can be added without
+     * breaking existing data.
+     */
+    customBlocks?: CustomBlock[];
 };
+
+/* ───────── Custom blocks (v8) ───────── */
+
+export type ImageBlockProps = {
+    image: string;
+    imageTransform?: ImageTransform;
+    caption: string;
+    /** Layout: full-bleed (no max-width) or constrained to the page max */
+    fullBleed?: boolean;
+    /** Optional decorations specific to this block */
+    decorations?: FloatingImage[];
+};
+
+export type CustomBlock =
+    | { id: string; type: "image-block"; props: ImageBlockProps };
+
+export const CUSTOM_BLOCK_TYPES: Array<CustomBlock["type"]> = ["image-block"];
 
 export type SiteContentEnvelope<T = HomeContent> = {
     slug: string;
