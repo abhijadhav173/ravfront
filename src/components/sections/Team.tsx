@@ -50,17 +50,32 @@ function CoinMember({
     const card = (
         <>
             <div className="coin">
+                {/* Photo: EditableImage wrapper IS the coin-portrait so the
+                    edit toolbar (Change/Remove/Transform) appears on hover. */}
                 <EditableImage
                     path={`team.members.${index}.photo`}
                     value={member.photo}
+                    wrapperClassName="coin-portrait"
                 >
-                    {(src) => (
-                        <div className="coin-portrait">
-                            <img src={src} alt="" />
-                        </div>
-                    )}
+                    {(src) => <img src={src} alt="" />}
                 </EditableImage>
-                <img className="coin-frame" src={coinFrame} alt="" aria-hidden="true" />
+
+                {/* Coin frame: separate EditableImage so admins can remove or
+                    swap the gold wireframe ring. Path is at the team level
+                    (shared across all members) so removing it removes for all. */}
+                {!isDuplicate ? (
+                    <EditableImage
+                        path="team.coinFrame"
+                        value={coinFrame}
+                        wrapperClassName="coin-frame-wrap"
+                    >
+                        {(src) => (
+                            <img className="coin-frame" src={src} alt="" aria-hidden="true" />
+                        )}
+                    </EditableImage>
+                ) : coinFrame ? (
+                    <img className="coin-frame" src={coinFrame} alt="" aria-hidden="true" />
+                ) : null}
             </div>
             <EditableText
                 path={`team.members.${index}.role`}

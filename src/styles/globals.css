@@ -419,6 +419,41 @@ body::after {
   pointer-events: none;
   z-index: 2;
 }
+/* When the coin-frame is wrapped in EditableImage (admin edit mode), the
+   wrapper span needs to absolutely fill the .coin parent so its hover toolbar
+   sits over the frame. Without this, the wrapper is inline and zero-sized. */
+.coin-frame-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: auto;
+}
+/* Inside the wrap, let the inner img keep its existing .coin-frame styling */
+.coin-frame-wrap .coin-frame {
+  position: absolute;
+}
+
+/* When EditableImage uses .coin-portrait as wrapper (edit mode), the
+   normal overflow:hidden + circle clip would hide the edit toolbar in
+   the corner. Switch to overflow:visible and clip the IMG instead, so
+   the toolbar can render outside the circle while the photo still
+   appears circular. Bump z-index above coin-frame-wrap so hovering the
+   photo triggers the photo toolbar (not the frame toolbar). */
+body.edit-mode-active .coin-portrait {
+  overflow: visible;
+  z-index: 3;
+}
+body.edit-mode-active .coin-portrait > img {
+  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Push the coin-portrait toolbar above the circle so it isn't hidden */
+body.edit-mode-active .coin-portrait > .edit-mode-image-toolbar {
+  top: -32px;
+  right: 0;
+}
 
 /* ============ EDIT MODE — In-page Canva-style editor ============
    Active styles only when EditModeProvider.enabled === true. The provider

@@ -46,6 +46,12 @@ type Props = {
     /** If provided, overrides the default <img> rendering. Useful when the
      *  image is wrapped in a special container (e.g. coin frame). */
     children?: (src: string, transformStyle: CSSProperties) => ReactNode;
+    /** Extra className for the outer wrapper span. Use this when the wrapper
+     *  needs to inherit positioning/sizing from its parent (e.g. when the image
+     *  is meant to absolute-fill a slot like a coin portrait). */
+    wrapperClassName?: string;
+    /** Extra inline style for the outer wrapper span. */
+    wrapperStyle?: CSSProperties;
 };
 
 /** Convert ImageTransform → inline CSS values applied to the image element. */
@@ -74,6 +80,8 @@ export function EditableImage({
     style,
     decorative = true,
     children,
+    wrapperClassName,
+    wrapperStyle,
 }: Props) {
     const { enabled, setAt } = useEditMode();
     const [pickerOpen, setPickerOpen] = useState(false);
@@ -106,7 +114,8 @@ export function EditableImage({
     if (isEmpty) {
         return (
             <span
-                className="edit-mode-image-empty"
+                className={`edit-mode-image-empty ${wrapperClassName ?? ""}`.trim()}
+                style={wrapperStyle}
                 onClick={() => setPickerOpen(true)}
                 role="button"
                 tabIndex={0}
@@ -128,7 +137,10 @@ export function EditableImage({
     }
 
     return (
-        <span className={`edit-mode-image-wrap ${transformMode ? "is-transforming" : ""}`}>
+        <span
+            className={`edit-mode-image-wrap ${transformMode ? "is-transforming" : ""} ${wrapperClassName ?? ""}`.trim()}
+            style={wrapperStyle}
+        >
             {rendered}
 
             <div className="edit-mode-image-toolbar">
