@@ -1109,7 +1109,11 @@ body.edit-mode-active .coin-portrait > .edit-mode-image-toolbar {
    In edit mode the wrapper gets `.edit-mode-section-slot` (which sets
    `position: relative` for drag handles) — display:contents would break
    that, so we exclude it. */
-.section-anchor:not(.edit-mode-section-slot) {
+/* Footer needs its layout box (its wrapper has z-[60] so footer covers
+   the still-pinned sticky sections as scroll reaches the bottom). Hero
+   gets display:contents like the rest — its z-index lives on its <section>
+   element, not on the wrapper. */
+.section-anchor:not(.edit-mode-section-slot):not([data-section="footer"]) {
   display: contents;
 }
 
