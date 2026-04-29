@@ -382,6 +382,20 @@ body::after {
   to { transform: translateX(-50%); }
 }
 
+/* Edit mode: pause animation, drop the fade mask, allow horizontal scroll
+   so admin can see + interact with the full coin row. The marquee structure
+   stays so the decoration coordinate space matches production. */
+.team-marquee--editing {
+  -webkit-mask-image: none !important;
+          mask-image: none !important;
+  overflow-x: auto;
+  overflow-y: visible;
+}
+.team-marquee--editing .team-marquee-inner {
+  animation: none !important;
+  transform: none !important;
+}
+
 /* ============ GREEK COIN — transparent SVG wireframe + portrait inside ============
    The .coin is just a positioning frame. .coin-portrait is the circular photo.
    .coin-frame is the wireframe SVG, scaled up so the circle reads at coin size. */

@@ -186,16 +186,14 @@ export default function Team({ content }: TeamProps = {}) {
     return (
         <CRevealSection zIndex={13} id="team" centerHeader={true} contentMaxWidth="1400px">
             <div style={teamCSSVars}>
-            {/* Section-level layer.
-             *  - In edit mode: shows ALL decorations so admin can manage them
-             *    (the marquee isn't rendered in edit mode, so without this
-             *    marquee-target decorations would be invisible).
-             *  - In production: shows only section-target decorations.
-             *    Marquee-target decorations render inside team-marquee-inner. */}
+            {/* Section-level layer renders ONLY section-target decorations
+             *  in both edit and production. Marquee-target decorations are
+             *  rendered inside team-marquee-inner (in BOTH modes — edit mode
+             *  now renders the marquee structure paused) so coords match. */}
             <FloatingElementsLayer
                 decorations={c.decorations ?? []}
                 path="team.decorations"
-                targetFilter={enabled ? undefined : "section"}
+                targetFilter="section"
             />
             <div className="text-center mb-6">
                 <EditableText
@@ -280,20 +278,36 @@ export default function Team({ content }: TeamProps = {}) {
             )}
 
             {enabled ? (
-                /* Edit mode: static grid so admins can drag/remove/add without
-                   the marquee animation pulling things out from under them. */
-                <div data-decoration-zone="marquee">
-                <EditableList
-                    arrayPath="team.members"
-                    items={c.members}
-                    defaultNewItem={NEW_MEMBER_DEFAULT}
-                    addLabel="Add team member"
-                    as="div"
-                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 justify-items-center"
-                    renderItem={(m, i) => (
-                        <CoinMember member={m} index={i} coinFrame={effectiveCoinFrame} />
-                    )}
-                />
+                /* Edit mode: render the SAME marquee structure as production
+                   but paused (animation off) and with one set instead of two.
+                   This way the coordinate system for marquee-target decorations
+                   matches production exactly — drop a decoration on Amanda's
+                   coin in edit mode and it stays on Amanda's coin live.
+
+                   The mask and overflow:hidden are also off so admin sees the
+                   full row even if it overflows the section width. */
+                <div className="team-marquee team-marquee--editing relative w-full py-2">
+                    <div
+                        className="team-marquee-inner flex gap-12 w-max relative"
+                        data-decoration-zone="marquee"
+                    >
+                        <FloatingElementsLayer
+                            decorations={c.decorations ?? []}
+                            path="team.decorations"
+                            targetFilter="marquee"
+                        />
+                        <EditableList
+                            arrayPath="team.members"
+                            items={c.members}
+                            defaultNewItem={NEW_MEMBER_DEFAULT}
+                            addLabel="Add team member"
+                            as="div"
+                            className="flex gap-12"
+                            renderItem={(m, i) => (
+                                <CoinMember member={m} index={i} coinFrame={effectiveCoinFrame} />
+                            )}
+                        />
+                    </div>
                 </div>
             ) : (
                 /* Production: scrolling coin marquee.
@@ -304,19 +318,27 @@ export default function Team({ content }: TeamProps = {}) {
                  * coin set. */
                 <div className="team-marquee relative w-full overflow-hidden py-2">
                     <div className="team-marquee-inner flex gap-12 w-max relative">
+                        {/* Layer 1 covers exactly 1 set's width (50% of the 2-
+                            set track). Decoration left% is interpreted as a %
+                            of 1 set — same coord space as edit mode where
+                            marquee-inner IS just 1 set. */}
                         <FloatingElementsLayer
                             decorations={c.decorations ?? []}
                             path="team.decorations"
                             targetFilter="marquee"
+                            style={{ width: "50%", left: 0 }}
                         />
                         {c.members.map((m, i) => (
                             <CoinMember key={`s1-${i}`} member={m} index={i} coinFrame={effectiveCoinFrame} />
                         ))}
+                        {/* Layer 2 covers the second set's region. Same
+                            decoration data, rendered again so the seamless
+                            wraparound shows the decoration in both halves. */}
                         <FloatingElementsLayer
                             decorations={c.decorations ?? []}
                             path="team.decorations"
                             targetFilter="marquee"
-                            duplicate
+                            style={{ width: "50%", left: "50%" }}
                         />
                         {c.members.map((m, i) => (
                             <CoinMember
