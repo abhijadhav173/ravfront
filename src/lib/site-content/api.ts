@@ -11,7 +11,7 @@
 
 import { getApiBase, getAuthHeaders, getToken } from "@/lib/api/base";
 import { DEFAULT_HOME_CONTENT } from "./defaults";
-import type { HomeContent, SiteContentEnvelope } from "./types";
+import type { HomeContent, SiteContentEnvelope, GenericPageContent } from "./types";
 
 /**
  * Server-side fetch — used by RSC at request time. No-store cache so edits show immediately.
@@ -101,6 +101,74 @@ export async function saveHomeContent(content: HomeContent): Promise<HomeContent
 
     const json = (await res.json()) as SiteContentEnvelope<HomeContent>;
     return json.content;
+}
+
+/* ───────────────── GENERIC PAGES (multi-page) ───────────────── */
+
+/**
+ * Server-side fetch for any page slug other than 'home'. Returns null if the
+ * page doesn't exist (so the caller can render a 404).
+ */
+export async function fetchGenericPage(slug: string): Promise<GenericPageContent | null> {
+    const url = `${getServerApiBase()}/api/site/content/${encodeURIComponent(slug)}`;
+    try {
+        const res = await fetch(url, {
+            cache: "no-store",
+            headers: { Accept: "application/json" },
+        });
+        if (!res.ok) return null;
+        const json = (await res.json()) as SiteContentEnvelope<GenericPageContent>;
+        return json.content ?? null;
+    } catch {
+        return null;
+    }
+}
+
+/** Client-side admin fetch — used by /admin/site/pages/[slug]. */
+export async function fetchGenericPageForAdmin(slug: string): Promise<GenericPageContent | null> {
+    const url = `${getApiBase()}/api/site/content/${encodeURIComponent(slug)}`;
+    const res = await fetch(url, { headers: { Accept: "application/json" } });
+    if (!res.ok) {
+        if (res.status === 404) return null;
+        throw new Error(`Failed to load page (${res.status})`);
+    }
+    const json = (await res.json()) as SiteContentEnvelope<GenericPageContent>;
+    return json.content ?? null;
+}
+
+/** Client-side admin write — saves any page slug. */
+export async function saveGenericPage(
+    slug: string,
+    content: GenericPageContent
+): Promise<GenericPageContent> {
+    const url = `${getApiBase()}/api/admin/site/content/${encodeURIComponent(slug)}`;
+    const res = await fetch(url, {
+        method: "PUT",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ content }),
+    });
+    if (!res.ok) {
+        const body = await res.text();
+        throw new Error(`Save failed (${res.status}): ${body}`);
+    }
+    const json = (await res.json()) as SiteContentEnvelope<GenericPageContent>;
+    return json.content;
+}
+
+/** List every page row in the site_content table. Admin-only. */
+export type PageListEntry = { slug: string; updated_at?: string };
+export async function listAllPages(): Promise<PageListEntry[]> {
+    const url = `${getApiBase()}/api/admin/site/content`;
+    const token = getToken();
+    const res = await fetch(url, {
+        headers: {
+            Accept: "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+    });
+    if (!res.ok) throw new Error(`List pages failed (${res.status})`);
+    const json = (await res.json()) as { data: PageListEntry[] };
+    return json.data ?? [];
 }
 
 /* ───────────────── ASSET UPLOAD (R2 via backend) ───────────────── */

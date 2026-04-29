@@ -262,3 +262,20 @@ export type SiteContentEnvelope<T = HomeContent> = {
     content: T;
     updated_at?: string;
 };
+
+/**
+ * Generic page content for admin-created pages (anything other than `home`).
+ * Built entirely from custom blocks — no fixed sections.
+ */
+export type GenericPageContent = {
+    title: string;
+    metaDescription?: string;
+    customBlocks?: CustomBlock[];
+    /** Optional global decorations across the page (rendered above all blocks) */
+    decorations?: FloatingImage[];
+};
+
+/** Quick check: a generic page has a `title` field, home doesn't. */
+export function isGenericPage(c: HomeContent | GenericPageContent): c is GenericPageContent {
+    return typeof (c as GenericPageContent).title === "string" && !("hero" in c);
+}

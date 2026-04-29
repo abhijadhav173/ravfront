@@ -7,5 +7,10 @@ export {
     uploadAsset,
     listAssets,
     type AssetRecord,
+    fetchGenericPage,
+    fetchGenericPageForAdmin,
+    saveGenericPage,
+    listAllPages,
+    type PageListEntry,
 } from "./api";
 export { renderInline } from "./render";
