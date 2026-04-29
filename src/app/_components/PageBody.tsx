@@ -43,16 +43,24 @@ import {
     type HomeContent,
     type SectionKey,
     type NavbarContent,
-    saveSplitPageAndNavbar,
+    saveSplitPageAndNavbarEnvelope,
 } from "@/lib/site-content";
 import { moveInArrayAtPath } from "@/lib/edit-mode/path-utils";
 
-async function saveHomeAndNavbar(content: HomeContent): Promise<HomeContent> {
-    const persisted = await saveSplitPageAndNavbar(
+/** #79: returns the SaveResult envelope so the toolbar can update its
+ *  publish state after each save. */
+async function saveHomeAndNavbar(
+    content: HomeContent
+): Promise<{ content: HomeContent; hasDraft: boolean; publishedAt: string | null }> {
+    const result = await saveSplitPageAndNavbarEnvelope(
         "home",
         content as unknown as Record<string, unknown>
     );
-    return persisted as unknown as HomeContent;
+    return {
+        content: result.content as unknown as HomeContent,
+        hasDraft: result.hasDraft,
+        publishedAt: result.publishedAt,
+    };
 }
 
 export function PageBody({
@@ -66,7 +74,11 @@ export function PageBody({
     // provider. saveFn splits it back out before persisting.
     const combined = { ...initialContent, navbar } as HomeContent;
     return (
-        <EditModeProvider initialContent={combined} saveFn={saveHomeAndNavbar}>
+        <EditModeProvider
+            initialContent={combined}
+            saveFn={saveHomeAndNavbar}
+            slug="home"
+        >
             <BodyClassToggle />
             <Navbar content={navbar} />
             <Sections />

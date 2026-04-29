@@ -23,7 +23,7 @@ import {
     type ContactPageContent,
     type HomeContent,
     type NavbarContent,
-    saveSplitPageAndNavbar,
+    saveSplitPageAndNavbarEnvelope,
 } from "@/lib/site-content";
 import { useEffect } from "react";
 
@@ -36,12 +36,18 @@ function uncast(c: HomeContent): ContactPageContent {
     return c as unknown as ContactPageContent;
 }
 
-async function saveContact(content: HomeContent): Promise<HomeContent> {
-    const persisted = await saveSplitPageAndNavbar(
+async function saveContact(
+    content: HomeContent
+): Promise<{ content: HomeContent; hasDraft: boolean; publishedAt: string | null }> {
+    const result = await saveSplitPageAndNavbarEnvelope(
         SLUG,
         content as unknown as Record<string, unknown>
     );
-    return persisted as unknown as HomeContent;
+    return {
+        content: result.content as unknown as HomeContent,
+        hasDraft: result.hasDraft,
+        publishedAt: result.publishedAt,
+    };
 }
 
 export default function ContactPageBody({
@@ -53,7 +59,11 @@ export default function ContactPageBody({
 }) {
     const combined = { ...initialContent, navbar };
     return (
-        <EditModeProvider initialContent={cast(combined)} saveFn={saveContact}>
+        <EditModeProvider
+            initialContent={cast(combined)}
+            saveFn={saveContact}
+            slug={SLUG}
+        >
             <BodyClassToggle />
             <Navbar content={navbar} />
             <ContactPage />

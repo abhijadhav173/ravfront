@@ -19,8 +19,10 @@ use Illuminate\Http\Request;
  */
 class SiteContentController extends Controller
 {
-    /** GET /api/v1/site/content/{slug} — public, used by the frontend at request time */
-    public function show(string $slug): JsonResponse
+    /** GET /api/v1/site/content/{slug} — public, used by the frontend at request time.
+     *  Returns published content only (`content`, never `draft_content`).
+     *  Admins can pass `?include_draft=1` to see the draft when editing. */
+    public function show(Request $request, string $slug): JsonResponse
     {
         $row = SiteContent::where('slug', $slug)->first();
 
@@ -28,28 +30,106 @@ class SiteContentController extends Controller
             return response()->json(['slug' => $slug, 'content' => null], 404);
         }
 
+        // Admin draft preview: return draft if it exists, else published
+        $includeDraft = $request->query('include_draft') === '1';
+        $payload = $includeDraft && $row->draft_content !== null
+            ? $row->draft_content
+            : $row->content;
+
         return response()->json([
             'slug' => $row->slug,
-            'content' => $row->content,
+            'content' => $payload,
+            'has_draft' => $row->draft_content !== null,
+            'published_at' => $row->published_at,
             'updated_at' => $row->updated_at,
         ]);
     }
 
-    /** PUT /api/v1/admin/site/content/{slug} — admin only, replaces the JSON */
+    /** PUT /api/v1/admin/site/content/{slug} — admin only.
+     *  Writes to `draft_content` (not the live `content`). Use POST .../publish
+     *  to promote the draft to live. Creates the row with the draft as the
+     *  initial published content if it doesn't exist yet. */
     public function update(Request $request, string $slug): JsonResponse
     {
         $data = $request->validate([
             'content' => 'required|array',
         ]);
 
-        $row = SiteContent::updateOrCreate(
-            ['slug' => $slug],
-            ['content' => $data['content']]
-        );
+        $row = SiteContent::where('slug', $slug)->first();
+        if ($row) {
+            $row->draft_content = $data['content'];
+            $row->save();
+        } else {
+            // First write: persist as published immediately so the public site
+            // has SOMETHING to render. Subsequent writes go to draft_content.
+            $row = SiteContent::create([
+                'slug' => $slug,
+                'content' => $data['content'],
+                'published_at' => now(),
+            ]);
+        }
+
+        return response()->json([
+            'slug' => $row->slug,
+            'content' => $row->draft_content ?? $row->content,
+            'has_draft' => $row->draft_content !== null,
+            'published_at' => $row->published_at,
+            'updated_at' => $row->updated_at,
+        ]);
+    }
+
+    /** POST /api/v1/admin/site/content/{slug}/publish — admin only.
+     *  Promotes draft_content -> content, sets published_at, clears draft. */
+    public function publish(string $slug): JsonResponse
+    {
+        $row = SiteContent::where('slug', $slug)->first();
+        if (! $row) {
+            return response()->json(['error' => "page '$slug' not found"], 404);
+        }
+
+        if ($row->draft_content === null) {
+            // Nothing to publish — already in sync
+            return response()->json([
+                'slug' => $row->slug,
+                'content' => $row->content,
+                'has_draft' => false,
+                'published_at' => $row->published_at,
+                'updated_at' => $row->updated_at,
+                'note' => 'no draft to publish',
+            ]);
+        }
+
+        $row->content = $row->draft_content;
+        $row->draft_content = null;
+        $row->published_at = now();
+        $row->save();
 
         return response()->json([
             'slug' => $row->slug,
             'content' => $row->content,
+            'has_draft' => false,
+            'published_at' => $row->published_at,
+            'updated_at' => $row->updated_at,
+        ]);
+    }
+
+    /** POST /api/v1/admin/site/content/{slug}/discard-draft — admin only.
+     *  Throws away the draft, keeping the live content untouched. */
+    public function discardDraft(string $slug): JsonResponse
+    {
+        $row = SiteContent::where('slug', $slug)->first();
+        if (! $row) {
+            return response()->json(['error' => "page '$slug' not found"], 404);
+        }
+
+        $row->draft_content = null;
+        $row->save();
+
+        return response()->json([
+            'slug' => $row->slug,
+            'content' => $row->content,
+            'has_draft' => false,
+            'published_at' => $row->published_at,
             'updated_at' => $row->updated_at,
         ]);
     }

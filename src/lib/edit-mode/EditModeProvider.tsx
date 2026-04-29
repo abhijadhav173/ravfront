@@ -31,6 +31,8 @@ import {
 import { toast } from "sonner";
 import {
     saveHomeContent,
+    publishPageAndNavbar,
+    discardDraftPageAndNavbar,
     type HomeContent,
 } from "@/lib/site-content";
 import { getStoredUser } from "@/lib/api/base";
@@ -73,6 +75,16 @@ type EditModeContextValue = {
 
     save: () => Promise<void>;
     discard: () => void;
+
+    /** #79 — drafts + publish. Each save now writes to draft_content; admin
+     *  must explicitly publish to promote draft → live. `hasDraft` is true
+     *  when the most recent save left an unpublished draft. */
+    hasDraft: boolean;
+    publishing: boolean;
+    publish: () => Promise<void>;
+    /** Throw away the in-progress backend draft (different from `discard`,
+     *  which only resets local in-memory edits). */
+    discardServerDraft: () => Promise<void>;
 };
 
 const EditModeContext = createContext<EditModeContextValue | null>(null);
@@ -105,6 +117,10 @@ export function useEditMode(): EditModeContextValue {
             setFocusedSection: () => {},
             save: async () => {},
             discard: () => {},
+            hasDraft: false,
+            publishing: false,
+            publish: async () => {},
+            discardServerDraft: async () => {},
         };
     }
     return ctx;
@@ -114,13 +130,26 @@ export function EditModeProvider({
     initialContent,
     children,
     saveFn,
+    slug,
+    initialHasDraft,
 }: {
     initialContent: HomeContent;
     children: ReactNode;
     /** Override the default save (which targets /api/admin/site/content/home).
      *  Per-page providers (contact-us, about-us, our-model) pass a slug-
-     *  specific save fn here. */
-    saveFn?: (content: HomeContent) => Promise<HomeContent>;
+     *  specific save fn here. May return either content (legacy) or an
+     *  envelope-shaped object with `hasDraft` (#79). */
+    saveFn?: (content: HomeContent) => Promise<
+        HomeContent | { content: HomeContent; hasDraft?: boolean; publishedAt?: string | null }
+    >;
+    /** #79 — slug used by Publish / Discard-draft. Defaults to "home" so the
+     *  homepage (which still uses the default saveHomeContent) keeps working. */
+    slug?: string;
+    /** #79 — initial draft state from server-side fetch. When the server
+     *  returns a draft (admin loaded the page with `?include_draft=1`), the
+     *  provider knows there's something to publish even before the admin
+     *  saves. */
+    initialHasDraft?: boolean;
 }) {
     const [enabled, setEnabled] = useState(false);
     const [content, setContent] = useState<HomeContent>(initialContent);
@@ -130,6 +159,10 @@ export function EditModeProvider({
     const [autoSaveEnabled, setAutoSaveEnabledRaw] = useState<boolean>(true);
     const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
     const [focusedSection, setFocusedSectionRaw] = useState<string | null>(null);
+    const [hasDraft, setHasDraft] = useState<boolean>(!!initialHasDraft);
+    const [publishing, setPublishing] = useState(false);
+
+    const effectiveSlug = slug ?? "home";
 
     /** Toggling focus also writes to a body data attribute so CSS can dim
      *  non-focused sections + scope edit affordances by selector. */
@@ -198,11 +231,29 @@ export function EditModeProvider({
         setSaving(true);
         try {
             const fn = saveFn ?? saveHomeContent;
-            const persisted = await fn(content);
-            setContent(persisted);
-            setSavedContent(persisted);
+            const result = await fn(content);
+            // Result is either bare content (legacy) or { content, hasDraft } (#79).
+            const isEnvelope =
+                result &&
+                typeof result === "object" &&
+                "content" in (result as object) &&
+                "hasDraft" in (result as object);
+            if (isEnvelope) {
+                const env = result as { content: HomeContent; hasDraft?: boolean };
+                setContent(env.content);
+                setSavedContent(env.content);
+                setHasDraft(!!env.hasDraft);
+            } else {
+                const c = result as HomeContent;
+                setContent(c);
+                setSavedContent(c);
+                // #79: every save writes to draft_content, so after a save
+                // there's a draft to publish. If the legacy saveFn doesn't
+                // tell us, assume true.
+                setHasDraft(true);
+            }
             setLastSavedAt(new Date());
-            toast.success("Saved.");
+            toast.success("Saved as draft.");
         } catch (err) {
             toast.error("Save failed: " + (err instanceof Error ? err.message : "unknown"));
             throw err;
@@ -210,6 +261,45 @@ export function EditModeProvider({
             setSaving(false);
         }
     }, [content, saveFn]);
+
+    /** #79 — promote the saved draft to live content. */
+    const publish = useCallback(async () => {
+        if (dirty) {
+            // Auto-save first so the latest local edits get published too
+            try {
+                await save();
+            } catch {
+                // save toasts on its own; abort publish
+                return;
+            }
+        }
+        setPublishing(true);
+        try {
+            await publishPageAndNavbar(effectiveSlug);
+            setHasDraft(false);
+            toast.success("Published.");
+        } catch (err) {
+            toast.error("Publish failed: " + (err instanceof Error ? err.message : "unknown"));
+            throw err;
+        } finally {
+            setPublishing(false);
+        }
+    }, [effectiveSlug, dirty, save]);
+
+    /** #79 — throw away the in-progress backend draft. The local view will
+     *  still hold whatever was last shown until the next reload, but on
+     *  reload the live (published) content comes back. We could also reset
+     *  local state by re-fetching, but that's a heavier UX shift. */
+    const discardServerDraft = useCallback(async () => {
+        if (!confirm("Discard the saved draft? Live content will be unchanged.")) return;
+        try {
+            await discardDraftPageAndNavbar(effectiveSlug);
+            setHasDraft(false);
+            toast.success("Draft discarded. Reload to see live content.");
+        } catch (err) {
+            toast.error("Discard failed: " + (err instanceof Error ? err.message : "unknown"));
+        }
+    }, [effectiveSlug]);
 
     /**
      * Auto-save: when content is dirty + autoSave is on + admin is editing,
@@ -348,6 +438,10 @@ export function EditModeProvider({
             setFocusedSection,
             save,
             discard,
+            hasDraft,
+            publishing,
+            publish,
+            discardServerDraft,
         }),
         [
             enabled, content, setAt, pushAt, removeAt, moveAt, isAdmin,
@@ -355,6 +449,7 @@ export function EditModeProvider({
             canUndo, canRedo, undo, redo,
             focusedSection, setFocusedSection,
             save, discard,
+            hasDraft, publishing, publish, discardServerDraft,
         ]
     );
 

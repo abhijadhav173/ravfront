@@ -10,7 +10,10 @@
  */
 
 import { useState } from "react";
-import { Pencil, Save, RotateCcw, X, Loader2, ExternalLink, PanelLeft, Zap, Undo2, Redo2 } from "lucide-react";
+import {
+    Pencil, Save, RotateCcw, X, Loader2, ExternalLink, PanelLeft, Zap, Undo2, Redo2,
+    Send, Trash2,
+} from "lucide-react";
 import { useEditMode } from "./EditModeProvider";
 import { EditModeSidebar } from "./EditModeSidebar";
 import { FocusedSectionExitButton } from "./SectionFocusOverlay";
@@ -26,6 +29,7 @@ export function EditModeOverlay() {
         isAdmin, enabled, setEnabled, dirty, saving, save, discard,
         autoSaveEnabled, setAutoSaveEnabled, lastSavedAt,
         canUndo, canRedo, undo, redo,
+        hasDraft, publishing, publish, discardServerDraft,
     } = useEditMode();
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -41,6 +45,13 @@ export function EditModeOverlay() {
             >
                 <Pencil className="w-3.5 h-3.5" />
                 <span>Edit page</span>
+                {hasDraft && (
+                    <span
+                        className="edit-mode-pill__draft-dot"
+                        title="There's an unpublished draft on this page"
+                        aria-label="Draft pending"
+                    />
+                )}
             </button>
         );
     }
@@ -50,6 +61,22 @@ export function EditModeOverlay() {
             await save();
         } catch {
             // toast already shown by provider
+        }
+    }
+
+    async function handlePublish() {
+        try {
+            await publish();
+        } catch {
+            // toast already shown
+        }
+    }
+
+    async function handleDiscardDraft() {
+        try {
+            await discardServerDraft();
+        } catch {
+            // toast already shown
         }
     }
 
@@ -79,14 +106,23 @@ export function EditModeOverlay() {
                             <Loader2 className="inline w-3 h-3 animate-spin mr-1" />
                             Saving…
                         </span>
+                    ) : publishing ? (
+                        <span className="edit-mode-clean">
+                            <Loader2 className="inline w-3 h-3 animate-spin mr-1" />
+                            Publishing…
+                        </span>
                     ) : dirty ? (
                         <span className="edit-mode-dirty">
                             ● Unsaved
                             {autoSaveEnabled && " · auto-saving in 4s"}
                         </span>
+                    ) : hasDraft ? (
+                        <span className="edit-mode-draft">
+                            ● Draft saved · not yet published
+                        </span>
                     ) : (
                         <span className="edit-mode-clean">
-                            ✓ Saved{lastSavedAt && ` · ${formatTime(lastSavedAt)}`}
+                            ✓ Live{lastSavedAt && ` · ${formatTime(lastSavedAt)}`}
                         </span>
                     )}
                 </div>
@@ -132,24 +168,56 @@ export function EditModeOverlay() {
                     <button
                         type="button"
                         onClick={discard}
-                        disabled={!dirty || saving}
+                        disabled={!dirty || saving || publishing}
                         className="edit-mode-btn edit-mode-btn--ghost"
+                        title="Discard local edits (since last save)"
                     >
                         <RotateCcw className="w-3.5 h-3.5" />
                         <span>Discard</span>
                     </button>
                     <button
                         type="button"
+                        onClick={handleDiscardDraft}
+                        disabled={!hasDraft || saving || publishing}
+                        className="edit-mode-btn edit-mode-btn--ghost"
+                        title="Throw away the saved draft. Live content is unchanged."
+                    >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Discard draft</span>
+                    </button>
+                    <button
+                        type="button"
                         onClick={handleSave}
-                        disabled={!dirty || saving}
-                        className="edit-mode-btn edit-mode-btn--primary"
+                        disabled={!dirty || saving || publishing}
+                        className="edit-mode-btn edit-mode-btn--ghost"
+                        title="Save as draft (won't go live until you publish)"
                     >
                         {saving ? (
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
                         ) : (
                             <Save className="w-3.5 h-3.5" />
                         )}
-                        <span>{saving ? "Saving…" : "Save"}</span>
+                        <span>{saving ? "Saving…" : "Save draft"}</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handlePublish}
+                        disabled={(!hasDraft && !dirty) || saving || publishing}
+                        className="edit-mode-btn edit-mode-btn--primary"
+                        title={
+                            dirty
+                                ? "Save current edits and publish"
+                                : hasDraft
+                                ? "Promote saved draft to live content"
+                                : "No changes to publish"
+                        }
+                    >
+                        {publishing ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                            <Send className="w-3.5 h-3.5" />
+                        )}
+                        <span>{publishing ? "Publishing…" : "Publish"}</span>
                     </button>
                     <button
                         type="button"

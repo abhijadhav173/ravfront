@@ -30,7 +30,7 @@ import {
     type LegalPageContent,
     type HomeContent,
     type NavbarContent,
-    saveSplitPageAndNavbar,
+    saveSplitPageAndNavbarEnvelope,
 } from "@/lib/site-content";
 
 function cast(c: LegalPageContent & { navbar?: NavbarContent }): HomeContent {
@@ -41,12 +41,18 @@ function uncast(c: HomeContent): LegalPageContent {
 }
 
 function makeSaveLegalPage(slug: string) {
-    return async (content: HomeContent): Promise<HomeContent> => {
-        const persisted = await saveSplitPageAndNavbar(
+    return async (
+        content: HomeContent
+    ): Promise<{ content: HomeContent; hasDraft: boolean; publishedAt: string | null }> => {
+        const result = await saveSplitPageAndNavbarEnvelope(
             slug,
             content as unknown as Record<string, unknown>
         );
-        return persisted as unknown as HomeContent;
+        return {
+            content: result.content as unknown as HomeContent,
+            hasDraft: result.hasDraft,
+            publishedAt: result.publishedAt,
+        };
     };
 }
 
@@ -62,7 +68,7 @@ export default function LegalPageBody({
     const saveFn = makeSaveLegalPage(slug);
     const combined = { ...initialContent, navbar };
     return (
-        <EditModeProvider initialContent={cast(combined)} saveFn={saveFn}>
+        <EditModeProvider initialContent={cast(combined)} saveFn={saveFn} slug={slug}>
             <BodyClassToggle />
             <Navbar content={navbar} />
             <LegalPage />

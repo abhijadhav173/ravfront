@@ -16,6 +16,7 @@ import type {
     SiteContentEnvelope,
     GenericPageContent,
     NavbarContent,
+    SaveResult,
 } from "./types";
 
 /**
@@ -71,11 +72,10 @@ export async function fetchHomeContent(): Promise<HomeContent> {
     }
 }
 
-/** Client-side fetch — used by /admin/site to load + edit. Bearer-token auth. */
+/** Client-side fetch — used by /admin/site to load + edit. Bearer-token auth.
+ *  Passes `?include_draft=1` so admins see in-progress drafts when editing. */
 export async function fetchHomeContentForAdmin(): Promise<HomeContent> {
-    // Public endpoint — no auth needed. Use it from admin UI as well so
-    // we get the latest persisted content (admin doesn't see drafts).
-    const url = `${getApiBase()}/api/site/content/home`;
+    const url = `${getApiBase()}/api/site/content/home?include_draft=1`;
     const res = await fetch(url, {
         headers: { Accept: "application/json" },
     });
@@ -89,7 +89,30 @@ export async function fetchHomeContentForAdmin(): Promise<HomeContent> {
     return json.content ?? DEFAULT_HOME_CONTENT;
 }
 
-/** Client-side write — admin save. Bearer token auth (matches the rest of the admin API). */
+/** #79: admin fetch returning the full envelope (content + has_draft + published_at).
+ *  Used by EditModeProvider when entering edit mode so the toolbar can show
+ *  the publish state correctly and pull in any draft the admin saved earlier. */
+export async function fetchHomeContentEnvelopeForAdmin(): Promise<SiteContentEnvelope<HomeContent>> {
+    const url = `${getApiBase()}/api/site/content/home?include_draft=1`;
+    const res = await fetch(url, {
+        headers: { Accept: "application/json" },
+    });
+    if (!res.ok) {
+        if (res.status === 404) {
+            return {
+                slug: "home",
+                content: DEFAULT_HOME_CONTENT,
+                has_draft: false,
+                published_at: null,
+            };
+        }
+        throw new Error(`Failed to load site content (${res.status})`);
+    }
+    return (await res.json()) as SiteContentEnvelope<HomeContent>;
+}
+
+/** Client-side write — admin save. Bearer token auth (matches the rest of the admin API).
+ *  After #79: writes go to draft_content. Use publishPage() to promote draft → live. */
 export async function saveHomeContent(content: HomeContent): Promise<HomeContent> {
     const url = `${getApiBase()}/api/admin/site/content/home`;
 
@@ -106,6 +129,22 @@ export async function saveHomeContent(content: HomeContent): Promise<HomeContent
 
     const json = (await res.json()) as SiteContentEnvelope<HomeContent>;
     return json.content;
+}
+
+/** #79: home save returning the full envelope (with has_draft + published_at).
+ *  Used by EditModeProvider so the toolbar can update its publish state. */
+export async function saveHomeContentEnvelope(content: HomeContent): Promise<SiteContentEnvelope<HomeContent>> {
+    const url = `${getApiBase()}/api/admin/site/content/home`;
+    const res = await fetch(url, {
+        method: "PUT",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ content }),
+    });
+    if (!res.ok) {
+        const body = await res.text();
+        throw new Error(`Save failed (${res.status}): ${body}`);
+    }
+    return (await res.json()) as SiteContentEnvelope<HomeContent>;
 }
 
 /* ───────────────── GENERIC PAGES (multi-page) ───────────────── */
@@ -146,9 +185,10 @@ export async function fetchNavbarContent(): Promise<NavbarContent | null> {
     }
 }
 
-/** Client-side admin fetch — used by /admin/site/pages/[slug]. */
+/** Client-side admin fetch — used by /admin/site/pages/[slug].
+ *  Passes `?include_draft=1` so admins see drafts when editing. */
 export async function fetchGenericPageForAdmin(slug: string): Promise<GenericPageContent | null> {
-    const url = `${getApiBase()}/api/site/content/${encodeURIComponent(slug)}`;
+    const url = `${getApiBase()}/api/site/content/${encodeURIComponent(slug)}?include_draft=1`;
     const res = await fetch(url, { headers: { Accept: "application/json" } });
     if (!res.ok) {
         if (res.status === 404) return null;
@@ -158,7 +198,21 @@ export async function fetchGenericPageForAdmin(slug: string): Promise<GenericPag
     return json.content ?? null;
 }
 
-/** Client-side admin write — saves any page slug. */
+/** #79: admin fetch returning the full envelope (content + has_draft + published_at). */
+export async function fetchGenericPageEnvelopeForAdmin(
+    slug: string
+): Promise<SiteContentEnvelope<GenericPageContent> | null> {
+    const url = `${getApiBase()}/api/site/content/${encodeURIComponent(slug)}?include_draft=1`;
+    const res = await fetch(url, { headers: { Accept: "application/json" } });
+    if (!res.ok) {
+        if (res.status === 404) return null;
+        throw new Error(`Failed to load page (${res.status})`);
+    }
+    return (await res.json()) as SiteContentEnvelope<GenericPageContent>;
+}
+
+/** Client-side admin write — saves any page slug.
+ *  After #79: writes go to draft_content. */
 export async function saveGenericPage(
     slug: string,
     content: GenericPageContent
@@ -175,6 +229,25 @@ export async function saveGenericPage(
     }
     const json = (await res.json()) as SiteContentEnvelope<GenericPageContent>;
     return json.content;
+}
+
+/** #79: generic save returning the full envelope (for page bodies that need
+ *  has_draft + published_at to drive the in-page toolbar). */
+export async function saveGenericPageEnvelope(
+    slug: string,
+    content: GenericPageContent
+): Promise<SiteContentEnvelope<GenericPageContent>> {
+    const url = `${getApiBase()}/api/admin/site/content/${encodeURIComponent(slug)}`;
+    const res = await fetch(url, {
+        method: "PUT",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ content }),
+    });
+    if (!res.ok) {
+        const body = await res.text();
+        throw new Error(`Save failed (${res.status}): ${body}`);
+    }
+    return (await res.json()) as SiteContentEnvelope<GenericPageContent>;
 }
 
 /** List every page row in the site_content table. Admin-only. */
@@ -223,6 +296,95 @@ export async function saveSplitPageAndNavbar(
         ...(savedPage as Record<string, unknown>),
         navbar: savedNavbar ?? navbar,
     };
+}
+
+/** #79: like saveSplitPageAndNavbar but returns SaveResult so the toolbar
+ *  can update its publish state after save. The page's draft state is the
+ *  authoritative one — navbar drafts are tracked but the page is what the
+ *  admin is currently editing.  */
+export async function saveSplitPageAndNavbarEnvelope(
+    pageSlug: string,
+    combined: Record<string, unknown>
+): Promise<SaveResult<Record<string, unknown>>> {
+    const navbar = combined.navbar as Record<string, unknown> | undefined;
+    const pageContent: Record<string, unknown> = { ...combined };
+    delete pageContent.navbar;
+
+    const [pageEnv, navbarEnv] = await Promise.all([
+        saveGenericPageEnvelope(
+            pageSlug,
+            pageContent as unknown as Parameters<typeof saveGenericPageEnvelope>[1]
+        ),
+        navbar
+            ? saveGenericPageEnvelope(
+                  "navbar",
+                  navbar as unknown as Parameters<typeof saveGenericPageEnvelope>[1]
+              )
+            : Promise.resolve(undefined),
+    ]);
+
+    const merged: Record<string, unknown> = {
+        ...(pageEnv.content as unknown as Record<string, unknown>),
+        navbar: navbarEnv?.content ?? navbar,
+    };
+
+    // hasDraft = true if EITHER slug has a pending draft
+    const hasDraft = !!pageEnv.has_draft || !!navbarEnv?.has_draft;
+
+    return {
+        content: merged,
+        hasDraft,
+        publishedAt: pageEnv.published_at ?? null,
+    };
+}
+
+/** #79: promotes draft_content → content for the given slug.
+ *  Returns the new envelope so callers can refresh state. */
+export async function publishPage(slug: string): Promise<SiteContentEnvelope<unknown>> {
+    const url = `${getApiBase()}/api/admin/site/content/${encodeURIComponent(slug)}/publish`;
+    const res = await fetch(url, {
+        method: "POST",
+        headers: getAuthHeaders(),
+    });
+    if (!res.ok) {
+        const body = await res.text();
+        throw new Error(`Publish failed (${res.status}): ${body}`);
+    }
+    return (await res.json()) as SiteContentEnvelope<unknown>;
+}
+
+/** #79: deletes the in-progress draft for `slug` without touching live content. */
+export async function discardDraft(slug: string): Promise<SiteContentEnvelope<unknown>> {
+    const url = `${getApiBase()}/api/admin/site/content/${encodeURIComponent(slug)}/discard-draft`;
+    const res = await fetch(url, {
+        method: "POST",
+        headers: getAuthHeaders(),
+    });
+    if (!res.ok) {
+        const body = await res.text();
+        throw new Error(`Discard failed (${res.status}): ${body}`);
+    }
+    return (await res.json()) as SiteContentEnvelope<unknown>;
+}
+
+/** #79: publish helper that promotes both the page slug and the navbar slug
+ *  in parallel. Backend `publish` is idempotent (returns "no draft" if there's
+ *  nothing to promote), so calling on navbar even when it has no draft is safe. */
+export async function publishPageAndNavbar(pageSlug: string): Promise<void> {
+    await Promise.all([
+        publishPage(pageSlug),
+        publishPage("navbar").catch(() => {
+            // navbar slug might not exist yet (no row created) — ignore
+        }),
+    ]);
+}
+
+/** #79: discards both page and navbar drafts. */
+export async function discardDraftPageAndNavbar(pageSlug: string): Promise<void> {
+    await Promise.all([
+        discardDraft(pageSlug).catch(() => undefined),
+        discardDraft("navbar").catch(() => undefined),
+    ]);
 }
 
 /** #80 — Hard-delete a page row from site_content. Backend refuses 'home'. */

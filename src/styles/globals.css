@@ -1082,6 +1082,24 @@ body.edit-mode-active .coin-portrait > .edit-mode-image-toolbar {
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
+/* #79 — yellow "draft saved, not published" status in the toolbar */
+.edit-mode-draft {
+  color: #f0c850;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+/* #79 — small dot on the bottom-right Edit pill when a draft is pending */
+.edit-mode-pill__draft-dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: #f0c850;
+  box-shadow: 0 0 0 2px rgba(28,28,26,0.95);
+  margin-left: 0.25rem;
+}
 .edit-mode-btn {
   display: inline-flex;
   align-items: center;

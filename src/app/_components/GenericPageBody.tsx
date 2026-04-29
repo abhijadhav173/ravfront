@@ -80,17 +80,23 @@ export default function GenericPageBody({
     navbar?: NavbarContent;
 }) {
     const adapted = adaptToHomeShape(initialContent, navbar);
-    const saveFn = async (content: HomeContent): Promise<HomeContent> => {
-        const { saveSplitPageAndNavbar } = await import("@/lib/site-content");
-        const persisted = await saveSplitPageAndNavbar(
+    const saveFn = async (
+        content: HomeContent
+    ): Promise<{ content: HomeContent; hasDraft: boolean; publishedAt: string | null }> => {
+        const { saveSplitPageAndNavbarEnvelope } = await import("@/lib/site-content");
+        const result = await saveSplitPageAndNavbarEnvelope(
             slug,
             content as unknown as Record<string, unknown>
         );
-        return persisted as unknown as HomeContent;
+        return {
+            content: result.content as unknown as HomeContent,
+            hasDraft: result.hasDraft,
+            publishedAt: result.publishedAt,
+        };
     };
 
     return (
-        <EditModeProvider initialContent={adapted} saveFn={saveFn}>
+        <EditModeProvider initialContent={adapted} saveFn={saveFn} slug={slug}>
             <BodyClassToggle />
             <Navbar content={navbar} />
             <main

@@ -23,7 +23,7 @@ import {
     type AboutUsPageContent,
     type HomeContent,
     type NavbarContent,
-    saveSplitPageAndNavbar,
+    saveSplitPageAndNavbarEnvelope,
 } from "@/lib/site-content";
 
 const SLUG = "about-us";
@@ -35,12 +35,18 @@ function uncast(c: HomeContent): AboutUsPageContent {
     return c as unknown as AboutUsPageContent;
 }
 
-async function saveAboutUs(content: HomeContent): Promise<HomeContent> {
-    const persisted = await saveSplitPageAndNavbar(
+async function saveAboutUs(
+    content: HomeContent
+): Promise<{ content: HomeContent; hasDraft: boolean; publishedAt: string | null }> {
+    const result = await saveSplitPageAndNavbarEnvelope(
         SLUG,
         content as unknown as Record<string, unknown>
     );
-    return persisted as unknown as HomeContent;
+    return {
+        content: result.content as unknown as HomeContent,
+        hasDraft: result.hasDraft,
+        publishedAt: result.publishedAt,
+    };
 }
 
 export default function AboutUsPageBody({
@@ -52,7 +58,11 @@ export default function AboutUsPageBody({
 }) {
     const combined = { ...initialContent, navbar };
     return (
-        <EditModeProvider initialContent={cast(combined)} saveFn={saveAboutUs}>
+        <EditModeProvider
+            initialContent={cast(combined)}
+            saveFn={saveAboutUs}
+            slug={SLUG}
+        >
             <BodyClassToggle />
             <Navbar content={navbar} />
             <AboutUsPage />

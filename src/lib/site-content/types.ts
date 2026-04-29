@@ -286,6 +286,20 @@ export type SiteContentEnvelope<T = HomeContent> = {
     slug: string;
     content: T;
     updated_at?: string;
+    /** #79: present on admin-facing endpoints; whether a saved-but-unpublished
+     *  draft exists for this slug. */
+    has_draft?: boolean;
+    /** #79: timestamp of last publish. null if never published. */
+    published_at?: string | null;
+};
+
+/** #79: standardized save result returned from saveSplitPageAndNavbar +
+ *  per-page saveFn passed to EditModeProvider. Carries draft metadata so the
+ *  toolbar can show publish state. */
+export type SaveResult<T = unknown> = {
+    content: T;
+    hasDraft: boolean;
+    publishedAt: string | null;
 };
 
 /**

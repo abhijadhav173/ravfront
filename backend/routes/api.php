@@ -133,6 +133,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/admin/site/content/{slug}', [SiteContentController::class, 'destroy']);
         // #78 slug rename
         Route::post('/admin/site/content/{slug}/rename', [SiteContentController::class, 'rename']);
+        // #79 drafts + publish flow
+        Route::post('/admin/site/content/{slug}/publish', [SiteContentController::class, 'publish']);
+        Route::post('/admin/site/content/{slug}/discard-draft', [SiteContentController::class, 'discardDraft']);
 
         // Site asset upload (CMS MVP) — multipart upload to public R2 bucket
         Route::get('/admin/site/assets', [SiteAssetController::class, 'index']);
