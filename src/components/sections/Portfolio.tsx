@@ -1,20 +1,18 @@
 "use client";
 
 /**
- * Portfolio — 4-pillar scrollytelling.
+ * Portfolio — 4-pillar list (design-cms-v2: scrollytell removed).
  *
- * Behaviour split:
- *   - Out of edit mode → ScrollytellSection (sticky scroll-driven advance, the
- *     production design).
- *   - In edit mode → static stacked layout where every step is visible at once
- *     and editable inline. Avoids the contentEditable-vs-scrollytell conflict
- *     where scrolling to read your own typing would snap to the next step.
+ * v2 ships a SINGLE static stacked layout for both production and edit mode.
+ * The scrollytell-driven sticky scroll advance was removed at Amanda's
+ * request — it lives in git history at the v2.5-pre-restructure tag and
+ * inside the still-imported (but now unused) ScrollytellSection component
+ * for V3 revival.
  *
- * Both modes use the same content shape, the same step rendering, and write
- * through the same path-based EditModeProvider — so saves are identical.
+ * Both modes use the same content shape and write through the same path-based
+ * EditModeProvider — saves are identical.
  */
 
-import { ScrollytellSection, type ScrollytellStep } from "@/components/design-system";
 import {
     DEFAULT_HOME_CONTENT,
     renderInline,
@@ -159,31 +157,7 @@ function StepVisual({ step }: { step: PortfolioStepContent }) {
     return <StepBadge num={step.badgeNum} label={step.badgeLabel} comingSoon={step.comingSoon} />;
 }
 
-function toScrollytellStep(s: PortfolioStepContent, i: number): ScrollytellStep {
-    const pathPrefix = `portfolio.steps.${i}`;
-    if (s.comingSoon) {
-        return {
-            tag: s.tag,
-            name: s.name,
-            title: (
-                <span className="text-[var(--ds-ink-muted,rgba(232,228,218,0.4))]">{s.title}</span>
-            ),
-            chip: s.chip,
-            visual: <StepVisual step={s} />,
-        };
-    }
-
-    return {
-        tag: s.tag,
-        name: s.name,
-        title: renderInline(s.title),
-        description: <StepBody body={s.body} meta={s.meta} pathPrefix={pathPrefix} editable={false} />,
-        chip: s.chip,
-        visual: <StepVisual step={s} />,
-    };
-}
-
-/* ───── Edit-mode rendering: static stacked layout ───── */
+/* ───── Static stacked layout (v2 — used in BOTH production + edit mode) ───── */
 
 function StackedStep({
     step,
@@ -350,9 +324,6 @@ function PortfolioStacked({ content }: { content: HomeContent["portfolio"] }) {
                     as="div"
                     className="font-sans text-[0.62rem] font-semibold tracking-[0.32em] uppercase text-ravok-gold mb-4"
                 />
-                <p className="text-[0.6rem] uppercase tracking-[0.2em] text-white/40 mb-8 italic">
-                    Edit-mode preview · stacked layout. Public site shows scroll-driven advance.
-                </p>
                 <EditableList
                     arrayPath="portfolio.steps"
                     items={content.steps}
@@ -369,35 +340,7 @@ function PortfolioStacked({ content }: { content: HomeContent["portfolio"] }) {
 
 export default function Portfolio({ content }: PortfolioProps = {}) {
     const c = content ?? DEFAULT_HOME_CONTENT.portfolio;
-    const { enabled } = useEditMode();
-
-    if (enabled) {
-        return <PortfolioStacked content={c} />;
-    }
-
-    const steps = c.steps.map((s, i) => toScrollytellStep(s, i));
-
-    // Production renders the scrollytell. Both target=section and
-    // target=scrollytell decorations now render inside the sticky scrollytell
-    // visual via extraOverlay — wrapping ScrollytellSection in an outer div
-    // (v23) was breaking the C-reveal sticky chain because that outer div
-    // changed where the next section's sticky pinning released. Putting the
-    // section-target layer alongside the scrollytell-target one preserves
-    // the existing fragment structure ScrollytellSection expects (section +
-    // spacer as direct siblings of the parent flow container).
-    return (
-        <ScrollytellSection
-            zIndex={12}
-            id="portfolio"
-            label={c.label}
-            counterSuffix={c.counterSuffix}
-            steps={steps}
-            extraOverlay={
-                <FloatingElementsLayer
-                    decorations={c.decorations ?? []}
-                    path="portfolio.decorations"
-                />
-            }
-        />
-    );
+    // v2: always render the static stacked layout. Edit mode renders the
+    // same thing — scrollytell branch removed.
+    return <PortfolioStacked content={c} />;
 }

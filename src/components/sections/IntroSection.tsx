@@ -24,6 +24,7 @@ export default function IntroSection({ content }: IntroSectionProps = {}) {
             id="about"
             centerHeader={false}
             contentMaxWidth="1300px"
+            nonSticky
         >
             <FloatingElementsLayer
                 decorations={c.decorations ?? []}

@@ -11,6 +11,7 @@
 
 import { motion } from "framer-motion";
 import { useEffect } from "react";
+import { Linkedin } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import {
     EditModeProvider,
@@ -52,9 +53,14 @@ async function saveAboutUs(
 export default function AboutUsPageBody({
     initialContent,
     navbar,
+    team,
 }: {
     initialContent: AboutUsPageContent;
     navbar?: NavbarContent;
+    /** design-cms-v2: team data sourced from the `home` slug (single source
+     *  of truth). Static, read-only on /about-us — to edit a member's bio,
+     *  admins still go to the homepage's Team section in edit mode. */
+    team?: HomeContent["team"];
 }) {
     const combined = { ...initialContent, navbar };
     return (
@@ -65,13 +71,13 @@ export default function AboutUsPageBody({
         >
             <BodyClassToggle />
             <Navbar content={navbar} />
-            <AboutUsPage />
+            <AboutUsPage team={team} />
             <EditModeOverlay />
         </EditModeProvider>
     );
 }
 
-function AboutUsPage() {
+function AboutUsPage({ team }: { team?: HomeContent["team"] }) {
     const { content } = useEditMode();
     const c = uncast(content);
 
@@ -133,6 +139,11 @@ function AboutUsPage() {
                 renderItem={(section, i) => <AboutSection section={section} index={i} />}
             />
 
+            {/* Team — moved here from homepage (design-cms-v2). Static grid,
+             *  no marquee/coin-frame motion. Bios edit via the homepage Team
+             *  section (the data lives in `home` slug, this is read-only). */}
+            <TeamGrid team={team} />
+
             {/* Closing */}
             <section className="py-32 px-6 lg:px-12 border-t border-[var(--ds-border)] text-center">
                 <div className="container mx-auto max-w-3xl">
@@ -154,6 +165,89 @@ function AboutUsPage() {
                 </div>
             </section>
         </main>
+    );
+}
+
+/**
+ * design-cms-v2 — static team grid for /about-us.
+ *
+ * Reads members from the home content's `team.members` (passed as prop from
+ * the server fetch). Layout: responsive grid (2 cols ≥md, 1 col mobile).
+ * Each member: portrait + name + role + bio + LinkedIn link.
+ *
+ * No marquee. No coin frame. No hover-to-flip. Just faces, copy, and a link.
+ * The marquee implementation lives in @/components/sections/Team.tsx and is
+ * still mounted nowhere on this branch — V3 can revive it.
+ */
+function TeamGrid({ team }: { team?: HomeContent["team"] }) {
+    const members = team?.members ?? [];
+    if (members.length === 0) return null;
+
+    return (
+        <section className="py-24 lg:py-32 px-6 lg:px-12 border-t border-[var(--ds-border)]">
+            <div className="container mx-auto max-w-5xl">
+                {team?.eyebrow && (
+                    <p className="font-sans text-[0.62rem] font-semibold tracking-[0.32em] text-ravok-gold uppercase mb-3 text-center">
+                        {team.eyebrow}
+                    </p>
+                )}
+                {team?.headline && (
+                    <h2 className="text-[clamp(2rem,4vw,3.25rem)] font-heading font-normal text-[var(--ds-ink)] leading-tight text-center mb-4">
+                        {team.headline}
+                    </h2>
+                )}
+                {team?.lead && (
+                    <p className="text-[var(--ds-ink-dim)] font-sans text-base lg:text-lg leading-relaxed text-center max-w-2xl mx-auto mb-16">
+                        {team.lead}
+                    </p>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16">
+                    {members.map((m, i) => (
+                        <article
+                            key={`${m.name}-${i}`}
+                            className="flex flex-col items-start gap-5"
+                        >
+                            {m.photo && (
+                                <div className="relative w-32 h-32 rounded-full overflow-hidden border border-[var(--ds-border-strong)] bg-[rgba(232,228,218,0.04)]">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                        src={m.photo}
+                                        alt={m.name}
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
+                            )}
+                            <div>
+                                <h3 className="font-heading text-[1.5rem] lg:text-[1.75rem] text-ravok-gold leading-tight">
+                                    {m.name}
+                                </h3>
+                                <p className="font-sans text-[0.7rem] tracking-[0.22em] uppercase text-[var(--ds-ink-dim)] mt-1">
+                                    {m.role}
+                                </p>
+                            </div>
+                            {m.bio && (
+                                <p className="font-sans text-base text-[var(--ds-ink-dim)] leading-relaxed">
+                                    {m.bio}
+                                </p>
+                            )}
+                            {m.linkedin && (
+                                <a
+                                    href={m.linkedin}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 text-ravok-gold/80 hover:text-ravok-gold font-sans text-[0.7rem] tracking-[0.22em] uppercase transition-colors"
+                                    aria-label={`${m.name} on LinkedIn`}
+                                >
+                                    <Linkedin className="w-3.5 h-3.5" />
+                                    LinkedIn
+                                </a>
+                            )}
+                        </article>
+                    ))}
+                </div>
+            </div>
+        </section>
     );
 }
 

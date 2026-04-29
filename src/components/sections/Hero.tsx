@@ -1,17 +1,21 @@
 "use client";
 
 /**
- * Hero — pattern 2a per WEBSITE-TECHNICAL-RULES.md §2a.
+ * Hero — design-cms-v2: simplified.
  *
- * Full viewport, no sticky, no page-pass edges. Lives at the top, scrolls away
- * normally. Z-index 2. Owns the temple visual + entry copy + scroll cue.
+ * Was: sticky `top-0` with scroll-driven framer-motion transforms
+ * (parallax temple + fading content). On v2 we kill the scroll-driven
+ * effects and the sticky page-flip pattern. Hero now just sits at
+ * the top of the page and scrolls away normally.
  *
- * Content is CMS-driven via the `content` prop with EditableText/EditableImage
- * wrappers active when EditModeProvider.enabled === true.
+ * Kept: mount-time fade-ins for logo + tagline (single-frame entrance,
+ * not scroll-driven — feels like a normal page-load animation).
+ *
+ * Original sticky/parallax implementation lives in git history at the
+ * v2.5-pre-restructure tag for V3 revival.
  */
 
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { motion } from "framer-motion";
 import { DEFAULT_HOME_CONTENT, type HomeContent } from "@/lib/site-content";
 import { EditableText, EditableImage } from "@/lib/edit-mode";
 
@@ -21,28 +25,17 @@ type HeroProps = {
 
 export default function Hero({ content }: HeroProps = {}) {
     const c = content ?? DEFAULT_HOME_CONTENT.hero;
-    const sectionRef = useRef<HTMLElement>(null);
-    const { scrollY } = useScroll({
-        target: sectionRef,
-        offset: ["start start", "end start"],
-    });
-
-    const templeY = useTransform(scrollY, [0, 600], ["0%", "-12%"], { clamp: true });
-    const templeOpacity = useTransform(scrollY, [0, 500], [0.12, 0.04], { clamp: true });
-    const contentOpacity = useTransform(scrollY, [0, 350], [1, 0], { clamp: true });
-    const contentY = useTransform(scrollY, [0, 350], [0, 30], { clamp: true });
 
     return (
         <section
-            ref={sectionRef}
-            className="sticky top-0 min-h-screen w-full flex flex-col items-center justify-center px-10 pt-36 pb-20 text-center"
-            style={{ zIndex: 2 }}
+            className="relative min-h-screen w-full flex flex-col items-center justify-center px-10 pt-36 pb-20 text-center"
         >
             <h1 className="sr-only">RAVOK Studios — {c.tagline}</h1>
 
-            <motion.div
+            {/* Temple background — fixed opacity, no scroll parallax */}
+            <div
                 className="absolute inset-0 flex items-center justify-center pointer-events-none"
-                style={{ y: templeY, opacity: templeOpacity, zIndex: 0 }}
+                style={{ opacity: 0.12, zIndex: 0 }}
             >
                 <EditableImage path="hero.templeImage" value={c.templeImage}>
                     {(src) => (
@@ -55,12 +48,9 @@ export default function Hero({ content }: HeroProps = {}) {
                         />
                     )}
                 </EditableImage>
-            </motion.div>
+            </div>
 
-            <motion.div
-                className="relative z-[5] flex flex-col items-center"
-                style={{ opacity: contentOpacity, y: contentY }}
-            >
+            <div className="relative z-[5] flex flex-col items-center">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -89,16 +79,14 @@ export default function Hero({ content }: HeroProps = {}) {
                     <EditableText path="hero.tagline" value={c.tagline} />
                     <span className="text-ravok-gold">·</span>
                 </motion.p>
-            </motion.div>
+            </div>
 
-            <motion.div
+            {/* Scroll cue — kept as a static label, no looping bob animation */}
+            <div
                 className="absolute bottom-10 left-1/2 -translate-x-1/2 font-sans text-[0.6rem] font-medium tracking-[0.3em] uppercase text-[var(--ds-ink-muted)] z-[5]"
-                style={{ opacity: contentOpacity }}
-                animate={{ y: [0, -8, 0] }}
-                transition={{ duration: 2, ease: "easeInOut", repeat: Infinity }}
             >
                 <EditableText path="hero.scrollCue" value={c.scrollCue} />
-            </motion.div>
+            </div>
         </section>
     );
 }

@@ -34,6 +34,7 @@ export default function Bridge({ content }: BridgeProps = {}) {
             id="bridge"
             centerHeader={false}
             contentMaxWidth="1400px"
+            nonSticky
         >
             <FloatingElementsLayer
                 decorations={c.decorations ?? []}

@@ -23,7 +23,8 @@ import {
     IntroSection,
     Bridge,
     Portfolio,
-    Team,
+    // Team intentionally NOT imported here on design-cms-v2 — moved to /about-us.
+    // The Team component still exists in @/components/sections for V3 revival.
     ImageBlockSection,
     RichTextSection,
     TwoColumnSection,
@@ -91,10 +92,13 @@ function Sections() {
     const { content } = useEditMode();
     // Resolve order: stored array (filtered to known keys) + any missing keys
     // appended at the end so newly-added section types still appear.
+    // design-cms-v2: "team" is filtered out of the home render — moved to
+    // /about-us. The team data stays in HomeContent.team (single source of
+    // truth) so /about-us reads it without duplication.
     const stored = (content.sectionOrder ?? []).filter((k): k is SectionKey =>
-        ALL_SECTION_KEYS.includes(k)
+        ALL_SECTION_KEYS.includes(k) && k !== "team"
     );
-    const missing = ALL_SECTION_KEYS.filter((k) => !stored.includes(k));
+    const missing = ALL_SECTION_KEYS.filter((k) => !stored.includes(k) && k !== "team");
     const order: SectionKey[] = [...stored, ...missing];
 
     const customBlocks = content.customBlocks ?? [];
@@ -288,7 +292,10 @@ function SectionSlot({
             case "portfolio":
                 return <Portfolio content={content.portfolio} />;
             case "team":
-                return <Team content={content.team} />;
+                // design-cms-v2: team is filtered out of the rendered order
+                // above. Returning null is unreachable, but the case keeps
+                // the SectionKey switch exhaustive without re-importing Team.
+                return null;
         }
     })();
 
