@@ -83,6 +83,13 @@ export const DEFAULT_HOME_CONTENT: HomeContent = {
     },
 
     portfolio: {
+        // design-cms-v2 / #93 — Era + Pillars framing for Section 4.
+        eraLabel: "Era Zero",
+        eraEyebrow: "Founding slate",
+        headline: "Four pillars of what we're building first.",
+        lead: "A pillar is a single strategic IP bet. Era Zero is the founding cycle — these are the four we're building before the next one opens.",
+        ctaLabel: "See the full slate",
+        ctaHref: "/portfolio",
         label: "The Portfolio",
         counterSuffix: "THE PORTFOLIO",
         steps: [

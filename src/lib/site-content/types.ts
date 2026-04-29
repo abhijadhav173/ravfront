@@ -180,6 +180,16 @@ export type HomeContent = {
         counterSuffix: string;
         steps: PortfolioStepContent[];
         decorations?: FloatingImage[];
+        /** design-cms-v2 / #93 — Era + Pillars framing for Section 4.
+         *  Existing portfolio.steps[] become the Pillars of the current Era.
+         *  All era* fields are optional for backwards compat — old data
+         *  renders with sensible defaults until admin edits. */
+        eraLabel?: string;       // e.g. "Era Zero"
+        eraEyebrow?: string;     // e.g. "Founding slate"
+        headline?: string;       // e.g. "Four pillars of what we're building first."
+        lead?: string;           // 1-2 line lead body
+        ctaLabel?: string;       // e.g. "See the full slate"
+        ctaHref?: string;        // e.g. "/portfolio"
     };
     team: {
         eyebrow: string;
