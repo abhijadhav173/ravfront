@@ -190,10 +190,52 @@ export type ImageBlockProps = {
     decorations?: FloatingImage[];
 };
 
-export type CustomBlock =
-    | { id: string; type: "image-block"; props: ImageBlockProps };
+export type RichTextBlockProps = {
+    eyebrow: string;
+    heading: string;
+    body: string;
+    align?: "left" | "center";
+    decorations?: FloatingImage[];
+};
 
-export const CUSTOM_BLOCK_TYPES: Array<CustomBlock["type"]> = ["image-block"];
+export type TwoColumnBlockProps = {
+    imagePosition: "left" | "right";
+    image: string;
+    imageTransform?: ImageTransform;
+    eyebrow: string;
+    heading: string;
+    body: string;
+    decorations?: FloatingImage[];
+};
+
+export type CalloutBlockProps = {
+    quote: string;
+    attribution: string;
+    decorations?: FloatingImage[];
+};
+
+export type CtaBlockProps = {
+    eyebrow: string;
+    heading: string;
+    body: string;
+    ctas: Cta[];
+    decorations?: FloatingImage[];
+};
+
+export type CustomBlock =
+    | { id: string; type: "image-block"; props: ImageBlockProps }
+    | { id: string; type: "rich-text"; props: RichTextBlockProps }
+    | { id: string; type: "two-column"; props: TwoColumnBlockProps }
+    | { id: string; type: "callout"; props: CalloutBlockProps }
+    | { id: string; type: "cta-block"; props: CtaBlockProps };
+
+export const CUSTOM_BLOCK_TYPES: Array<CustomBlock["type"]> = [
+    "image-block",
+    "rich-text",
+    "two-column",
+    "callout",
+    "cta-block",
+];
 
 export type SiteContentEnvelope<T = HomeContent> = {
     slug: string;

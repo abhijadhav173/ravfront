@@ -4,6 +4,10 @@ export { default as Bridge } from './Bridge';
 export { default as Portfolio } from './Portfolio';
 export { default as Team } from './Team';
 export { default as ImageBlockSection } from './ImageBlockSection';
+export { default as RichTextSection } from './RichTextSection';
+export { default as TwoColumnSection } from './TwoColumnSection';
+export { default as CalloutSection } from './CalloutSection';
+export { default as CtaBlockSection } from './CtaBlockSection';
 
 // Deprecated — kept exported so other routes/pages don't break until their
 // own refactor. These are NOT used on the homepage anymore.

@@ -18,7 +18,18 @@
 
 import { useEffect, useState } from "react";
 import { GripVertical } from "lucide-react";
-import { Hero, IntroSection, Bridge, Portfolio, Team, ImageBlockSection } from "@/components/sections";
+import {
+    Hero,
+    IntroSection,
+    Bridge,
+    Portfolio,
+    Team,
+    ImageBlockSection,
+    RichTextSection,
+    TwoColumnSection,
+    CalloutSection,
+    CtaBlockSection,
+} from "@/components/sections";
 import Footer from "@/components/layout/Footer";
 import {
     EditModeProvider,
@@ -88,17 +99,55 @@ function CustomBlockSlot({
     const sectionId = `custom-${block.id}`;
 
     const inner = (() => {
-        if (block.type === "image-block") {
-            return (
-                <ImageBlockSection
-                    blockIndex={index}
-                    zIndex={z}
-                    id={sectionId}
-                    content={block.props}
-                />
-            );
+        switch (block.type) {
+            case "image-block":
+                return (
+                    <ImageBlockSection
+                        blockIndex={index}
+                        zIndex={z}
+                        id={sectionId}
+                        content={block.props}
+                    />
+                );
+            case "rich-text":
+                return (
+                    <RichTextSection
+                        blockIndex={index}
+                        zIndex={z}
+                        id={sectionId}
+                        content={block.props}
+                    />
+                );
+            case "two-column":
+                return (
+                    <TwoColumnSection
+                        blockIndex={index}
+                        zIndex={z}
+                        id={sectionId}
+                        content={block.props}
+                    />
+                );
+            case "callout":
+                return (
+                    <CalloutSection
+                        blockIndex={index}
+                        zIndex={z}
+                        id={sectionId}
+                        content={block.props}
+                    />
+                );
+            case "cta-block":
+                return (
+                    <CtaBlockSection
+                        blockIndex={index}
+                        zIndex={z}
+                        id={sectionId}
+                        content={block.props}
+                    />
+                );
+            default:
+                return null;
         }
-        return null;
     })();
 
     if (!enabled) {

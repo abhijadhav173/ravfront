@@ -25,6 +25,10 @@ import {
     X,
     Upload,
     Loader2,
+    AlignLeft,
+    Columns,
+    Quote,
+    MousePointer,
 } from "lucide-react";
 import { useEditMode } from "./EditModeProvider";
 import { ALL_SECTION_KEYS, type HomeContent, type SectionKey } from "@/lib/site-content";
@@ -188,16 +192,35 @@ function LayersPanel() {
 }
 
 function customBlockLabel(t: string): string {
-    if (t === "image-block") return "Image block";
-    return t;
+    switch (t) {
+        case "image-block": return "Image block";
+        case "rich-text": return "Rich text";
+        case "two-column": return "Two column";
+        case "callout": return "Quote / callout";
+        case "cta-block": return "CTA block";
+        default: return t;
+    }
 }
 
 function customBlockSummary(block: NonNullable<HomeContent["customBlocks"]>[number]): string {
-    if (block.type === "image-block") {
-        const file = block.props.image ? block.props.image.split("/").pop() : "(no image)";
-        return `Image: ${file}${block.props.caption ? ` · "${block.props.caption.slice(0, 30)}"` : ""}`;
+    switch (block.type) {
+        case "image-block": {
+            const file = block.props.image ? block.props.image.split("/").pop() : "(no image)";
+            return `Image: ${file}${block.props.caption ? ` · "${block.props.caption.slice(0, 30)}"` : ""}`;
+        }
+        case "rich-text":
+            return `"${(block.props.heading || block.props.eyebrow || "Untitled").slice(0, 40)}"`;
+        case "two-column": {
+            const file = block.props.image ? block.props.image.split("/").pop() : "(no image)";
+            return `${block.props.imagePosition} image · "${block.props.heading.slice(0, 30)}"`;
+        }
+        case "callout":
+            return `"${block.props.quote.slice(0, 50)}…"`;
+        case "cta-block":
+            return `"${block.props.heading}" · ${block.props.ctas.length} CTA${block.props.ctas.length === 1 ? "" : "s"}`;
+        default:
+            return "";
     }
-    return "";
 }
 
 function SectionNode({
@@ -298,19 +321,72 @@ function AddPanel() {
     const [lastAddedTo, setLastAddedTo] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-    /** Add a new "image-block" custom section after the existing ones. */
-    function addImageBlock() {
+    /** Append a new custom block of the given type with sensible defaults. */
+    function addBlock(blockType: "image-block" | "rich-text" | "two-column" | "callout" | "cta-block") {
         const id = `block-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
-        pushAt("customBlocks", {
-            id,
-            type: "image-block",
-            props: {
-                image: "",
-                caption: "",
-                fullBleed: false,
-            },
-        });
-        setLastAddedTo("custom image block");
+
+        let block;
+        switch (blockType) {
+            case "image-block":
+                block = {
+                    id,
+                    type: "image-block" as const,
+                    props: { image: "", caption: "", fullBleed: false },
+                };
+                break;
+            case "rich-text":
+                block = {
+                    id,
+                    type: "rich-text" as const,
+                    props: {
+                        eyebrow: "— Section",
+                        heading: "New section heading",
+                        body: "Body copy here. Use **phrase** for gold-italic emphasis.",
+                        align: "left" as const,
+                    },
+                };
+                break;
+            case "two-column":
+                block = {
+                    id,
+                    type: "two-column" as const,
+                    props: {
+                        imagePosition: "right" as const,
+                        image: "",
+                        eyebrow: "— Section",
+                        heading: "New heading",
+                        body: "Body copy here.",
+                    },
+                };
+                break;
+            case "callout":
+                block = {
+                    id,
+                    type: "callout" as const,
+                    props: {
+                        quote: "A bold pull-quote that captures the moment.",
+                        attribution: "— Source",
+                    },
+                };
+                break;
+            case "cta-block":
+                block = {
+                    id,
+                    type: "cta-block" as const,
+                    props: {
+                        eyebrow: "— Take Action",
+                        heading: "Ready to talk?",
+                        body: "Short pitch line.",
+                        ctas: [
+                            { label: "Get in touch", href: "#contact", variant: "primary" as const },
+                        ],
+                    },
+                };
+                break;
+        }
+
+        pushAt("customBlocks", block);
+        setLastAddedTo(blockType);
         setTimeout(() => {
             const el = document.getElementById(`custom-${id}`);
             if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -394,18 +470,27 @@ function AddPanel() {
                     on this page: <strong>{customCount}</strong>.
                 </p>
                 <div className="edit-mode-add-grid">
-                    <button
-                        type="button"
-                        className="edit-mode-add-tile"
-                        onClick={addImageBlock}
-                    >
+                    <button type="button" className="edit-mode-add-tile" onClick={() => addBlock("image-block")}>
                         <ImageIcon className="w-4 h-4" />
-                        <span>Image block</span>
+                        <span>Image</span>
+                    </button>
+                    <button type="button" className="edit-mode-add-tile" onClick={() => addBlock("rich-text")}>
+                        <AlignLeft className="w-4 h-4" />
+                        <span>Rich text</span>
+                    </button>
+                    <button type="button" className="edit-mode-add-tile" onClick={() => addBlock("two-column")}>
+                        <Columns className="w-4 h-4" />
+                        <span>Two column</span>
+                    </button>
+                    <button type="button" className="edit-mode-add-tile" onClick={() => addBlock("callout")}>
+                        <Quote className="w-4 h-4" />
+                        <span>Quote</span>
+                    </button>
+                    <button type="button" className="edit-mode-add-tile" onClick={() => addBlock("cta-block")}>
+                        <MousePointer className="w-4 h-4" />
+                        <span>CTA</span>
                     </button>
                 </div>
-                <p className="edit-mode-add-empty" style={{ marginTop: "0.6rem" }}>
-                    More section types (rich-text, callout, two-column) are planned. Tell me which you want next.
-                </p>
             </div>
 
             <div className="edit-mode-add-group">
