@@ -199,7 +199,42 @@ class SiteContentSeeder extends Seeder
                     ['label' => 'Terms', 'href' => '/terms-and-conditions'],
                     ['label' => 'Privacy', 'href' => '/privacy-policy'],
                 ],
-                'copyright' => '© RAVOK Studios',
+                'linkGroups' => [
+                    [
+                        'title' => 'Company',
+                        'links' => [
+                            ['label' => 'Home', 'href' => '/'],
+                            ['label' => 'About Us', 'href' => '/about-us'],
+                            ['label' => 'Our Model', 'href' => '/our-model'],
+                            ['label' => 'Blog', 'href' => '/insights'],
+                            ['label' => 'Contact Us', 'href' => '/contact-us'],
+                        ],
+                    ],
+                    [
+                        'title' => 'Policies',
+                        'links' => [
+                            ['label' => 'Terms and Conditions', 'href' => '/terms-and-conditions'],
+                            ['label' => 'Privacy Policy', 'href' => '/privacy-policy'],
+                            ['label' => 'Submission Release Agreement', 'href' => '/submission-agreement'],
+                        ],
+                    ],
+                    [
+                        'title' => 'Portal',
+                        'links' => [
+                            ['label' => 'Investor Portal', 'href' => '/login'],
+                            ['label' => 'Admin Portal', 'href' => '/admin'],
+                        ],
+                    ],
+                ],
+                'socialLinks' => [
+                    ['icon' => 'facebook', 'href' => 'https://www.facebook.com/people/Ravok-Studios/61578824300063/'],
+                    ['icon' => 'instagram', 'href' => 'https://www.instagram.com/ravokstudios?igsh=NTc4MTIwNjQ2YQ=='],
+                    ['icon' => 'linkedin', 'href' => 'https://www.linkedin.com/company/ravok-studios/?viewAsMember=true'],
+                ],
+                'backgroundImage' => '/images/footer.png',
+                'logoImage' => '/images/logo.png',
+                'copyright' => '© 2026 Ravok Studios | All Rights Reserved.',
+                'decorations' => [],
             ],
             'floatingElements' => [],
             'customBlocks' => [],

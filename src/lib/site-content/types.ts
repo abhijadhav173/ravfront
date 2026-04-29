@@ -39,6 +39,18 @@ export type FooterLink = {
     href: string;
 };
 
+export type FooterLinkGroup = {
+    title: string;
+    links: FooterLink[];
+};
+
+export type FooterSocialIcon = "instagram" | "linkedin" | "facebook" | "twitter";
+
+export type FooterSocialLink = {
+    icon: FooterSocialIcon;
+    href: string;
+};
+
 export type ComparisonRow = {
     dim: string;
     old: string;
@@ -164,8 +176,16 @@ export type HomeContent = {
     footer: {
         email: string;
         logoText: string;
+        /** Legacy flat links list — kept for backwards compat with v1–v9 data.
+         *  New code uses `linkGroups` instead. */
         links: FooterLink[];
+        /** Optional grouped link columns (Company / Policies / Portal style). */
+        linkGroups?: FooterLinkGroup[];
+        socialLinks?: FooterSocialLink[];
+        backgroundImage?: string;
+        logoImage?: string;
         copyright: string;
+        decorations?: FloatingImage[];
     };
     /** Free-floating images dropped anywhere on the page (Canva-style). */
     floatingElements?: FloatingElement[];

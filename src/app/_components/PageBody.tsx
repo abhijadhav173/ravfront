@@ -79,8 +79,8 @@ function Sections() {
             {customBlocks.map((block, i) => (
                 <CustomBlockSlot key={block.id} block={block} index={i} z={CUSTOM_BLOCK_BASE_Z + i} />
             ))}
-            <div className="relative z-[60]">
-                <Footer />
+            <div className="relative z-[60] section-anchor" data-section="footer" style={{ position: "relative" }}>
+                <Footer content={content.footer} />
             </div>
         </main>
     );
