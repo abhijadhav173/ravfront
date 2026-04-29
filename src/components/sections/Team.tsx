@@ -12,6 +12,7 @@
  * mark them aria-hidden + tabIndex={-1} so focus skips them).
  */
 
+import { useEffect } from "react";
 import { CRevealSection } from "@/components/design-system";
 import {
     DEFAULT_HOME_CONTENT,
@@ -19,6 +20,14 @@ import {
     type TeamMemberContent,
 } from "@/lib/site-content";
 import { EditableText, EditableImage, EditableList, FloatingElementsLayer, useEditMode } from "@/lib/edit-mode";
+
+/** The laurel ring is the actual team coin frame. */
+const LAUREL_URL =
+    "https://pub-0c5b0ff2bc9242ffa0b31812b16adf4e.r2.dev/2026/04/i1swh4tzrnnd.svg";
+/** The legacy wireframe path that production data still points at. It's
+ *  actually a 1920x810 landscape SVG — never rendered as a real frame. We
+ *  treat its presence as "data not migrated yet" and substitute the laurel. */
+const LEGACY_WIREFRAME_PATH = "/images/coins/coin-frame.svg";
 
 const NEW_MEMBER_DEFAULT: TeamMemberContent = {
     name: "New Member",
@@ -138,10 +147,37 @@ export default function Team({ content }: TeamProps = {}) {
     const c = content ?? DEFAULT_HOME_CONTENT.team;
     const { enabled, setAt } = useEditMode();
 
-    // CSS variables flow into .coin-frame and .coin-portrait widths so admins
-    // can tune frame + photo sizing per-deployment from the CMS without code.
-    const frameScale = c.coinFrameScale ?? 450;
-    const portraitScale = c.coinPortraitScale ?? 75;
+    // Auto-fallback: production data still has the legacy 16:9 wireframe SVG
+    // path stored as coinFrame, plus stale 450/75 scales tuned for that
+    // (broken) asset. When detected, we substitute the laurel + sane scales
+    // at render time so admins immediately see the right frame regardless of
+    // what's in the DB. The data itself migrates on first save.
+    const isLegacyData = c.coinFrame === LEGACY_WIREFRAME_PATH;
+    const effectiveCoinFrame = isLegacyData ? LAUREL_URL : (c.coinFrame || LAUREL_URL);
+    const frameScale = isLegacyData ? 130 : (c.coinFrameScale ?? 130);
+    const portraitScale = isLegacyData ? 58 : (c.coinPortraitScale ?? 58);
+
+    // Belt-and-braces: also write the migration to the DB on admin mount so
+    // future loads (and the public site) see the laurel without relying on
+    // this fallback. Idempotent — bails if already migrated.
+    useEffect(() => {
+        if (!enabled) return;
+        if (!isLegacyData) return;
+        const cleanedDecorations = (c.decorations ?? []).filter(
+            (d) => (d as { src?: string }).src !== LAUREL_URL
+        );
+        const nextTeam = {
+            ...c,
+            coinFrame: LAUREL_URL,
+            coinFrameScale: 130,
+            coinPortraitScale: 58,
+            decorations: cleanedDecorations,
+        };
+        // eslint-disable-next-line no-console
+        console.log("[team-auto-migrate] writing laurel patch", nextTeam);
+        setAt("team", nextTeam);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [enabled, isLegacyData]);
     const teamCSSVars = {
         ["--coin-frame-scale" as string]: `${frameScale}%`,
         ["--coin-portrait-scale" as string]: `${portraitScale}%`,
@@ -247,7 +283,7 @@ export default function Team({ content }: TeamProps = {}) {
                     as="div"
                     className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 justify-items-center"
                     renderItem={(m, i) => (
-                        <CoinMember member={m} index={i} coinFrame={c.coinFrame} />
+                        <CoinMember member={m} index={i} coinFrame={effectiveCoinFrame} />
                     )}
                 />
             ) : (
@@ -255,14 +291,14 @@ export default function Team({ content }: TeamProps = {}) {
                 <div className="team-marquee relative w-full overflow-hidden py-2">
                     <div className="team-marquee-inner flex gap-12 w-max">
                         {c.members.map((m, i) => (
-                            <CoinMember key={`s1-${i}`} member={m} index={i} coinFrame={c.coinFrame} />
+                            <CoinMember key={`s1-${i}`} member={m} index={i} coinFrame={effectiveCoinFrame} />
                         ))}
                         {c.members.map((m, i) => (
                             <CoinMember
                                 key={`s2-${i}`}
                                 member={m}
                                 index={i}
-                                coinFrame={c.coinFrame}
+                                coinFrame={effectiveCoinFrame}
                                 isDuplicate
                             />
                         ))}
