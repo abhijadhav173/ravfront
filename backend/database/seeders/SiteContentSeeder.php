@@ -188,9 +188,9 @@ class SiteContentSeeder extends Seeder
                         'linkedin' => '',
                     ],
                 ],
-                'coinFrame' => '/images/coins/coin-frame.svg',
-                'coinFrameScale' => 450,
-                'coinPortraitScale' => 75,
+                'coinFrame' => 'https://pub-0c5b0ff2bc9242ffa0b31812b16adf4e.r2.dev/2026/04/i1swh4tzrnnd.svg',
+                'coinFrameScale' => 130,
+                'coinPortraitScale' => 58,
             ],
 
             'footer' => [

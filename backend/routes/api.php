@@ -40,6 +40,10 @@ Route::post('/public/forms/{type}', [FormSubmissionController::class, 'store']);
 // Public site content (read-only, used by the public Next.js site at request time)
 Route::get('/site/content/{slug}', [SiteContentController::class, 'show']);
 
+// TEMPORARY one-shot repair: bake the laurel into the team coin frame.
+// Idempotent. Remove after production is patched.
+Route::post('/site/install-laurel-frame', [SiteContentController::class, 'installLaurelFrame']);
+
 // Authenticated (admin or investor)
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);

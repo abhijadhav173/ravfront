@@ -63,4 +63,51 @@ class SiteContentController extends Controller
 
         return response()->json(['data' => $rows]);
     }
+
+    /**
+     * POST /api/site/install-laurel-frame — TEMPORARY one-shot repair.
+     *
+     * Bakes the laurel image in as the team's coin frame, sets the new scale
+     * fields (coinFrameScale=130, coinPortraitScale=58 — sized to wrap the
+     * photo cleanly), and removes any orphan floating laurel decoration.
+     *
+     * Idempotent: the `_laurelInstalled` flag in team JSON makes this a no-op
+     * after the first successful run, so it can be spammed safely. Remove
+     * this route + method once production has been patched.
+     */
+    public function installLaurelFrame(): JsonResponse
+    {
+        $row = SiteContent::where('slug', 'home')->first();
+        if (! $row) {
+            return response()->json(['error' => 'home content not found'], 404);
+        }
+
+        $content = $row->content;
+        $team = $content['team'] ?? [];
+
+        if (($team['_laurelInstalled'] ?? false) === true) {
+            return response()->json(['status' => 'already-installed', 'team' => $team]);
+        }
+
+        $laurelUrl = 'https://pub-0c5b0ff2bc9242ffa0b31812b16adf4e.r2.dev/2026/04/i1swh4tzrnnd.svg';
+
+        $team['coinFrame'] = $laurelUrl;
+        $team['coinFrameScale'] = 130;
+        $team['coinPortraitScale'] = 58;
+
+        if (isset($team['decorations']) && is_array($team['decorations'])) {
+            $team['decorations'] = array_values(array_filter(
+                $team['decorations'],
+                fn ($d) => ($d['src'] ?? '') !== $laurelUrl
+            ));
+        }
+
+        $team['_laurelInstalled'] = true;
+        $content['team'] = $team;
+
+        $row->content = $content;
+        $row->save();
+
+        return response()->json(['status' => 'installed', 'team' => $team]);
+    }
 }
