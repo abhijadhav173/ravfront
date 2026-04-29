@@ -3,8 +3,8 @@
 /**
  * /admin/site/pages — list every page row in site_content.
  *
- * Each row corresponds to a CMS-driven page. `home` is special (the
- * homepage). Any other slug is a generic page rendered at /p/<slug>.
+ * Each row corresponds to a CMS-driven page. Some slugs are fixed public
+ * routes with custom layouts; the rest are generic pages rendered at /p/<slug>.
  *
  * Admins can:
  *  - See all pages, last-updated time
@@ -125,7 +125,13 @@ export default function AdminPagesIndex() {
     }
 
     function pageUrl(slug: string): string {
-        return slug === "home" ? "/" : `/p/${slug}`;
+        const fixedRoutes: Record<string, string> = {
+            home: "/",
+            "contact-us": "/contact-us",
+            "about-us": "/about-us",
+            "our-model": "/our-model",
+        };
+        return fixedRoutes[slug] ?? `/p/${slug}`;
     }
 
     return (

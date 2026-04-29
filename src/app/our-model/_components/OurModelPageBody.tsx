@@ -142,17 +142,17 @@ function OurModelPage() {
                             />
                             <EditableList
                                 arrayPath="traditionalItems"
-                                items={c.traditionalItems.map((t) => ({ text: t }))}
-                                defaultNewItem={{ text: "New item" }}
+                                items={c.traditionalItems}
+                                defaultNewItem="New item"
                                 addLabel="Add item"
                                 as="ul"
                                 className="space-y-3"
-                                renderItem={(item, i) => (
+                                renderItem={(_, i) => (
                                     <li className="flex items-start gap-3 text-[var(--ds-ink-dim)] font-sans">
                                         <span className="text-[var(--ds-ink-muted)] mt-1">×</span>
                                         <EditableText
                                             path={`traditionalItems.${i}`}
-                                            value={typeof c.traditionalItems[i] === "string" ? c.traditionalItems[i] : ""}
+                                            value={c.traditionalItems[i] ?? ""}
                                             as="span"
                                             inline
                                             className=""
@@ -171,17 +171,17 @@ function OurModelPage() {
                             />
                             <EditableList
                                 arrayPath="ravokItems"
-                                items={c.ravokItems.map((t) => ({ text: t }))}
-                                defaultNewItem={{ text: "New item" }}
+                                items={c.ravokItems}
+                                defaultNewItem="New item"
                                 addLabel="Add item"
                                 as="ul"
                                 className="space-y-3"
-                                renderItem={(item, i) => (
+                                renderItem={(_, i) => (
                                     <li className="flex items-start gap-3 text-[var(--ds-ink)] font-sans">
                                         <Check className="w-4 h-4 text-ravok-gold mt-1 shrink-0" />
                                         <EditableText
                                             path={`ravokItems.${i}`}
-                                            value={typeof c.ravokItems[i] === "string" ? c.ravokItems[i] : ""}
+                                            value={c.ravokItems[i] ?? ""}
                                             as="span"
                                             inline
                                             className=""
