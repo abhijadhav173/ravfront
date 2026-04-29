@@ -238,7 +238,7 @@ function ThePillars({ content }: { content: HomeContent["portfolio"] }) {
                 <div className="mt-8 lg:mt-10 flex justify-center">
                     {enabled ? (
                         <div className="flex flex-col items-center gap-2">
-                            <div className="inline-flex items-center gap-3 px-7 py-3 border border-ravok-gold/40 text-ravok-gold font-sans text-[0.6rem] tracking-[0.25em] uppercase">
+                            <div className="inline-flex items-center gap-3 px-7 py-3 rounded-full border border-ravok-gold/40 text-ravok-gold font-sans text-[0.6rem] tracking-[0.25em] uppercase">
                                 <EditableText
                                     path="portfolio.ctaLabel"
                                     value={content.ctaLabel ?? "See the full slate"}
@@ -259,7 +259,7 @@ function ThePillars({ content }: { content: HomeContent["portfolio"] }) {
                     ) : (
                         <a
                             href={content.ctaHref ?? "/portfolio"}
-                            className="inline-flex items-center gap-3 px-7 py-3 border border-ravok-gold/40 text-ravok-gold font-sans text-[0.6rem] tracking-[0.25em] uppercase hover:border-ravok-gold hover:bg-[rgba(196,149,58,0.06)] transition-colors duration-200"
+                            className="inline-flex items-center gap-3 px-7 py-3 rounded-full border border-ravok-gold/40 text-ravok-gold font-sans text-[0.6rem] tracking-[0.25em] uppercase hover:border-ravok-gold hover:bg-[rgba(196,149,58,0.06)] transition-colors duration-200"
                         >
                             {content.ctaLabel ?? "See the full slate"}
                             <span aria-hidden>→</span>

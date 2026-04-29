@@ -52,7 +52,7 @@ export default function Footer({ content }: FooterProps = {}) {
     return (
         <footer
             id="contact"
-            className="bg-[var(--ds-bg)] text-[var(--ds-ink)] border-t border-[var(--ds-border)] font-sans rounded-t-3xl shadow-2xl relative"
+            className="bg-[var(--ds-bg)] text-[var(--ds-ink)] border-t border-[var(--ds-border)] font-sans relative"
         >
             <FloatingElementsLayer
                 decorations={f.decorations ?? []}

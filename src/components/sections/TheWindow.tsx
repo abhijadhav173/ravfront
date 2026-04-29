@@ -78,7 +78,7 @@ export default function TheWindow({ content }: TheWindowProps = {}) {
                 {/* Email capture — hidden in edit mode (show editable placeholders instead) */}
                 {enabled ? (
                     <div className="flex flex-col sm:flex-row gap-3 max-w-[480px] mx-auto opacity-60 pointer-events-none select-none">
-                        <div className="flex-1 border border-[var(--ds-border-strong)] px-5 py-3.5 text-left font-sans text-sm text-[var(--ds-ink-muted)]">
+                        <div className="flex-1 rounded-full border border-[var(--ds-border-strong)] px-5 py-3.5 text-left font-sans text-sm text-[var(--ds-ink-muted)]">
                             <EditableText
                                 path="window.emailPlaceholder"
                                 value={c.emailPlaceholder}
@@ -87,7 +87,7 @@ export default function TheWindow({ content }: TheWindowProps = {}) {
                                 className="pointer-events-auto"
                             />
                         </div>
-                        <div className="shrink-0 px-6 py-3.5 bg-ravok-gold/20 font-sans text-[0.65rem] font-semibold tracking-[0.22em] uppercase text-[var(--ds-ink-muted)]">
+                        <div className="shrink-0 rounded-full px-6 py-3.5 bg-ravok-gold/20 font-sans text-[0.65rem] font-semibold tracking-[0.22em] uppercase text-[var(--ds-ink-muted)]">
                             <EditableText
                                 path="window.emailCta"
                                 value={c.emailCta}
@@ -112,12 +112,12 @@ export default function TheWindow({ content }: TheWindowProps = {}) {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder={c.emailPlaceholder}
-                            className="flex-1 bg-transparent border border-[var(--ds-border-strong)] px-5 py-3.5 font-sans text-sm text-[var(--ds-ink)] placeholder:text-[var(--ds-ink-muted)] focus:outline-none focus:border-ravok-gold/60 transition-colors"
+                            className="flex-1 bg-transparent rounded-full border border-[var(--ds-border-strong)] px-5 py-3.5 font-sans text-sm text-[var(--ds-ink)] placeholder:text-[var(--ds-ink-muted)] focus:outline-none focus:border-ravok-gold/60 transition-colors"
                         />
                         <button
                             type="submit"
                             disabled={status === "loading"}
-                            className="shrink-0 px-6 py-3.5 bg-ravok-gold text-[var(--ds-bg)] font-sans text-[0.65rem] font-semibold tracking-[0.22em] uppercase hover:bg-ravok-gold/90 transition-colors disabled:opacity-50"
+                            className="shrink-0 rounded-full px-6 py-3.5 bg-ravok-gold text-[var(--ds-bg)] font-sans text-[0.65rem] font-semibold tracking-[0.22em] uppercase hover:bg-ravok-gold/90 transition-colors disabled:opacity-50"
                         >
                             {status === "loading" ? "..." : c.emailCta}
                         </button>

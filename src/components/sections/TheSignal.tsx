@@ -27,7 +27,7 @@ function SignalCta({
 }) {
     const isPrimary = cta.variant === "primary";
     const base =
-        "inline-flex items-center gap-2 px-8 py-4 font-sans text-[0.65rem] font-semibold tracking-[0.25em] uppercase transition-colors duration-200";
+        "inline-flex items-center gap-2 px-8 py-4 rounded-full font-sans text-[0.65rem] font-semibold tracking-[0.25em] uppercase transition-colors duration-200";
     const variant = isPrimary
         ? "bg-ravok-gold text-[var(--ds-bg)] hover:bg-ravok-gold/90"
         : "border border-ravok-gold/50 text-ravok-gold hover:border-ravok-gold hover:bg-[rgba(196,149,58,0.06)]";
