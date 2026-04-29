@@ -489,7 +489,13 @@ function AddPanel() {
      * Drop a new decoration into whichever section is currently most visible
      * in the viewport. Decoration is INSIDE that section's content tree, so
      * it rides along with whatever the section is doing (sticky cover,
-     * marquee scroll, etc.). Position relative to the section's bounding box.
+     * marquee scroll, scrollytell). Position relative to the section's
+     * bounding box.
+     *
+     * Target auto-detect: looks at the element under the viewport center for
+     * an ancestor with [data-decoration-zone]. If found, that zone's value
+     * (marquee | scrollytell) becomes the decoration's target. Otherwise
+     * defaults to "section" — the decoration tracks the sticky chain only.
      */
     function addFloatingImage(src: string) {
         const detected = detectAnchorInViewport();
@@ -502,6 +508,20 @@ function AddPanel() {
         const id = `f-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
         const { top, left } = computeCenterInRect(detected.rect);
         const sectionPath = `${detected.sectionKey}.decorations`;
+
+        // Target auto-detect — what sub-zone of the section is the drop over?
+        let target: "section" | "marquee" | "scrollytell" = "section";
+        if (typeof document !== "undefined") {
+            const cx = window.innerWidth / 2;
+            const cy = window.innerHeight / 2;
+            const elAtPoint = document.elementFromPoint(cx, cy) as HTMLElement | null;
+            const zoneEl = elAtPoint?.closest("[data-decoration-zone]") as HTMLElement | null;
+            const zone = zoneEl?.getAttribute("data-decoration-zone");
+            if (zone === "marquee" || zone === "scrollytell") {
+                target = zone;
+            }
+        }
+
         pushAt(sectionPath, {
             id,
             type: "image",
@@ -509,6 +529,7 @@ function AddPanel() {
             top,
             left,
             width: 200,
+            target,
         });
         setLastAddedTo(detected.sectionKey);
     }

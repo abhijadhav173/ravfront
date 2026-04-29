@@ -112,6 +112,20 @@ export const ALL_SECTION_KEYS: SectionKey[] = ["intro", "bridge", "portfolio", "
  * backwards-compat with older saved data and is treated as anchored to
  * the document overall.
  */
+/**
+ * What container the decoration tracks. Determines which animation it
+ * follows.
+ *  - "section":     anchored to the sticky <section>. Stays put while the
+ *                   section is on-screen, scrolls off when the next section
+ *                   covers from below. Default — used by sections without
+ *                   internal motion (Hero, Intro, Bridge).
+ *  - "marquee":     rendered INSIDE the team-marquee-inner. Scrolls
+ *                   horizontally with the coins.
+ *  - "scrollytell": rendered INSIDE the scrollytell sticky visual.
+ *                   Crossfades / pins with the active step.
+ */
+export type FloatingTarget = "section" | "marquee" | "scrollytell";
+
 export type FloatingImage = {
     id: string;
     type: "image";
@@ -121,6 +135,9 @@ export type FloatingImage = {
     width: number;
     rotate?: number;
     zIndex?: number;
+    /** Which sub-container of the parent section this decoration tracks.
+     *  Defaults to "section". Set automatically based on drop position. */
+    target?: FloatingTarget;
 };
 
 export type FloatingElement = FloatingImage; // future: text | shape | …

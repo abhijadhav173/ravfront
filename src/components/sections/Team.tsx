@@ -186,9 +186,16 @@ export default function Team({ content }: TeamProps = {}) {
     return (
         <CRevealSection zIndex={13} id="team" centerHeader={true} contentMaxWidth="1400px">
             <div style={teamCSSVars}>
+            {/* Section-level layer.
+             *  - In edit mode: shows ALL decorations so admin can manage them
+             *    (the marquee isn't rendered in edit mode, so without this
+             *    marquee-target decorations would be invisible).
+             *  - In production: shows only section-target decorations.
+             *    Marquee-target decorations render inside team-marquee-inner. */}
             <FloatingElementsLayer
                 decorations={c.decorations ?? []}
                 path="team.decorations"
+                targetFilter={enabled ? undefined : "section"}
             />
             <div className="text-center mb-6">
                 <EditableText
@@ -275,6 +282,7 @@ export default function Team({ content }: TeamProps = {}) {
             {enabled ? (
                 /* Edit mode: static grid so admins can drag/remove/add without
                    the marquee animation pulling things out from under them. */
+                <div data-decoration-zone="marquee">
                 <EditableList
                     arrayPath="team.members"
                     items={c.members}
@@ -286,13 +294,30 @@ export default function Team({ content }: TeamProps = {}) {
                         <CoinMember member={m} index={i} coinFrame={effectiveCoinFrame} />
                     )}
                 />
+                </div>
             ) : (
-                /* Production: scrolling coin marquee */
+                /* Production: scrolling coin marquee.
+                 * Marquee-target decorations live inside team-marquee-inner so
+                 * they translate with the coins. We render them TWICE (once
+                 * native, once shifted +50%) so the seamless-loop wraparound
+                 * also applies to decorations — same trick as the duplicate
+                 * coin set. */
                 <div className="team-marquee relative w-full overflow-hidden py-2">
-                    <div className="team-marquee-inner flex gap-12 w-max">
+                    <div className="team-marquee-inner flex gap-12 w-max relative">
+                        <FloatingElementsLayer
+                            decorations={c.decorations ?? []}
+                            path="team.decorations"
+                            targetFilter="marquee"
+                        />
                         {c.members.map((m, i) => (
                             <CoinMember key={`s1-${i}`} member={m} index={i} coinFrame={effectiveCoinFrame} />
                         ))}
+                        <FloatingElementsLayer
+                            decorations={c.decorations ?? []}
+                            path="team.decorations"
+                            targetFilter="marquee"
+                            duplicate
+                        />
                         {c.members.map((m, i) => (
                             <CoinMember
                                 key={`s2-${i}`}

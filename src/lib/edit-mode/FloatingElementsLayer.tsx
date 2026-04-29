@@ -26,50 +26,74 @@
 import { useEffect, useRef, useState } from "react";
 import { GripVertical, Maximize2, RotateCcw, Trash2, ImagePlus } from "lucide-react";
 import { useEditMode } from "./EditModeProvider";
-import type { FloatingElement, FloatingImage } from "@/lib/site-content/types";
+import type { FloatingElement, FloatingImage, FloatingTarget } from "@/lib/site-content/types";
 
 type Props = {
     /** The decoration array stored on this section. */
     decorations: FloatingElement[];
     /** Dot-path of the array (e.g. "intro.decorations"). Used to setAt/removeAt. */
     path: string;
+    /** If set, only render decorations whose target matches. The full array is
+     *  always traversed so child indices passed to setAt/removeAt match the
+     *  source-of-truth array regardless of filtering. */
+    targetFilter?: FloatingTarget;
+    /** Marquee seamless-loop helper — shifts the layer 50% right via CSS so
+     *  the second copy of marquee decorations sits over the duplicate member
+     *  set. Only set this on the second of two layers inside team-marquee-inner. */
+    duplicate?: boolean;
+    /** Inline style overrides for the layer wrapper (e.g. zIndex bumps). */
+    style?: React.CSSProperties;
 };
 
-export function FloatingElementsLayer({ decorations, path }: Props) {
+export function FloatingElementsLayer({
+    decorations,
+    path,
+    targetFilter,
+    duplicate,
+    style,
+}: Props) {
     const { enabled, setAt, removeAt } = useEditMode();
     const layerRef = useRef<HTMLDivElement>(null);
 
     if (decorations.length === 0 && !enabled) return null;
 
+    const layerStyle: React.CSSProperties = {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        pointerEvents: "none",
+        zIndex: 50,
+        ...(duplicate ? { transform: "translateX(50%)" } : null),
+        ...style,
+    };
+
     return (
         <div
             ref={layerRef}
             className="floating-elements-layer"
-            style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                pointerEvents: "none",
-                zIndex: 50,
-            }}
+            style={layerStyle}
             aria-hidden={!enabled}
         >
-            {decorations.map((el, idx) => (
-                <FloatingElementRenderer
-                    key={el.id}
-                    element={el}
-                    enabled={enabled}
-                    layerRef={layerRef}
-                    onPatch={(patch) => setAt(`${path}.${idx}`, { ...el, ...patch })}
-                    onRemove={() => {
-                        if (confirm("Remove this decoration?")) {
-                            removeAt(path, idx);
-                        }
-                    }}
-                />
-            ))}
+            {decorations.map((el, idx) => {
+                const elTarget = ((el as FloatingImage).target ?? "section") as FloatingTarget;
+                if (targetFilter && elTarget !== targetFilter) return null;
+                return (
+                    <FloatingElementRenderer
+                        key={el.id + (duplicate ? "-dup" : "")}
+                        element={el}
+                        enabled={enabled && !duplicate}
+                        layerRef={layerRef}
+                        onPatch={(patch) => setAt(`${path}.${idx}`, { ...el, ...patch })}
+                        onRemove={() => {
+                            if (confirm("Remove this decoration?")) {
+                                removeAt(path, idx);
+                            }
+                        }}
+                    />
+                );
+            })}
         </div>
     );
 }
@@ -228,6 +252,32 @@ function FloatingImageEl({
                     title="Change image (paste URL)"
                 >
                     <ImagePlus className="w-3.5 h-3.5" />
+                </button>
+                {/* Target cycler — flips the decoration's motion mode.
+                    section: pinned with the sticky <section>
+                    marquee: scrolls horizontally with team coins
+                    scrollytell: pins/cross-fades with scrollytell steps */}
+                <button
+                    type="button"
+                    className="edit-mode-image-edit-btn floating-element-target-btn"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        const current = (element.target ?? "section") as FloatingTarget;
+                        const next: FloatingTarget =
+                            current === "section"
+                                ? "marquee"
+                                : current === "marquee"
+                                ? "scrollytell"
+                                : "section";
+                        onPatch({ target: next });
+                    }}
+                    title="Cycle motion target: section → marquee → scrollytell"
+                >
+                    {(element.target ?? "section") === "section"
+                        ? "📌 section"
+                        : (element.target ?? "section") === "marquee"
+                        ? "↔ marquee"
+                        : "📜 scrollytell"}
                 </button>
             </div>
 

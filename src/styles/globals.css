@@ -621,6 +621,17 @@ body.edit-mode-active .coin-portrait > .edit-mode-image-toolbar {
   outline-offset: 2px;
 }
 
+/* Target cycler — shows the decoration's motion mode + click to cycle */
+.floating-element-target-btn {
+  width: auto !important;
+  padding: 0.4rem 0.7rem !important;
+  font-size: 0.62rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  text-transform: lowercase !important;
+  white-space: nowrap;
+}
+
 /* ============ DECORATION LIST IN SIDEBAR (edit mode → Layers tab) ============
    Single place to find + delete every decoration across every section.
    Avoids the "hunt for the hover-only trash icon" problem. */

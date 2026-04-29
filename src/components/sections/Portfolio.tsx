@@ -335,11 +335,14 @@ function PortfolioStacked({ content }: { content: HomeContent["portfolio"] }) {
                 backgroundImage: "linear-gradient(to bottom, rgba(196,149,58,0.06) 0, transparent 200px)",
             }}
         >
+            {/* Edit mode: ALL decorations render at section level so admin
+             *  can manipulate them. Production splits scrollytell-target into
+             *  the sticky visual and section-target stays here. */}
             <FloatingElementsLayer
                 decorations={content.decorations ?? []}
                 path="portfolio.decorations"
             />
-            <div className="max-w-[1500px] mx-auto">
+            <div className="max-w-[1500px] mx-auto" data-decoration-zone="scrollytell">
                 <EditableText
                     path="portfolio.label"
                     value={content.label}
@@ -374,19 +377,31 @@ export default function Portfolio({ content }: PortfolioProps = {}) {
 
     const steps = c.steps.map((s, i) => toScrollytellStep(s, i));
 
+    // Production renders the scrollytell. Section-target decorations sit on
+    // the section root (don't get the scrollytell motion). Scrollytell-target
+    // decorations live INSIDE the sticky scrollytell visual via extraOverlay,
+    // so they pin/cross-fade with the active step.
     return (
-        <ScrollytellSection
-            zIndex={12}
-            id="portfolio"
-            label={c.label}
-            counterSuffix={c.counterSuffix}
-            steps={steps}
-            extraOverlay={
-                <FloatingElementsLayer
-                    decorations={c.decorations ?? []}
-                    path="portfolio.decorations"
-                />
-            }
-        />
+        <div style={{ position: "relative" }}>
+            <FloatingElementsLayer
+                decorations={c.decorations ?? []}
+                path="portfolio.decorations"
+                targetFilter="section"
+            />
+            <ScrollytellSection
+                zIndex={12}
+                id="portfolio"
+                label={c.label}
+                counterSuffix={c.counterSuffix}
+                steps={steps}
+                extraOverlay={
+                    <FloatingElementsLayer
+                        decorations={c.decorations ?? []}
+                        path="portfolio.decorations"
+                        targetFilter="scrollytell"
+                    />
+                }
+            />
+        </div>
     );
 }
