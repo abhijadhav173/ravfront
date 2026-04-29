@@ -69,7 +69,7 @@ export default function TheSignal({ content }: TheSignalProps = {}) {
     return (
         <section
             id="signal"
-            className="relative w-full px-6 lg:px-[6vw] py-32 lg:py-40 border-t border-[var(--ds-border)] text-center"
+            className="relative w-full px-6 lg:px-[6vw] py-14 lg:py-20 border-t border-[var(--ds-border)] text-center"
             style={{
                 zIndex: 14,
                 backgroundColor: "var(--ds-bg)",
@@ -96,7 +96,7 @@ export default function TheSignal({ content }: TheSignalProps = {}) {
                     as="h2"
                     multiline
                     inline={false}
-                    className="text-[clamp(2.5rem,5.5vw,4.5rem)] font-heading font-normal text-[var(--ds-ink)] leading-[1.06] mb-8"
+                    className="text-[clamp(1.5rem,3vw,2.5rem)] font-heading font-normal text-[var(--ds-ink)] leading-[1.06] mb-6"
                 />
 
                 <EditableText
@@ -105,7 +105,7 @@ export default function TheSignal({ content }: TheSignalProps = {}) {
                     as="p"
                     multiline
                     inline={false}
-                    className="font-sans text-base lg:text-[1.05rem] leading-relaxed text-[var(--ds-ink-dim)] max-w-[620px] mx-auto mb-12"
+                    className="font-sans text-[0.88rem] lg:text-[0.92rem] leading-relaxed text-[var(--ds-ink-dim)] max-w-[560px] mx-auto mb-8"
                 />
 
                 <EditableList

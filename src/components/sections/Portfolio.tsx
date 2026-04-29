@@ -65,22 +65,20 @@ function PillarCard({
 
     return (
         <div
-            className={`flex flex-col gap-5 px-6 py-7 border transition-colors duration-300 ${
+            className={`flex flex-col gap-4 px-5 py-5 border transition-colors duration-300 ${
                 locked
                     ? "border-[var(--ds-border)] bg-transparent"
                     : "border-ravok-gold/20 bg-[rgba(196,149,58,0.025)] hover:border-ravok-gold/40"
             }`}
         >
-            {/* Pillar number circle */}
-            <div
-                className={`w-9 h-9 rounded-full border flex items-center justify-center font-heading italic text-[0.8rem] leading-none shrink-0 ${
-                    locked
-                        ? "border-[rgba(232,228,218,0.15)] text-[rgba(232,228,218,0.25)]"
-                        : "border-ravok-gold/40 text-ravok-gold"
+            {/* Pillar number — plain text tag, no circle */}
+            <span
+                className={`font-sans text-[0.52rem] font-semibold tracking-[0.28em] uppercase ${
+                    locked ? "text-[rgba(232,228,218,0.2)]" : "text-ravok-gold/60"
                 }`}
             >
                 {step.badgeNum}
-            </div>
+            </span>
 
             {/* Pillar name */}
             <EditableText
@@ -88,7 +86,7 @@ function PillarCard({
                 value={step.name}
                 as="h3"
                 inline={false}
-                className={`font-heading italic font-normal text-[1.55rem] lg:text-[1.7rem] leading-[1.05] ${
+                className={`font-heading italic font-normal text-[1.2rem] lg:text-[1.35rem] leading-[1.05] ${
                     locked ? "text-[rgba(232,228,218,0.3)]" : "text-ravok-gold"
                 }`}
             />
@@ -139,7 +137,7 @@ function PillarCard({
                     <button
                         type="button"
                         onClick={() => setAt(`${pathPrefix}.comingSoon`, !locked)}
-                        className="font-sans text-[0.5rem] tracking-[0.18em] uppercase text-[var(--ds-ink-muted)] hover:text-ravok-gold border border-[var(--ds-border)] hover:border-ravok-gold/30 rounded-full px-2 py-0.5 transition-colors"
+                        className="font-sans text-[0.5rem] tracking-[0.18em] uppercase text-[var(--ds-ink-muted)] hover:text-ravok-gold border border-[var(--ds-border)] hover:border-ravok-gold/30 px-2 py-0.5 transition-colors"
                     >
                         {locked ? "Mark live" : "Mark coming soon"}
                     </button>
@@ -160,7 +158,7 @@ function ThePillars({ content }: { content: HomeContent["portfolio"] }) {
     return (
         <section
             id="portfolio"
-            className="relative w-full px-6 lg:px-[6vw] py-24 lg:py-32 border-t border-[var(--ds-border)]"
+            className="relative w-full px-6 lg:px-[6vw] py-14 lg:py-20 border-t border-[var(--ds-border)]"
             style={{
                 zIndex: 12,
                 backgroundColor: "var(--ds-bg)",
@@ -200,14 +198,14 @@ function ThePillars({ content }: { content: HomeContent["portfolio"] }) {
                 </div>
 
                 {/* Headline + lead — 2-col on desktop */}
-                <div className="grid lg:grid-cols-[3fr_2fr] gap-6 lg:gap-20 mb-16 lg:mb-20 items-end">
+                <div className="grid lg:grid-cols-[3fr_2fr] gap-6 lg:gap-16 mb-10 lg:mb-14 items-end">
                     <EditableText
                         path="portfolio.headline"
                         value={content.headline ?? "Four pillars of what we're building first."}
                         as="h2"
                         multiline
                         inline={false}
-                        className="text-[clamp(2.25rem,3.8vw,3.25rem)] font-heading font-normal text-[var(--ds-ink)] leading-[1.1]"
+                        className="text-[clamp(1.5rem,2.6vw,2.2rem)] font-heading font-normal text-[var(--ds-ink)] leading-[1.1]"
                     />
                     <EditableText
                         path="portfolio.lead"
@@ -215,7 +213,7 @@ function ThePillars({ content }: { content: HomeContent["portfolio"] }) {
                         as="p"
                         multiline
                         inline={false}
-                        className="font-sans text-[0.95rem] lg:text-base leading-relaxed text-[var(--ds-ink-dim)]"
+                        className="font-sans text-[0.85rem] lg:text-[0.9rem] leading-relaxed text-[var(--ds-ink-dim)]"
                     />
                 </div>
 
@@ -237,10 +235,10 @@ function ThePillars({ content }: { content: HomeContent["portfolio"] }) {
                 />
 
                 {/* CTA — plain link in production, editable label + href in edit mode */}
-                <div className="mt-12 lg:mt-16 flex justify-center">
+                <div className="mt-8 lg:mt-10 flex justify-center">
                     {enabled ? (
                         <div className="flex flex-col items-center gap-2">
-                            <div className="inline-flex items-center gap-3 px-8 py-3.5 border border-ravok-gold/40 rounded-full text-ravok-gold font-sans text-[0.65rem] tracking-[0.25em] uppercase">
+                            <div className="inline-flex items-center gap-3 px-7 py-3 border border-ravok-gold/40 text-ravok-gold font-sans text-[0.6rem] tracking-[0.25em] uppercase">
                                 <EditableText
                                     path="portfolio.ctaLabel"
                                     value={content.ctaLabel ?? "See the full slate"}
@@ -261,7 +259,7 @@ function ThePillars({ content }: { content: HomeContent["portfolio"] }) {
                     ) : (
                         <a
                             href={content.ctaHref ?? "/portfolio"}
-                            className="inline-flex items-center gap-3 px-8 py-3.5 border border-ravok-gold/40 rounded-full text-ravok-gold font-sans text-[0.65rem] tracking-[0.25em] uppercase hover:border-ravok-gold hover:bg-[rgba(196,149,58,0.06)] transition-colors duration-200"
+                            className="inline-flex items-center gap-3 px-7 py-3 border border-ravok-gold/40 text-ravok-gold font-sans text-[0.6rem] tracking-[0.25em] uppercase hover:border-ravok-gold hover:bg-[rgba(196,149,58,0.06)] transition-colors duration-200"
                         >
                             {content.ctaLabel ?? "See the full slate"}
                             <span aria-hidden>→</span>

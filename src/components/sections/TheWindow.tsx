@@ -41,7 +41,7 @@ export default function TheWindow({ content }: TheWindowProps = {}) {
     return (
         <section
             id="window"
-            className="relative w-full px-6 lg:px-[6vw] py-24 lg:py-32 border-t border-[var(--ds-border)]"
+            className="relative w-full px-6 lg:px-[6vw] py-14 lg:py-20 border-t border-[var(--ds-border)]"
             style={{ zIndex: 13, backgroundColor: "var(--ds-bg)" }}
         >
             <FloatingElementsLayer
@@ -63,7 +63,7 @@ export default function TheWindow({ content }: TheWindowProps = {}) {
                     as="h2"
                     multiline
                     inline={false}
-                    className="text-[clamp(2.5rem,5vw,4rem)] font-heading font-normal text-[var(--ds-ink)] leading-[1.08] mb-6"
+                    className="text-[clamp(1.5rem,3vw,2.25rem)] font-heading font-normal text-[var(--ds-ink)] leading-[1.08] mb-5"
                 />
 
                 <EditableText
@@ -72,7 +72,7 @@ export default function TheWindow({ content }: TheWindowProps = {}) {
                     as="p"
                     multiline
                     inline={false}
-                    className="font-sans text-base lg:text-[1.05rem] leading-relaxed text-[var(--ds-ink-dim)] max-w-[580px] mx-auto mb-12"
+                    className="font-sans text-[0.88rem] lg:text-[0.92rem] leading-relaxed text-[var(--ds-ink-dim)] max-w-[520px] mx-auto mb-8"
                 />
 
                 {/* Email capture — hidden in edit mode (show editable placeholders instead) */}
