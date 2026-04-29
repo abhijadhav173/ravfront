@@ -171,6 +171,14 @@ export type HomeContent = {
         members: TeamMemberContent[];
         coinFrame: string;
         coinFrameTransform?: ImageTransform;
+        /** % of coin width — sets `.coin-frame` width. Default 450 (matches the
+         *  small wireframe SVG that needs to be huge to read). For frames that
+         *  are sized to the coin (like a laurel ring), drop to ~130. */
+        coinFrameScale?: number;
+        /** % of coin width — sets `.coin-portrait` width. Default 75. Drop to
+         *  ~58 to make the photo well smaller so it nests inside an ornate
+         *  frame instead of sitting on top of it. */
+        coinPortraitScale?: number;
         decorations?: FloatingImage[];
     };
     footer: {

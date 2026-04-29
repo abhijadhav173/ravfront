@@ -183,6 +183,8 @@ export const DEFAULT_HOME_CONTENT: HomeContent = {
             },
         ],
         coinFrame: "/images/coins/coin-frame.svg",
+        coinFrameScale: 450,
+        coinPortraitScale: 75,
     },
 
     footer: {

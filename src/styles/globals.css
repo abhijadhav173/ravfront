@@ -399,7 +399,11 @@ body::after {
   position: absolute;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  width: 75%; aspect-ratio: 1 / 1;
+  /* Width is CMS-driven via --coin-portrait-scale (set on the team root in
+     Team.tsx). Default 75% matches the original wireframe-coin layout.
+     Drop to ~58% to nest the photo inside an ornate ring frame (laurel etc). */
+  width: var(--coin-portrait-scale, 75%);
+  aspect-ratio: 1 / 1;
   border-radius: 50%; overflow: hidden;
   background: var(--ds-bg-deeper, #0d0d0b);
   display: flex; align-items: center; justify-content: center;
@@ -413,7 +417,12 @@ body::after {
 .coin-frame {
   display: block;
   position: absolute;
-  width: 450%; height: auto;
+  /* Width is CMS-driven via --coin-frame-scale (set on the team root in
+     Team.tsx). Default 450% matches the original wireframe SVG (sized small,
+     scaled 4.5x to read at coin scale). Drop to ~130% for a frame that's
+     designed to sit naturally around the coin (laurel ring etc). */
+  width: var(--coin-frame-scale, 450%);
+  height: auto;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   pointer-events: none;
@@ -453,6 +462,44 @@ body.edit-mode-active .coin-portrait > img {
 body.edit-mode-active .coin-portrait > .edit-mode-image-toolbar {
   top: -32px;
   right: 0;
+}
+
+/* ============ TEAM FRAME CONTROLS (admin-only, edit mode) ============
+   Two compact sliders that let admins tune the frame size and the photo well
+   size from the CMS. Lives below the team header inside Team.tsx. */
+.team-frame-controls {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.25rem;
+  margin: 1rem auto 1.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(196, 149, 58, 0.06);
+  border: 1px dashed rgba(196, 149, 58, 0.32);
+  border-radius: 8px;
+  font-family: var(--font-instrument-sans, system-ui), sans-serif;
+}
+.team-frame-controls > label {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ds-ink-dim, #b8b3a4);
+}
+.team-frame-controls input[type="range"] {
+  width: 180px;
+  accent-color: var(--ravok-gold, #c4953a);
+  cursor: ew-resize;
+}
+.team-frame-controls .team-frame-controls-value {
+  font-family: ui-monospace, "SF Mono", monospace;
+  font-size: 0.7rem;
+  color: var(--ravok-gold, #c4953a);
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 /* ============ FLOATING ELEMENTS LAYER ============ */

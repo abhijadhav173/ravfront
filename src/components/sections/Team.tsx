@@ -136,10 +136,20 @@ function CoinMember({
 
 export default function Team({ content }: TeamProps = {}) {
     const c = content ?? DEFAULT_HOME_CONTENT.team;
-    const { enabled } = useEditMode();
+    const { enabled, setAt } = useEditMode();
+
+    // CSS variables flow into .coin-frame and .coin-portrait widths so admins
+    // can tune frame + photo sizing per-deployment from the CMS without code.
+    const frameScale = c.coinFrameScale ?? 450;
+    const portraitScale = c.coinPortraitScale ?? 75;
+    const teamCSSVars = {
+        ["--coin-frame-scale" as string]: `${frameScale}%`,
+        ["--coin-portrait-scale" as string]: `${portraitScale}%`,
+    } as React.CSSProperties;
 
     return (
         <CRevealSection zIndex={13} id="team" centerHeader={true} contentMaxWidth="1400px">
+            <div style={teamCSSVars}>
             <FloatingElementsLayer
                 decorations={c.decorations ?? []}
                 path="team.decorations"
@@ -166,6 +176,37 @@ export default function Team({ content }: TeamProps = {}) {
                     className="font-heading italic text-[0.85rem] leading-[1.45] text-[var(--ds-ink-dim)] max-w-[520px] mx-auto"
                 />
             </div>
+
+            {enabled && (
+                <div className="text-center">
+                    <div className="team-frame-controls" role="group" aria-label="Team frame sizing">
+                        <label>
+                            Frame size
+                            <input
+                                type="range"
+                                min={50}
+                                max={600}
+                                step={5}
+                                value={frameScale}
+                                onChange={(e) => setAt("team.coinFrameScale", Number(e.target.value))}
+                            />
+                            <span className="team-frame-controls-value">{frameScale}%</span>
+                        </label>
+                        <label>
+                            Photo size
+                            <input
+                                type="range"
+                                min={30}
+                                max={100}
+                                step={1}
+                                value={portraitScale}
+                                onChange={(e) => setAt("team.coinPortraitScale", Number(e.target.value))}
+                            />
+                            <span className="team-frame-controls-value">{portraitScale}%</span>
+                        </label>
+                    </div>
+                </div>
+            )}
 
             {enabled ? (
                 /* Edit mode: static grid so admins can drag/remove/add without
@@ -200,6 +241,7 @@ export default function Team({ content }: TeamProps = {}) {
                     </div>
                 </div>
             )}
+            </div>
         </CRevealSection>
     );
 }
