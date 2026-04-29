@@ -11,7 +11,12 @@
 
 import { getApiBase, getAuthHeaders, getToken } from "@/lib/api/base";
 import { DEFAULT_HOME_CONTENT } from "./defaults";
-import type { HomeContent, SiteContentEnvelope, GenericPageContent } from "./types";
+import type {
+    HomeContent,
+    SiteContentEnvelope,
+    GenericPageContent,
+    NavbarContent,
+} from "./types";
 
 /**
  * Server-side fetch — used by RSC at request time. No-store cache so edits show immediately.
@@ -118,6 +123,23 @@ export async function fetchGenericPage(slug: string): Promise<GenericPageContent
         });
         if (!res.ok) return null;
         const json = (await res.json()) as SiteContentEnvelope<GenericPageContent>;
+        return json.content ?? null;
+    } catch {
+        return null;
+    }
+}
+
+/** Server-side fetch of the site-wide navbar content (slug "navbar").
+ *  Returns null if no DB row exists; caller falls back to DEFAULT_NAVBAR. */
+export async function fetchNavbarContent(): Promise<NavbarContent | null> {
+    const url = `${getServerApiBase()}/api/site/content/navbar`;
+    try {
+        const res = await fetch(url, {
+            cache: "no-store",
+            headers: { Accept: "application/json" },
+        });
+        if (!res.ok) return null;
+        const json = (await res.json()) as SiteContentEnvelope<NavbarContent>;
         return json.content ?? null;
     } catch {
         return null;

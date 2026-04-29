@@ -8,7 +8,9 @@
 
 import {
     fetchGenericPage,
+    fetchNavbarContent,
     DEFAULT_OUR_MODEL_PAGE,
+    DEFAULT_NAVBAR,
     type OurModelPageContent,
 } from "@/lib/site-content";
 import OurModelPageBody from "./_components/OurModelPageBody";
@@ -16,8 +18,11 @@ import OurModelPageBody from "./_components/OurModelPageBody";
 export const dynamic = "force-dynamic";
 
 export default async function OurModel() {
-    const fetched = await fetchGenericPage("our-model");
+    const [fetched, navbar] = await Promise.all([
+        fetchGenericPage("our-model"),
+        fetchNavbarContent(),
+    ]);
     const content: OurModelPageContent =
         (fetched as unknown as OurModelPageContent) ?? DEFAULT_OUR_MODEL_PAGE;
-    return <OurModelPageBody initialContent={content} />;
+    return <OurModelPageBody initialContent={content} navbar={navbar ?? DEFAULT_NAVBAR} />;
 }

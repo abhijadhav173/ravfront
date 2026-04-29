@@ -10,14 +10,23 @@
  * editor as the homepage).
  */
 
-import { fetchGenericPage, DEFAULT_CONTACT_PAGE, type ContactPageContent } from "@/lib/site-content";
+import {
+    fetchGenericPage,
+    fetchNavbarContent,
+    DEFAULT_CONTACT_PAGE,
+    DEFAULT_NAVBAR,
+    type ContactPageContent,
+} from "@/lib/site-content";
 import ContactPageBody from "./_components/ContactPageBody";
 
 export const dynamic = "force-dynamic";
 
 export default async function ContactUs() {
-    const fetched = await fetchGenericPage("contact-us");
+    const [fetched, navbar] = await Promise.all([
+        fetchGenericPage("contact-us"),
+        fetchNavbarContent(),
+    ]);
     const content: ContactPageContent =
         (fetched as unknown as ContactPageContent) ?? DEFAULT_CONTACT_PAGE;
-    return <ContactPageBody initialContent={content} />;
+    return <ContactPageBody initialContent={content} navbar={navbar ?? DEFAULT_NAVBAR} />;
 }

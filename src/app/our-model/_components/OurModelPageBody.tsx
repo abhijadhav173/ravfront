@@ -11,6 +11,7 @@
 import { motion } from "framer-motion";
 import { Plus, Check } from "lucide-react";
 import { useEffect } from "react";
+import Navbar from "@/components/layout/Navbar";
 import {
     EditModeProvider,
     EditModeOverlay,
@@ -21,6 +22,7 @@ import {
 import {
     type OurModelPageContent,
     type HomeContent,
+    type NavbarContent,
     saveGenericPage,
 } from "@/lib/site-content";
 
@@ -43,12 +45,15 @@ async function saveOurModel(content: HomeContent): Promise<HomeContent> {
 
 export default function OurModelPageBody({
     initialContent,
+    navbar,
 }: {
     initialContent: OurModelPageContent;
+    navbar?: NavbarContent;
 }) {
     return (
         <EditModeProvider initialContent={cast(initialContent)} saveFn={saveOurModel}>
             <BodyClassToggle />
+            <Navbar content={navbar} />
             <OurModelPage />
             <EditModeOverlay />
         </EditModeProvider>

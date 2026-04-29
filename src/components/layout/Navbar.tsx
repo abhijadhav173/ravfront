@@ -6,8 +6,15 @@ import { Menu, X, LayoutDashboard } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getStoredUser } from "@/lib/api";
+import { DEFAULT_NAVBAR, type NavbarContent } from "@/lib/site-content";
 
-export default function Navbar() {
+type NavbarProps = {
+    /** CMS-driven navbar content. When omitted, uses DEFAULT_NAVBAR. */
+    content?: NavbarContent;
+};
+
+export default function Navbar({ content }: NavbarProps = {}) {
+    const cmsContent = content ?? DEFAULT_NAVBAR;
     const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);
     const [showLogo, setShowLogo] = useState(false);
@@ -55,13 +62,8 @@ export default function Navbar() {
         setIsOpen(false);
     }, [pathname]);
 
-    const navItems = [
-        { href: "/", label: "HOME" },
-        { href: "/about-us", label: "ABOUT US" },
-        { href: "/our-model", label: "OUR MODEL" },
-        { href: "/insights", label: "BLOG" },
-        { href: "/contact-us", label: "CONTACT" },
-    ];
+    const navItems = cmsContent.links;
+    const logoSrc = cmsContent.logoImage || "/images/logo.png";
 
     return (
         <motion.nav
@@ -96,7 +98,7 @@ export default function Navbar() {
                 >
                     <Link href="/" className="block">
                         <motion.img
-                            src="/images/logo.png"
+                            src={logoSrc}
                             alt="RAVOK"
                             className="h-10 w-auto object-contain"
                             whileHover={{ scale: 1.05 }}

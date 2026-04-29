@@ -11,6 +11,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Navbar from "@/components/layout/Navbar";
 import {
     EditModeProvider,
     EditModeOverlay,
@@ -21,6 +22,7 @@ import {
 import {
     type ContactPageContent,
     type HomeContent,
+    type NavbarContent,
     saveGenericPage,
 } from "@/lib/site-content";
 import { useEffect } from "react";
@@ -46,12 +48,15 @@ async function saveContact(content: HomeContent): Promise<HomeContent> {
 
 export default function ContactPageBody({
     initialContent,
+    navbar,
 }: {
     initialContent: ContactPageContent;
+    navbar?: NavbarContent;
 }) {
     return (
         <EditModeProvider initialContent={cast(initialContent)} saveFn={saveContact}>
             <BodyClassToggle />
+            <Navbar content={navbar} />
             <ContactPage />
             <EditModeOverlay />
         </EditModeProvider>

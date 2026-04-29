@@ -26,6 +26,7 @@ import {
     CtaBlockSection,
 } from "@/components/sections";
 import Footer from "@/components/layout/Footer";
+import Navbar from "@/components/layout/Navbar";
 import {
     EditModeProvider,
     EditModeOverlay,
@@ -35,6 +36,7 @@ import {
     DEFAULT_HOME_CONTENT,
     type GenericPageContent,
     type HomeContent,
+    type NavbarContent,
 } from "@/lib/site-content";
 
 /**
@@ -64,15 +66,18 @@ function adaptToHomeShape(generic: GenericPageContent): HomeContent {
 export default function GenericPageBody({
     slug,
     initialContent,
+    navbar,
 }: {
     slug: string;
     initialContent: GenericPageContent;
+    navbar?: NavbarContent;
 }) {
     const adapted = adaptToHomeShape(initialContent);
 
     return (
         <EditModeProvider initialContent={adapted}>
             <BodyClassToggle />
+            <Navbar content={navbar} />
             <main
                 className="min-h-screen text-white selection:bg-ravok-gold selection:text-black"
                 style={{ overflowX: "clip" }}

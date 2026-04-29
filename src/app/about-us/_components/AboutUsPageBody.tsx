@@ -11,6 +11,7 @@
 
 import { motion } from "framer-motion";
 import { useEffect } from "react";
+import Navbar from "@/components/layout/Navbar";
 import {
     EditModeProvider,
     EditModeOverlay,
@@ -21,6 +22,7 @@ import {
 import {
     type AboutUsPageContent,
     type HomeContent,
+    type NavbarContent,
     saveGenericPage,
 } from "@/lib/site-content";
 
@@ -43,12 +45,15 @@ async function saveAboutUs(content: HomeContent): Promise<HomeContent> {
 
 export default function AboutUsPageBody({
     initialContent,
+    navbar,
 }: {
     initialContent: AboutUsPageContent;
+    navbar?: NavbarContent;
 }) {
     return (
         <EditModeProvider initialContent={cast(initialContent)} saveFn={saveAboutUs}>
             <BodyClassToggle />
+            <Navbar content={navbar} />
             <AboutUsPage />
             <EditModeOverlay />
         </EditModeProvider>

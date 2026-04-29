@@ -31,19 +31,27 @@ import {
     CtaBlockSection,
 } from "@/components/sections";
 import Footer from "@/components/layout/Footer";
+import Navbar from "@/components/layout/Navbar";
 import {
     EditModeProvider,
     EditModeOverlay,
     SectionFocusOverlay,
     useEditMode,
 } from "@/lib/edit-mode";
-import { ALL_SECTION_KEYS, type HomeContent, type SectionKey } from "@/lib/site-content";
+import { ALL_SECTION_KEYS, type HomeContent, type SectionKey, type NavbarContent } from "@/lib/site-content";
 import { moveInArrayAtPath } from "@/lib/edit-mode/path-utils";
 
-export function PageBody({ initialContent }: { initialContent: HomeContent }) {
+export function PageBody({
+    initialContent,
+    navbar,
+}: {
+    initialContent: HomeContent;
+    navbar?: NavbarContent;
+}) {
     return (
         <EditModeProvider initialContent={initialContent}>
             <BodyClassToggle />
+            <Navbar content={navbar} />
             <Sections />
             <EditModeOverlay />
         </EditModeProvider>

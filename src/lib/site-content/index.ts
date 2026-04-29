@@ -4,6 +4,7 @@ export {
     DEFAULT_CONTACT_PAGE,
     DEFAULT_ABOUT_US_PAGE,
     DEFAULT_OUR_MODEL_PAGE,
+    DEFAULT_NAVBAR,
 } from "./defaults";
 export {
     fetchHomeContent,
@@ -14,6 +15,7 @@ export {
     type AssetRecord,
     fetchGenericPage,
     fetchGenericPageForAdmin,
+    fetchNavbarContent,
     saveGenericPage,
     listAllPages,
     deletePage,

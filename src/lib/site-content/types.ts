@@ -341,6 +341,17 @@ export type AboutUsPageContent = {
     decorations?: FloatingImage[];
 };
 
+/** Site-wide navbar content. Stored at slug "navbar" in site_content. */
+export type NavbarLink = {
+    label: string;
+    href: string;
+};
+
+export type NavbarContent = {
+    logoImage: string;
+    links: NavbarLink[];
+};
+
 /** /our-model page content shape. */
 export type OurModelStage = {
     title: string;

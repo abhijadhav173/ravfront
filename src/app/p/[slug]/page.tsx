@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { fetchGenericPage } from "@/lib/site-content";
+import { fetchGenericPage, fetchNavbarContent, DEFAULT_NAVBAR } from "@/lib/site-content";
 import GenericPageBody from "@/app/_components/GenericPageBody";
 
 /**
@@ -28,7 +28,16 @@ export async function generateMetadata({ params }: { params: Promise<Params> }) 
 
 export default async function GenericPage({ params }: { params: Promise<Params> }) {
     const { slug } = await params;
-    const content = await fetchGenericPage(slug);
+    const [content, navbar] = await Promise.all([
+        fetchGenericPage(slug),
+        fetchNavbarContent(),
+    ]);
     if (!content) notFound();
-    return <GenericPageBody slug={slug} initialContent={content} />;
+    return (
+        <GenericPageBody
+            slug={slug}
+            initialContent={content}
+            navbar={navbar ?? DEFAULT_NAVBAR}
+        />
+    );
 }

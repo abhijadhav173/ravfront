@@ -247,7 +247,21 @@ import type {
     ContactPageContent,
     AboutUsPageContent,
     OurModelPageContent,
+    NavbarContent,
 } from "./types";
+
+/** Default navbar — used when site_content has no row for slug "navbar".
+ *  First admin save persists. */
+export const DEFAULT_NAVBAR: NavbarContent = {
+    logoImage: "/images/logo.png",
+    links: [
+        { label: "HOME", href: "/" },
+        { label: "ABOUT US", href: "/about-us" },
+        { label: "OUR MODEL", href: "/our-model" },
+        { label: "BLOG", href: "/insights" },
+        { label: "CONTACT", href: "/contact-us" },
+    ],
+};
 
 export const DEFAULT_CONTACT_PAGE: ContactPageContent = {
     title: "Contact Us",
