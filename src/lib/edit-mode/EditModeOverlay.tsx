@@ -10,7 +10,7 @@
  */
 
 import { useState } from "react";
-import { Pencil, Save, RotateCcw, X, Loader2, ExternalLink, PanelLeft, Zap } from "lucide-react";
+import { Pencil, Save, RotateCcw, X, Loader2, ExternalLink, PanelLeft, Zap, Undo2, Redo2 } from "lucide-react";
 import { useEditMode } from "./EditModeProvider";
 import { EditModeSidebar } from "./EditModeSidebar";
 
@@ -24,6 +24,7 @@ export function EditModeOverlay() {
     const {
         isAdmin, enabled, setEnabled, dirty, saving, save, discard,
         autoSaveEnabled, setAutoSaveEnabled, lastSavedAt,
+        canUndo, canRedo, undo, redo,
     } = useEditMode();
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -89,6 +90,26 @@ export function EditModeOverlay() {
                     )}
                 </div>
                 <div className="edit-mode-toolbar-right">
+                    <button
+                        type="button"
+                        onClick={undo}
+                        disabled={!canUndo}
+                        className="edit-mode-btn edit-mode-btn--ghost"
+                        title="Undo (⌘Z / Ctrl-Z)"
+                        aria-label="Undo"
+                    >
+                        <Undo2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                        type="button"
+                        onClick={redo}
+                        disabled={!canRedo}
+                        className="edit-mode-btn edit-mode-btn--ghost"
+                        title="Redo (⌘⇧Z / Ctrl-Y)"
+                        aria-label="Redo"
+                    >
+                        <Redo2 className="w-3.5 h-3.5" />
+                    </button>
                     <button
                         type="button"
                         onClick={() => setAutoSaveEnabled(!autoSaveEnabled)}

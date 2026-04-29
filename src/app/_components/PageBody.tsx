@@ -95,7 +95,8 @@ function CustomBlockSlot({
     index: number;
     z: number;
 }) {
-    const { enabled, removeAt } = useEditMode();
+    const { enabled, removeAt, moveAt } = useEditMode();
+    const [dragFrom, setDragFrom] = useState<number | null>(null);
     const sectionId = `custom-${block.id}`;
 
     const inner = (() => {
@@ -162,11 +163,36 @@ function CustomBlockSlot({
         <div
             className="edit-mode-section-slot section-anchor"
             data-section={sectionId}
+            data-block-index={index}
+            onDragOver={(e) => {
+                if (dragFrom !== null && dragFrom !== index) e.preventDefault();
+            }}
+            onDrop={(e) => {
+                e.preventDefault();
+                const fromStr = e.dataTransfer.getData("application/x-custom-block");
+                const from = Number.parseInt(fromStr, 10);
+                if (Number.isNaN(from) || from === index) return;
+                moveAt("customBlocks", from, index);
+                setDragFrom(null);
+            }}
         >
             <div className="edit-mode-section-handle">
-                <span className="edit-mode-section-handle-btn" title={`Custom: ${block.type}`}>
+                <button
+                    type="button"
+                    className="edit-mode-section-handle-btn"
+                    draggable
+                    onDragStart={(e) => {
+                        setDragFrom(index);
+                        e.dataTransfer.effectAllowed = "move";
+                        e.dataTransfer.setData("application/x-custom-block", String(index));
+                    }}
+                    onDragEnd={() => setDragFrom(null)}
+                    title={`Drag to reorder · ${block.type}`}
+                    aria-label={`Reorder ${block.type} block`}
+                >
+                    <GripVertical className="w-3.5 h-3.5" />
                     <span>{block.type}</span>
-                </span>
+                </button>
                 <button
                     type="button"
                     className="edit-mode-section-handle-btn"

@@ -24,6 +24,7 @@ import {
     useContext,
     useEffect,
     useMemo,
+    useRef,
     useState,
     type ReactNode,
 } from "react";
@@ -58,6 +59,12 @@ type EditModeContextValue = {
     setAutoSaveEnabled: (v: boolean) => void;
     lastSavedAt: Date | null;
 
+    /** Undo / redo */
+    canUndo: boolean;
+    canRedo: boolean;
+    undo: () => void;
+    redo: () => void;
+
     save: () => Promise<void>;
     discard: () => void;
 };
@@ -84,6 +91,10 @@ export function useEditMode(): EditModeContextValue {
             autoSaveEnabled: false,
             setAutoSaveEnabled: () => {},
             lastSavedAt: null,
+            canUndo: false,
+            canRedo: false,
+            undo: () => {},
+            redo: () => {},
             save: async () => {},
             discard: () => {},
         };
@@ -105,6 +116,15 @@ export function EditModeProvider({
     const [isAdmin, setIsAdmin] = useState(false);
     const [autoSaveEnabled, setAutoSaveEnabledRaw] = useState<boolean>(true);
     const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+
+    /* History (undo/redo) — debounced snapshots, capped at 50.
+       Each "burst" of edits within 600ms collapses into one history entry. */
+    const HISTORY_LIMIT = 50;
+    const historyRef = useRef<HomeContent[]>([initialContent]);
+    const historyIndexRef = useRef<number>(0);
+    const [, bumpHistoryView] = useState(0); // forces canUndo/canRedo recompute
+    const undoingRef = useRef(false); // suppress auto-pushes while applying undo/redo
+    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // Persist auto-save preference per-browser
     useEffect(() => {
@@ -172,6 +192,91 @@ export function EditModeProvider({
         return () => clearTimeout(timer);
     }, [enabled, isAdmin, autoSaveEnabled, dirty, saving, content, save]);
 
+    /**
+     * History push (debounced). Whenever `content` changes during normal
+     * edits, schedule a history snapshot 600ms later. Subsequent changes
+     * within that window cancel the timer — so a burst of typing collapses
+     * into one entry. Skipped during undo/redo to avoid re-recording.
+     */
+    useEffect(() => {
+        if (undoingRef.current) {
+            undoingRef.current = false;
+            return;
+        }
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(() => {
+            const idx = historyIndexRef.current;
+            const last = historyRef.current[idx];
+            if (last && JSON.stringify(last) === JSON.stringify(content)) return;
+            // Drop any redo entries beyond current index
+            const truncated = historyRef.current.slice(0, idx + 1);
+            truncated.push(content);
+            // Cap history
+            while (truncated.length > HISTORY_LIMIT) truncated.shift();
+            historyRef.current = truncated;
+            historyIndexRef.current = truncated.length - 1;
+            bumpHistoryView((n) => n + 1);
+        }, 600);
+        return () => {
+            if (debounceRef.current) clearTimeout(debounceRef.current);
+        };
+    }, [content]);
+
+    const canUndo = historyIndexRef.current > 0;
+    const canRedo = historyIndexRef.current < historyRef.current.length - 1;
+
+    const undo = useCallback(() => {
+        if (historyIndexRef.current <= 0) return;
+        // Cancel pending debounce so this snapshot doesn't get overwritten
+        if (debounceRef.current) {
+            clearTimeout(debounceRef.current);
+            debounceRef.current = null;
+        }
+        historyIndexRef.current -= 1;
+        undoingRef.current = true;
+        setContent(historyRef.current[historyIndexRef.current]);
+        bumpHistoryView((n) => n + 1);
+    }, []);
+
+    const redo = useCallback(() => {
+        if (historyIndexRef.current >= historyRef.current.length - 1) return;
+        if (debounceRef.current) {
+            clearTimeout(debounceRef.current);
+            debounceRef.current = null;
+        }
+        historyIndexRef.current += 1;
+        undoingRef.current = true;
+        setContent(historyRef.current[historyIndexRef.current]);
+        bumpHistoryView((n) => n + 1);
+    }, []);
+
+    /** Cmd-Z / Ctrl-Z + Cmd-Shift-Z / Ctrl-Y keyboard shortcuts. */
+    useEffect(() => {
+        if (!enabled || !isAdmin) return;
+        function onKey(e: KeyboardEvent) {
+            const mod = e.metaKey || e.ctrlKey;
+            if (!mod) return;
+            // Ignore when typing inside an input/textarea (browser undo handles those natively)
+            const target = e.target as HTMLElement | null;
+            if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) {
+                // For contentEditable we DO want our undo because individual edits
+                // commit on blur — but only when user is NOT actively editing
+                // (focused). Skip if currently focused.
+                if (target.isContentEditable && document.activeElement === target) return;
+                if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
+            }
+            if (e.key === "z" && !e.shiftKey) {
+                e.preventDefault();
+                undo();
+            } else if ((e.key === "z" && e.shiftKey) || e.key === "y") {
+                e.preventDefault();
+                redo();
+            }
+        }
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+    }, [enabled, isAdmin, undo, redo]);
+
     const discard = useCallback(() => {
         if (dirty && !confirm("Discard unsaved changes?")) return;
         setContent(savedContent);
@@ -203,12 +308,17 @@ export function EditModeProvider({
             autoSaveEnabled,
             setAutoSaveEnabled,
             lastSavedAt,
+            canUndo,
+            canRedo,
+            undo,
+            redo,
             save,
             discard,
         }),
         [
             enabled, content, setAt, pushAt, removeAt, moveAt, isAdmin,
             dirty, saving, autoSaveEnabled, setAutoSaveEnabled, lastSavedAt,
+            canUndo, canRedo, undo, redo,
             save, discard,
         ]
     );
