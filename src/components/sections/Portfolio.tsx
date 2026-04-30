@@ -91,28 +91,75 @@ function PillarCard({
                 }`}
             />
 
-            {/* 1-liner title / teaser — flex-1 pushes status chip down */}
-            <div className="flex-1">
-                {locked && !enabled ? (
-                    <p className="font-sans text-[0.8rem] leading-relaxed text-[rgba(232,228,218,0.2)] italic">
-                        Revealed in Era Zero.
-                    </p>
-                ) : enabled ? (
+            {/* Title (italic accent) + body + meta bullets — fills the card */}
+            <div className="flex-1 flex flex-col gap-3">
+                {/* Italic title accent */}
+                {enabled ? (
                     <EditableText
                         path={`${pathPrefix}.title`}
                         value={step.title}
                         as="p"
                         multiline={false}
-                        className={`font-sans text-[0.88rem] leading-relaxed ${
-                            locked
-                                ? "text-[rgba(232,228,218,0.3)] italic"
-                                : "text-[var(--ds-ink-dim)]"
+                        className={`font-heading italic font-normal text-[0.95rem] leading-snug ${
+                            locked ? "text-[rgba(232,228,218,0.35)]" : "text-ravok-gold/70"
                         }`}
                     />
                 ) : (
-                    <p className="font-sans text-[0.88rem] leading-relaxed text-[var(--ds-ink-dim)]">
+                    <p
+                        className={`font-heading italic font-normal text-[0.95rem] leading-snug ${
+                            locked ? "text-[rgba(232,228,218,0.35)]" : "text-ravok-gold/70"
+                        }`}
+                    >
                         {renderInline(step.title)}
                     </p>
+                )}
+
+                {/* Body paragraph */}
+                {enabled ? (
+                    <EditableText
+                        path={`${pathPrefix}.body`}
+                        value={step.body}
+                        as="p"
+                        multiline
+                        className={`font-sans text-[0.78rem] leading-[1.55] ${
+                            locked ? "text-[rgba(232,228,218,0.3)]" : "text-[var(--ds-ink-dim)]"
+                        }`}
+                    />
+                ) : (
+                    step.body && (
+                        <p
+                            className={`font-sans text-[0.78rem] leading-[1.55] ${
+                                locked ? "text-[rgba(232,228,218,0.3)]" : "text-[var(--ds-ink-dim)]"
+                            }`}
+                        >
+                            {renderInline(step.body)}
+                        </p>
+                    )
+                )}
+
+                {/* Meta bullets (only when present) */}
+                {step.meta.length > 0 && (
+                    <ul className="mt-1 space-y-1">
+                        {step.meta.map((m, mi) => (
+                            <li
+                                key={mi}
+                                className="relative pl-3 font-sans text-[0.7rem] leading-[1.5] text-[var(--ds-ink-dim)]"
+                            >
+                                <span className="absolute left-0 top-0 text-ravok-gold/60">—</span>
+                                {enabled ? (
+                                    <EditableText
+                                        path={`${pathPrefix}.meta.${mi}`}
+                                        value={m}
+                                        as="span"
+                                        inline
+                                        className=""
+                                    />
+                                ) : (
+                                    renderInline(m)
+                                )}
+                            </li>
+                        ))}
+                    </ul>
                 )}
             </div>
 
